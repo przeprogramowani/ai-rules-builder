@@ -116,6 +116,10 @@ export const getLayerClasses = {
   selectedRuleBadge: (layerType: LayerType): string => {
     return `bg-${layerColors[layerType]}-400/20 text-white`;
   },
+  
+  focusRing: (layerType: LayerType): string => {
+    return `focus:ring-${layerColors[layerType]}-500`;
+  },
 };
 
 // For backward compatibility with any remaining code

@@ -68,7 +68,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
           <AccordionTrigger
             onClick={() => toggleLayer(layer)}
             isOpen={isOpen}
-            className="font-medium text-white"
+            className={`font-medium text-white ${getLayerClasses.focusRing(layerType)}`}
           >
             <div className="flex justify-between items-center mr-2">
               <div className="flex gap-2 items-center">
@@ -78,6 +78,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
                 className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${getLayerClasses.badge(
                   layerType
                 )}`}
+                aria-label={`${selectedCount} of ${getLibrariesCountByLayer(layer)} libraries selected`}
               >
                 {selectedCount} / {getLibrariesCountByLayer(layer)}{' '}
                 <Package className="size-3" />
@@ -86,7 +87,11 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
           </AccordionTrigger>
 
           <AccordionContent isOpen={isOpen}>
-            <div className="grid gap-2">
+            <div 
+              className="grid gap-2"
+              role="group"
+              aria-label={`${layer} stacks`}
+            >
               {getStacksByLayer(layer)
                 .filter(
                   (stack) => !searchActive || stackContainsSearchMatch(stack)
@@ -102,6 +107,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
                     handleLibraryToggle={handleLibraryToggle}
                     isLibrarySelected={isLibrarySelected}
                     layerType={getStackLayerType(stack)}
+                    isNested={true}
                     filteredLibraries={
                       searchActive
                         ? getFilteredLibrariesByStack(stack).map(

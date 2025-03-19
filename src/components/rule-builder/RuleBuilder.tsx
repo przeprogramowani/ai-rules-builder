@@ -1,5 +1,5 @@
-import { Trash2 } from 'lucide-react';
-import React, { useRef } from 'react';
+import { Info, Trash2 } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 import { Layer, Library } from '../../data/dictionaries';
 import { transitions } from '../../styles/theme';
 import { Accordion } from '../ui/Accordion';
@@ -8,7 +8,11 @@ import { LayerItem } from './LayerItem';
 import { SearchInput } from './SearchInput';
 import { SelectedRules } from './SelectedRules';
 
-export const RuleBuilder: React.FC = () => {
+interface RuleBuilderProps {
+  className?: string;
+}
+
+export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const {
     layers,
     selectedLibraries,
@@ -43,13 +47,60 @@ export const RuleBuilder: React.FC = () => {
   const accordionRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const firstResultRef = useRef<HTMLElement | null>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const tooltipTimerRef = useRef<number | null>(null);
 
   // Calculate if we need to show "no results" message
   const hasNoSearchResults =
     isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
 
+  // Focus management after search
+  useEffect(() => {
+    if (searchQuery && getLibraryCounts.matchedCount > 0) {
+      // Attempt to find the first visible library item after search
+      const firstLibraryItem = document.querySelector(
+        '[role="checkbox"][tabindex="0"]'
+      ) as HTMLElement;
+      if (firstLibraryItem) {
+        // Set a small delay to allow the UI to update
+        setTimeout(() => {
+          firstLibraryItem.focus();
+        }, 100);
+      }
+    }
+  }, [searchQuery, getLibraryCounts.matchedCount]);
+
+  // Show keyboard help tooltip briefly on first load
+  useEffect(() => {
+    if (tooltipRef.current) {
+      tooltipRef.current.style.display = 'flex';
+
+      tooltipTimerRef.current = setTimeout(() => {
+        if (tooltipRef.current) {
+          tooltipRef.current.style.opacity = '0';
+          setTimeout(() => {
+            if (tooltipRef.current) {
+              tooltipRef.current.style.display = 'none';
+            }
+          }, 500);
+        }
+      }, 5000);
+    }
+
+    return () => {
+      if (tooltipTimerRef.current) {
+        clearTimeout(tooltipTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col space-y-4 h-full">
+    <div
+      className={`flex flex-col space-y-4 h-full ${className}`}
+      role="application"
+      aria-label="Rule Builder"
+    >
       <div
         ref={containerRef}
         className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
@@ -76,7 +127,7 @@ export const RuleBuilder: React.FC = () => {
             setSearchQuery={handleSearchChange}
             matchCount={isSearchActive ? matchedCount : undefined}
             totalCount={isSearchActive ? totalCount : undefined}
-            className="mb-4 w-full"
+            className="w-full"
           />
         </div>
 
@@ -89,7 +140,7 @@ export const RuleBuilder: React.FC = () => {
               No rules matching "{debouncedSearchQuery}" were found.
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-3 w-full">
+            <Accordion type="multiple" className="space-y-3 w-full" isNested={false}>
               {layers.map((layer) => {
                 const selectedCount = getSelectedLibrariesCountForLayer(layer);
                 const isOpen = isLayerOpen(layer);

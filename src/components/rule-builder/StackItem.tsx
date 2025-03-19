@@ -19,6 +19,7 @@ interface StackItemProps {
   isLibrarySelected: (library: Library) => boolean;
   layerType: LayerType;
   filteredLibraries?: Library[];
+  isNested?: boolean;
 }
 
 export const StackItem: React.FC<StackItemProps> = React.memo(
@@ -32,6 +33,7 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
     isLibrarySelected,
     layerType,
     filteredLibraries,
+    isNested = false,
   }) => {
     const containerClasses = getLayerClasses.stackContainer(
       layerType,
@@ -43,12 +45,12 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
     const libraries = filteredLibraries || getLibrariesByStack(stack);
 
     return (
-      <AccordionItem key={stack} value={stack}>
+      <AccordionItem key={stack} value={stack} isNested={isNested}>
         <div className={`rounded-lg ${containerClasses}`}>
           <AccordionTrigger
             onClick={() => toggleStack(stack)}
             isOpen={isOpen}
-            className="text-white"
+            className={`text-white ${getLayerClasses.focusRing(layerType)}`}
           >
             <div className="flex gap-2 items-center">
               <span className="font-medium text-white">{stack}</span>
@@ -56,7 +58,11 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
           </AccordionTrigger>
 
           <AccordionContent isOpen={isOpen}>
-            <div className="grid gap-2">
+            <div 
+              className="grid gap-2"
+              role="group"
+              aria-label={`${stack} libraries`}
+            >
               {libraries.map((library) => (
                 <LibraryItem
                   key={library}
