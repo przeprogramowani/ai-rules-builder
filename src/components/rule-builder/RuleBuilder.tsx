@@ -82,7 +82,7 @@ export const RuleBuilder: React.FC = () => {
 
         <div
           ref={accordionRef}
-          className={`w-full transition-all duration-${transitions.duration.slow} ${transitions.timing.default} flex-grow overflow-visible`}
+          className={`w-full transition-all duration-${transitions.duration.slow} ${transitions.timing.default} flex-grow overflow-auto`}
         >
           {hasNoSearchResults ? (
             <div className="flex justify-center items-center py-8 h-full text-center text-gray-400">

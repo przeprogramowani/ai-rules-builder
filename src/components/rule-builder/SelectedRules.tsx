@@ -17,8 +17,8 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
     }
 
     return (
-      <div className="p-6 rounded-lg shadow-lg bg-gray-900/90 min-h-[100px]">
-        <h2 className="mb-4 text-xl font-semibold text-white">
+      <div className="p-4 pl-6 rounded-lg shadow-lg bg-gray-900/90 min-h-[100px] overflow-auto">
+        <h2 className="mb-2 text-lg font-semibold text-white">
           Selected Rules ({selectedLibraries.length})
         </h2>
         <div className="flex flex-wrap gap-2">
