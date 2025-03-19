@@ -18,6 +18,7 @@ interface StackItemProps {
   handleLibraryToggle: (library: Library) => void;
   isLibrarySelected: (library: Library) => boolean;
   layerType: LayerType;
+  filteredLibraries?: Library[];
 }
 
 export const StackItem: React.FC<StackItemProps> = React.memo(
@@ -30,12 +31,16 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
     handleLibraryToggle,
     isLibrarySelected,
     layerType,
+    filteredLibraries,
   }) => {
     const containerClasses = getLayerClasses.stackContainer(
       layerType,
       hasSelected,
       isOpen
     );
+
+    // Use the filtered libraries if provided, otherwise use all libraries for this stack
+    const libraries = filteredLibraries || getLibrariesByStack(stack);
 
     return (
       <AccordionItem key={stack} value={stack}>
@@ -52,7 +57,7 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
 
           <AccordionContent isOpen={isOpen}>
             <div className="grid gap-2">
-              {getLibrariesByStack(stack).map((library) => (
+              {libraries.map((library) => (
                 <LibraryItem
                   key={library}
                   library={library}

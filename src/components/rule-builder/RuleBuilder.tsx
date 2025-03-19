@@ -1,9 +1,11 @@
 import { Trash2 } from 'lucide-react';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Layer, Library } from '../../data/dictionaries';
+import { transitions } from '../../styles/theme';
 import { Accordion } from '../ui/Accordion';
 import { useRuleBuilder } from './hooks/useRuleBuilder';
 import { LayerItem } from './LayerItem';
+import { SearchInput } from './SearchInput';
 import { SelectedRules } from './SelectedRules';
 
 export const RuleBuilder: React.FC = () => {
@@ -25,11 +27,34 @@ export const RuleBuilder: React.FC = () => {
     getLayerType,
     getStackLayerType,
     getLibraryLayerType,
+    // Search related props
+    searchQuery,
+    debouncedSearchQuery,
+    handleSearchChange,
+    layerContainsSearchMatch,
+    stackContainsSearchMatch,
+    getFilteredLibrariesByStack,
+    getLibraryCounts,
+    isSearchActive,
+    isSearchExpanded,
   } = useRuleBuilder();
 
+  const { totalCount, matchedCount } = getLibraryCounts;
+  const accordionRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate if we need to show "no results" message
+  const hasNoSearchResults =
+    isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
+
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90">
+    <div className="flex flex-col space-y-4 h-full">
+      <div
+        ref={containerRef}
+        className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
+        data-component-name="RuleBuilder"
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Rule Builder</h2>
 
@@ -45,32 +70,62 @@ export const RuleBuilder: React.FC = () => {
           </button>
         </div>
 
-        <Accordion type="multiple" className="space-y-3">
-          {layers.map((layer) => {
-            const selectedCount = getSelectedLibrariesCountForLayer(layer);
-            const isOpen = isLayerOpen(layer);
-            const hasSelected = hasSelectedLibraries(layer);
+        <div ref={searchContainerRef} className="w-full">
+          <SearchInput
+            searchQuery={searchQuery}
+            setSearchQuery={handleSearchChange}
+            matchCount={isSearchActive ? matchedCount : undefined}
+            totalCount={isSearchActive ? totalCount : undefined}
+            className="mb-4 w-full"
+          />
+        </div>
 
-            return (
-              <LayerItem
-                key={layer}
-                layer={layer}
-                isOpen={isOpen}
-                hasSelected={hasSelected}
-                selectedCount={selectedCount}
-                toggleLayer={toggleLayer}
-                isStackOpen={isStackOpen}
-                toggleStack={toggleStack}
-                getSelectedLibrariesCount={getSelectedLibrariesCount}
-                hasStackSelectedLibraries={hasStackSelectedLibraries}
-                handleLibraryToggle={handleLibraryToggle}
-                isLibrarySelected={isLibrarySelected}
-                getLayerType={getLayerType}
-                getStackLayerType={getStackLayerType}
-              />
-            );
-          })}
-        </Accordion>
+        <div
+          ref={accordionRef}
+          className={`w-full transition-all duration-${transitions.duration.slow} ${transitions.timing.default} flex-grow overflow-visible`}
+        >
+          {hasNoSearchResults ? (
+            <div className="flex justify-center items-center py-8 h-full text-center text-gray-400">
+              No rules matching "{debouncedSearchQuery}" were found.
+            </div>
+          ) : (
+            <Accordion type="multiple" className="space-y-3 w-full">
+              {layers.map((layer) => {
+                const selectedCount = getSelectedLibrariesCountForLayer(layer);
+                const isOpen = isLayerOpen(layer);
+                const hasSelected = hasSelectedLibraries(layer);
+
+                // Skip rendering layers with no matching libraries when search is active
+                if (isSearchActive && !layerContainsSearchMatch(layer)) {
+                  return null;
+                }
+
+                return (
+                  <div key={layer}>
+                    <LayerItem
+                      layer={layer}
+                      isOpen={isOpen}
+                      hasSelected={hasSelected}
+                      selectedCount={selectedCount}
+                      toggleLayer={toggleLayer}
+                      isStackOpen={isStackOpen}
+                      toggleStack={toggleStack}
+                      getSelectedLibrariesCount={getSelectedLibrariesCount}
+                      hasStackSelectedLibraries={hasStackSelectedLibraries}
+                      handleLibraryToggle={handleLibraryToggle}
+                      isLibrarySelected={isLibrarySelected}
+                      getLayerType={getLayerType}
+                      getStackLayerType={getStackLayerType}
+                      stackContainsSearchMatch={stackContainsSearchMatch}
+                      getFilteredLibrariesByStack={getFilteredLibrariesByStack}
+                      searchActive={isSearchActive}
+                    />
+                  </div>
+                );
+              })}
+            </Accordion>
+          )}
+        </div>
       </div>
 
       <SelectedRules

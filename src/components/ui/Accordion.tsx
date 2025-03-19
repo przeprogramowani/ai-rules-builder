@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
+import { transitions } from '../../styles/theme';
 
 interface AccordionProps {
   type: 'single' | 'multiple';
@@ -45,7 +46,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = React.memo(
       >
         <div className="flex-1">{children}</div>
         <ChevronDown
-          className={`size-4 transition-transform duration-200 ${
+          className={`size-4 transition-transform duration-${transitions.duration.medium} ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -63,35 +64,23 @@ interface AccordionContentProps {
 
 export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
   ({ children, className = '', isOpen = false, ...props }) => {
-    const contentRef = useRef<HTMLDivElement>(null);
-    const [height, setHeight] = useState<number>(0);
-    
-    useEffect(() => {
-      if (contentRef.current) {
-        const contentHeight = contentRef.current.scrollHeight;
-        setHeight(contentHeight);
-      }
-    }, [children, isOpen]);
-    
     return (
       <div 
-        className="overflow-hidden"
-        style={{
-          height: isOpen ? `${height}px` : '0px',
-          transition: 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-          willChange: 'height',
-        }}
+        className={`grid transition-all duration-${transitions.duration.slow} ${transitions.timing.default} will-change-[grid-template-rows] ${
+          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
       >
-        <div 
-          ref={contentRef}
-          className={`px-4 pb-4 ${className}`}
-          style={{
-            opacity: isOpen ? 1 : 0,
-            transition: 'opacity 200ms ease-in-out',
-            transitionDelay: isOpen ? '100ms' : '0ms',
-          }}
-        >
-          {children}
+        <div className="overflow-hidden">
+          <div 
+            className={`px-4 pb-4 ${className}`}
+            style={{
+              opacity: isOpen ? 1 : 0,
+              transition: `opacity ${transitions.duration.medium} ${transitions.timing.smooth}`,
+              transitionDelay: isOpen ? transitions.delay.medium : transitions.delay.none,
+            }}
+          >
+            {children}
+          </div>
         </div>
       </div>
     );

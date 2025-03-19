@@ -15,6 +15,7 @@ import {
   AccordionTrigger,
 } from '../ui/Accordion';
 import { StackItem } from './StackItem';
+import type { LibraryType } from './hooks/useRuleBuilder';
 
 interface LayerItemProps {
   layer: Layer;
@@ -30,6 +31,9 @@ interface LayerItemProps {
   isLibrarySelected: (library: Library) => boolean;
   getLayerType: (layer: Layer) => LayerType;
   getStackLayerType: (stack: Stack) => LayerType;
+  stackContainsSearchMatch: (stack: Stack) => boolean;
+  getFilteredLibrariesByStack: (stack: Stack) => LibraryType[];
+  searchActive: boolean;
 }
 
 export const LayerItem: React.FC<LayerItemProps> = React.memo(
@@ -47,13 +51,20 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
     isLibrarySelected,
     getLayerType,
     getStackLayerType,
+    stackContainsSearchMatch,
+    getFilteredLibrariesByStack,
+    searchActive,
   }) => {
     const layerType = getLayerType(layer);
-    const containerClasses = getLayerClasses.container(layerType, hasSelected, isOpen);
+    const containerClasses = getLayerClasses.container(
+      layerType,
+      hasSelected,
+      isOpen
+    );
 
     return (
       <AccordionItem key={layer} value={layer}>
-        <div className={`rounded-lg ${containerClasses}`}>
+        <div className={`h-full rounded-lg ${containerClasses}`}>
           <AccordionTrigger
             onClick={() => toggleLayer(layer)}
             isOpen={isOpen}
@@ -76,19 +87,30 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
 
           <AccordionContent isOpen={isOpen}>
             <div className="grid gap-2">
-              {getStacksByLayer(layer).map((stack) => (
-                <StackItem
-                  key={stack}
-                  stack={stack}
-                  isOpen={isStackOpen(stack)}
-                  hasSelected={hasStackSelectedLibraries(stack)}
-                  selectedCount={getSelectedLibrariesCount(stack)}
-                  toggleStack={toggleStack}
-                  handleLibraryToggle={handleLibraryToggle}
-                  isLibrarySelected={isLibrarySelected}
-                  layerType={getStackLayerType(stack)}
-                />
-              ))}
+              {getStacksByLayer(layer)
+                .filter(
+                  (stack) => !searchActive || stackContainsSearchMatch(stack)
+                )
+                .map((stack) => (
+                  <StackItem
+                    key={stack}
+                    stack={stack}
+                    isOpen={isStackOpen(stack)}
+                    hasSelected={hasStackSelectedLibraries(stack)}
+                    selectedCount={getSelectedLibrariesCount(stack)}
+                    toggleStack={toggleStack}
+                    handleLibraryToggle={handleLibraryToggle}
+                    isLibrarySelected={isLibrarySelected}
+                    layerType={getStackLayerType(stack)}
+                    filteredLibraries={
+                      searchActive
+                        ? getFilteredLibrariesByStack(stack).map(
+                            (lib) => lib as unknown as Library
+                          )
+                        : undefined
+                    }
+                  />
+                ))}
             </div>
           </AccordionContent>
         </div>
