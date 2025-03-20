@@ -1,4 +1,5 @@
 import React from 'react';
+import type { RulesContent } from '../services/rulesBuilderService.ts';
 
 /**
  * Highlights curly bracket placeholders in the text with lime color
@@ -31,10 +32,19 @@ export const highlightPlaceholders = (text: string): React.ReactNode => {
 
 /**
  * Styles markdown content with colored headers and highlighted placeholders
- * @param text The markdown text to process
+ * @param rules The RulesContents to process
  * @returns React elements with styled markdown
  */
-export const styleMarkdownContent = (text: string): React.ReactNode => {
+export const styleMarkdownContent = (rules: RulesContent[]): React.ReactNode[] => {
+  return rules.map((rule) => processRulesContentMarkdown(rule.markdown));
+};
+
+/**
+ * Styles markdown content with colored headers and highlighted placeholders
+ * @param text The Markdown text to process
+ * @returns React element with styled markdown
+ */
+export const processRulesContentMarkdown = (text: string): React.ReactNode => {
   if (!text) return null;
 
   // Regular expressions for different markdown elements

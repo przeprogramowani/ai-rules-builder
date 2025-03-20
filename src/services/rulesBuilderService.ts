@@ -1,15 +1,10 @@
-import {
-  Layer,
-  Library,
-  Stack,
-  getLayerByStack,
-  getLibrariesByStack,
-  getStacksByLibrary,
-} from '../data/dictionaries';
+import { getLayerByStack, getStacksByLibrary, Layer, Library, Stack } from '../data/dictionaries';
 import { getRulesForLibrary } from '../data/rules';
 
-interface RulesContent {
+export interface RulesContent {
   markdown: string;
+  label: string;
+  fileName: `${string}.mdc`;
 }
 
 /**
@@ -22,28 +17,84 @@ export class RulesBuilderService {
    * @param projectName - The name of the project
    * @param projectDescription - The description of the project
    * @param selectedLibraries - Array of selected libraries
+   * @param multiFile - Whether to generate multiple files per each rule content
    * @returns The generated markdown content
    */
   static generateRulesContent(
     projectName: string,
     projectDescription: string,
-    selectedLibraries: Library[]
-  ): RulesContent {
+    selectedLibraries: Library[],
+    multiFile?: boolean
+  ): RulesContent[] {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
     const stacksByLayer = this.groupStacksByLayer(
       Object.keys(librariesByStack) as Stack[]
     );
 
-    // Generate markdown content
-    let markdown = `# AI Rules for ${projectName}\n\n`;
-    markdown += `${projectDescription}\n\n`;
+    const projectMarkdown = `# AI Rules for ${projectName}\n\n${projectDescription}\n\n`;
+    const noSelectedLibrariesMarkdown = `---\n\n👈 Use the Rule Builder on the left or drop dependency file here`;
+    const projectLabel = 'Project', projectFileName = 'project.mdc';
+
+    /**
+     * Multi-file environment
+     */
+    if (multiFile) {
+      const markdowns: RulesContent[] = [];
+
+      markdowns.push({ markdown: projectMarkdown, label: projectLabel, fileName: projectFileName });
+
+      if (selectedLibraries.length === 0) {
+        markdowns[0].markdown += noSelectedLibrariesMarkdown;
+        return markdowns;
+      }
+
+      Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
+        stacks.forEach((stack) => {
+          const libraries = librariesByStack[stack];
+          if (libraries) {
+            libraries.forEach((library) => {
+              const libraryRules = getRulesForLibrary(library);
+              if (libraryRules.length > 0) {
+                const markdown = `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n${libraryRules.map((rule) => `- ${rule}`).join('\n')}\n\n`;
+                markdowns.push({
+                  markdown,
+                  label: `${layer} - ${stack} - ${library}`,
+                  fileName: `${layer}-${stack}-${library}.mdc`
+                });
+              } else {
+                const markdown = `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n- Use ${library} according to best practices\n\n`;
+                markdowns.push({
+                  markdown,
+                  label: `${layer} - ${stack} - ${library}`,
+                  fileName: `${layer}-${stack}-${library}.mdc`
+                });
+              }
+            });
+          }
+        });
+      });
+
+      return markdowns;
+    }
+
+    /**
+     * Single-file environment
+     */
+      // Generate markdown content
+    let markdown = projectMarkdown;
 
     if (selectedLibraries.length === 0) {
-      markdown += `---\n\n`;
-      markdown += `👈 Use the Rule Builder on the left or drop dependency file here`;
-      return { markdown };
+      markdown += noSelectedLibrariesMarkdown;
+      return [{ markdown, label: projectLabel, fileName: projectFileName }];
     }
+
+    markdown += this.generateLibraryMarkdown(stacksByLayer, librariesByStack);
+    return [{ markdown, label: 'All Rules', fileName: 'rules.mdc' }];
+  }
+
+  private static generateLibraryMarkdown(stacksByLayer: ReturnType<typeof this.groupStacksByLayer>, librariesByStack: ReturnType<typeof this.groupLibrariesByStack>): string {
+    let markdown = '';
 
     // Generate content for each layer and its stacks
     Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
@@ -75,7 +126,7 @@ export class RulesBuilderService {
       });
     });
 
-    return { markdown };
+    return markdown;
   }
 
   /**

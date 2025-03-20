@@ -1,52 +1,24 @@
 import React, { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useProjectStore } from '../../store/projectStore';
+import type { RulesContent } from '../../services/rulesBuilderService.ts';
+import { envConfig } from '../../data/ai-environments.ts';
 
 interface RulesPreviewActionsProps {
-  markdown: string;
+  rulesContent: RulesContent[];
 }
 
 export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
-  markdown,
-}) => {
-  const { selectedEnvironment } = useProjectStore();
+                                                                          rulesContent
+                                                                        }) => {
+  const { selectedEnvironment, isMultiFileEnvironment } = useProjectStore();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
 
   // Get the appropriate file path based on the selected format
-  const getFilePath = (): string => {
-    switch (selectedEnvironment) {
-      case 'github':
-        return '.github/copilot-instructions.md';
-      case 'cursor':
-        return 'rule.mdc';
-      case 'windsurf':
-        return '.windsurfrules';
-      case 'cline':
-        return '.clinerules';
-      case 'aider':
-        return 'CONVENTIONS.md';
-      case 'junie':
-        return '.junie/guidelines.md';
-    }
-  };
+  const getFilePath = (): string => envConfig[selectedEnvironment].filePath;
 
   // Get the documentation URL based on the selected format
-  const getDocsUrl = (): string => {
-    switch (selectedEnvironment) {
-      case 'github':
-        return 'https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot';
-      case 'cursor':
-        return 'https://docs.cursor.com/context/rules-for-ai';
-      case 'windsurf':
-        return 'https://docs.codeium.com/windsurf/memories#windsurfrules';
-      case 'cline':
-        return 'https://docs.cline.bot/improving-your-prompting-skills/prompting#clinerules-file';
-      case 'aider':
-        return 'https://aider.chat/docs/usage/conventions.html';
-      case 'junie':
-        return 'https://www.jetbrains.com/guide/ai/article/junie/intellij-idea/';
-    }
-  };
+  const getDocsUrl = (): string => envConfig[selectedEnvironment].docsUrl;
 
   // Open the documentation URL in a new tab
   const handleOpenDocs = () => {
@@ -55,6 +27,7 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
 
   // Copy the markdown content to clipboard
   const handleCopy = async () => {
+    const markdown = rulesContent.map((content) => content.markdown).join('\n\n');
     try {
       await navigator.clipboard.writeText(markdown);
       setShowCopiedMessage(true);
@@ -85,6 +58,7 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
 
   // Download the markdown content as a file
   const handleDownload = () => {
+    const markdown = rulesContent.map((content) => content.markdown).join('\n\n');
     const element = document.createElement('a');
     const file = new Blob([markdown], { type: 'text/markdown' });
     element.href = URL.createObjectURL(file);
@@ -123,7 +97,7 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
             <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
           )}
         </svg>
-        {showCopiedMessage ? 'Copied!' : 'Copy'}
+        {showCopiedMessage ? `${isMultiFileEnvironment ? 'All copied!' : 'Copied!'}` : `Copy${isMultiFileEnvironment ? ' all' : ''}`}
       </button>
       <button
         onClick={handleDownload}
@@ -141,7 +115,7 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
             clipRule="evenodd"
           />
         </svg>
-        Download
+        Download{isMultiFileEnvironment ? ' all' : ''}
       </button>
       <button
         onClick={handleOpenDocs}
