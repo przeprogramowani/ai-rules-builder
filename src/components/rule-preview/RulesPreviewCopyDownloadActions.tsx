@@ -68,7 +68,7 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
           showCopiedMessage
             ? 'bg-green-700 text-white'
             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-        } rounded-md flex items-center transition-colors duration-200 text-sm`}
+        } rounded-md flex items-center transition-colors duration-200 text-sm opacity-40 hover:opacity-100`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
       </button>
       <button
         onClick={handleDownload}
-        className="px-3 py-1 bg-indigo-700 text-white rounded-md hover:bg-indigo-600 flex items-center text-sm"
+        className="px-3 py-1 bg-indigo-700 text-white rounded-md hover:bg-indigo-600 flex items-center text-sm opacity-40 hover:opacity-100"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

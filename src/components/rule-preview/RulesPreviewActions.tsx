@@ -28,7 +28,7 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
       {children}
       <button
         onClick={handleOpenDocs}
-        className="px-3 py-1 bg-purple-700 text-white rounded-md hover:bg-purple-600 flex items-center text-sm"
+        className="px-3 py-1 bg-purple-700 text-white rounded-md hover:bg-purple-600 flex items-center text-sm opacity-40 hover:opacity-100"
       >
         <ExternalLink className="h-4 w-4 mr-1" />
         Docs
