@@ -1,5 +1,6 @@
 import { getLayerByStack, getStacksByLibrary, Layer, Library, Stack } from '../data/dictionaries';
 import { getRulesForLibrary } from '../data/rules';
+import { slugify } from '../utils/slugify.ts';
 
 export interface RulesContent {
   markdown: string;
@@ -55,21 +56,15 @@ export class RulesBuilderService {
           if (libraries) {
             libraries.forEach((library) => {
               const libraryRules = getRulesForLibrary(library);
-              if (libraryRules.length > 0) {
-                const markdown = `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n${libraryRules.map((rule) => `- ${rule}`).join('\n')}\n\n`;
-                markdowns.push({
-                  markdown,
-                  label: `${layer} - ${stack} - ${library}`,
-                  fileName: `${layer}-${stack}-${library}.mdc`
-                });
-              } else {
-                const markdown = `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n- Use ${library} according to best practices\n\n`;
-                markdowns.push({
-                  markdown,
-                  label: `${layer} - ${stack} - ${library}`,
-                  fileName: `${layer}-${stack}-${library}.mdc`
-                });
-              }
+              const label = `${layer} - ${stack} - ${library}`,
+                fileName: RulesContent['fileName'] = `${slugify(`${layer}-${stack}-${library}`)}.mdc`;
+              const markdown = (function() {
+                if (libraryRules.length > 0) {
+                  return `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n${libraryRules.map((rule) => `- ${rule}`).join('\n')}\n\n`;
+                }
+                return `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n- Use ${library} according to best practices\n\n`;
+              })();
+              markdowns.push({ markdown, label, fileName });
             });
           }
         });

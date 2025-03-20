@@ -5,6 +5,7 @@ import { RulesPreviewActions } from './RulesPreviewActions';
 import type { RulesContent } from '../../services/rulesBuilderService.ts';
 import { type AIEnvironment, AIEnvironmentName } from '../../data/ai-environments.ts';
 import Tooltip from '../helpers/Tooltip.tsx';
+import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 
 interface RulePreviewTopbarProps {
   rulesContent: RulesContent[];
@@ -27,8 +28,8 @@ const EnvButton: React.FC<EnvButtonProps> = ({
     onClick={() => onSetSelectedEnvironment(environment)}
     className={`px-3 py-1 text-xs rounded-md ${
       selectedEnvironment === environment
-        ? (isMultiFileEnvironment ? 'bg-amber-700' : 'bg-indigo-700') + ' text-white'
-        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+        ? (isMultiFileEnvironment ? 'bg-amber-700 hover:bg-amber-600' : 'bg-indigo-700 hover:bg-indigo-600') + ' text-white'
+        : 'bg-gray-700 text-gray-300 ' + (multiFileEnvironments.has(environment) ? 'hover:bg-stone-600' : 'hover:bg-gray-600')
     }`}
   >
     {environment[0].toUpperCase()}{environment.slice(1)}
@@ -94,7 +95,9 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
 
         {/* Right side: Action buttons */}
         <div className="w-full sm:w-auto">
-          <RulesPreviewActions rulesContent={rulesContent} />
+          <RulesPreviewActions rulesContent={rulesContent}>
+            <RulesPreviewCopyDownloadActions rulesContent={rulesContent} />
+          </RulesPreviewActions>
         </div>
       </div>
     </div>

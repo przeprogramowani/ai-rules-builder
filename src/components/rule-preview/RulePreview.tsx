@@ -6,6 +6,7 @@ import { useTechStackStore } from '../../store/techStackStore';
 import { processRulesContentMarkdown } from '../../utils/markdownStyling';
 import { useDependencyUpload } from '../rule-parser/useDependencyUpload';
 import { RulePreviewTopbar } from './RulePreviewTopbar';
+import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 
 export const RulePreview: React.FC = () => {
   const { selectedLibraries } = useTechStackStore();
@@ -74,7 +75,11 @@ export const RulePreview: React.FC = () => {
         {markdownContent.map((rule, index) => (
           <div key={'markdownContent-' + index}
                className="overflow-y-auto relative flex-1 p-4 mt-4 h-full min-h-0 bg-gray-900 rounded-lg">
-          <pre className="font-mono text-sm text-gray-300 whitespace-pre-wrap">
+            {markdownContent.length > 1 && (<div className="absolute top-4 right-4 flex flex-wrap gap-2">
+              <RulesPreviewCopyDownloadActions rulesContent={[rule]} />
+            </div>)}
+
+            <pre className="font-mono text-sm text-gray-300 whitespace-pre-wrap">
             {processRulesContentMarkdown(rule.markdown)}
           </pre>
             {/* Dropzone overlay that appears when dragging */}
