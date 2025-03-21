@@ -1,7 +1,6 @@
 import { Search, X } from 'lucide-react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import React, { useCallback, useRef, useState } from 'react';
-import { useAccordionContentOpen } from '../ui/Accordion';
 
 interface SearchInputProps {
   searchQuery: string;
@@ -25,7 +24,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     (e: ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
     },
-    [setSearchQuery]
+    [setSearchQuery],
   );
 
   const handleClear = useCallback(() => {
@@ -40,7 +39,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         handleClear();
       }
     },
-    [handleClear]
+    [handleClear],
   );
 
   return (

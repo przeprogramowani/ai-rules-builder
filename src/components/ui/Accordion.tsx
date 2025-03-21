@@ -25,7 +25,7 @@ interface AccordionProps {
 }
 
 export const Accordion: React.FC<AccordionProps> = React.memo(
-  ({ children, className = '', isNested = false, ...props }) => {
+  ({ children, className = '', isNested = false }) => {
     return (
       <div className={`space-y-2 ${className}`} role="region">
         <AccordionRootContext.Provider value={!isNested}>
@@ -33,7 +33,7 @@ export const Accordion: React.FC<AccordionProps> = React.memo(
         </AccordionRootContext.Provider>
       </div>
     );
-  }
+  },
 );
 Accordion.displayName = 'Accordion';
 
@@ -44,7 +44,7 @@ interface AccordionItemProps {
 }
 
 export const AccordionItem: React.FC<AccordionItemProps> = React.memo(
-  ({ children, isNested, ...props }) => {
+  ({ children, isNested }) => {
     return (
       <AccordionRootContext.Provider value={!isNested}>
         <div className="rounded-lg" role="presentation">
@@ -52,7 +52,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = React.memo(
         </div>
       </AccordionRootContext.Provider>
     );
-  }
+  },
 );
 AccordionItem.displayName = 'AccordionItem';
 
@@ -64,7 +64,7 @@ interface AccordionTriggerProps {
 }
 
 export const AccordionTrigger: React.FC<AccordionTriggerProps> = React.memo(
-  ({ children, className = '', onClick, isOpen = false, ...props }) => {
+  ({ children, className = '', onClick, isOpen = false }) => {
     const isParentAccordionOpen = useAccordionContentOpen();
     const isRoot = useIsRootAccordion();
 
@@ -96,7 +96,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = React.memo(
         />
       </div>
     );
-  }
+  },
 );
 AccordionTrigger.displayName = 'AccordionTrigger';
 
@@ -107,7 +107,7 @@ interface AccordionContentProps {
 }
 
 export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
-  ({ children, className = '', isOpen = false, ...props }) => {
+  ({ children, className = '', isOpen = false }) => {
     const isParentAccordionOpen = useAccordionContentOpen();
     const isRoot = useIsRootAccordion();
 
@@ -143,6 +143,6 @@ export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 AccordionContent.displayName = 'AccordionContent';

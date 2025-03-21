@@ -3,7 +3,6 @@ import {
   Library,
   Stack,
   getLayerByStack,
-  getLibrariesByStack,
   getStacksByLibrary,
 } from '../data/dictionaries';
 import { getRulesForLibrary } from '../data/rules';
@@ -27,12 +26,12 @@ export class RulesBuilderService {
   static generateRulesContent(
     projectName: string,
     projectDescription: string,
-    selectedLibraries: Library[]
+    selectedLibraries: Library[],
   ): RulesContent {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
     const stacksByLayer = this.groupStacksByLayer(
-      Object.keys(librariesByStack) as Stack[]
+      Object.keys(librariesByStack) as Stack[],
     );
 
     // Generate markdown content
@@ -85,7 +84,7 @@ export class RulesBuilderService {
    * @returns Record with stacks as keys and arrays of libraries as values
    */
   private static groupLibrariesByStack(
-    libraries: Library[]
+    libraries: Library[],
   ): Record<Stack, Library[]> {
     const result: Record<Stack, Library[]> = {} as Record<Stack, Library[]>;
 

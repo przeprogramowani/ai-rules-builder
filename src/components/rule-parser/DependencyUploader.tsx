@@ -10,7 +10,7 @@ export default function DependencyUploader() {
 
     const form = event.currentTarget;
     const fileInput = form.querySelector(
-      'input[type="file"]'
+      'input[type="file"]',
     ) as HTMLInputElement;
     const file = fileInput?.files?.[0];
 

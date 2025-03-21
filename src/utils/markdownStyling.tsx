@@ -49,13 +49,19 @@ export const styleMarkdownContent = (text: string): React.ReactNode => {
     return `${start}<h2-styled>${content}</h2-styled>${end}`;
   });
 
-  processedText = processedText.replace(h3Regex, (match, start, content, end) => {
-    return `${start}<h3-styled>${content}</h3-styled>${end}`;
-  });
+  processedText = processedText.replace(
+    h3Regex,
+    (match, start, content, end) => {
+      return `${start}<h3-styled>${content}</h3-styled>${end}`;
+    },
+  );
 
-  processedText = processedText.replace(h4Regex, (match, start, content, end) => {
-    return `${start}<h4-styled>${content}</h4-styled>${end}`;
-  });
+  processedText = processedText.replace(
+    h4Regex,
+    (match, start, content, end) => {
+      return `${start}<h4-styled>${content}</h4-styled>${end}`;
+    },
+  );
 
   // Split by custom tags and placeholders
   const combinedRegex =

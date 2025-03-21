@@ -27,7 +27,6 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
     stack,
     isOpen,
     hasSelected,
-    selectedCount,
     toggleStack,
     handleLibraryToggle,
     isLibrarySelected,
@@ -38,7 +37,7 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
     const containerClasses = getLayerClasses.stackContainer(
       layerType,
       hasSelected,
-      isOpen
+      isOpen,
     );
 
     // Use the filtered libraries if provided, otherwise use all libraries for this stack
@@ -58,7 +57,7 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
           </AccordionTrigger>
 
           <AccordionContent isOpen={isOpen}>
-            <div 
+            <div
               className="grid gap-2"
               role="group"
               aria-label={`${stack} libraries`}
@@ -77,7 +76,7 @@ export const StackItem: React.FC<StackItemProps> = React.memo(
         </div>
       </AccordionItem>
     );
-  }
+  },
 );
 
 StackItem.displayName = 'StackItem';

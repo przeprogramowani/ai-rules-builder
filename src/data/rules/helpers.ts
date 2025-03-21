@@ -9,7 +9,7 @@ import { type LibraryRulesMap } from './types';
  */
 export const getRulesForLibrary = (
   rulesMap: LibraryRulesMap,
-  library: Library
+  library: Library,
 ): string[] => {
   return rulesMap[library] || [];
 };
@@ -22,7 +22,7 @@ export const getRulesForLibrary = (
  */
 export const getRulesForLibraries = (
   rulesMap: LibraryRulesMap,
-  libraries: Library[]
+  libraries: Library[],
 ): Partial<Record<Library, string[]>> => {
   const result: Partial<Record<Library, string[]>> = {};
 

@@ -52,7 +52,7 @@ export const backendRules: LibraryRulesMap = {
     'Use Pydantic models for request and response validation with strict type checking and custom validators',
     'Implement dependency injection for services and database sessions to improve testability and resource management',
     'Use async endpoints for I/O-bound operations to improve throughput for {{high_load_endpoints}}',
-    'Leverage FastAPI\'s background tasks for non-critical operations that don\'t need to block the response',
+    "Leverage FastAPI's background tasks for non-critical operations that don't need to block the response",
     'Implement proper exception handling with HTTPException and custom exception handlers for {{error_scenarios}}',
     'Use path operation decorators consistently with appropriate HTTP methods (GET for retrieval, POST for creation, etc.)',
   ],
@@ -64,7 +64,7 @@ export const backendRules: LibraryRulesMap = {
     'Use Spring Security with JWT for stateless authentication and proper role-based access control',
     'Apply the @Transactional annotation at the service layer to ensure data consistency and proper rollback behavior',
     'Implement proper exception handling with @ControllerAdvice and custom exception classes for {{error_types}}',
-    'Use Spring\'s caching abstractions for performance optimization of frequently accessed, rarely changing data',
+    "Use Spring's caching abstractions for performance optimization of frequently accessed, rarely changing data",
   ],
   [Library.HIBERNATE]: [
     'Use lazy loading with caution and fetch joins to avoid N+1 query problems with {{entity_relationships}}',

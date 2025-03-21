@@ -13,7 +13,10 @@ interface SelectedRulesProps {
 
 export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
   ({ selectedLibraries, unselectLibrary, getLibraryLayerType }) => {
-    const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>, library: Library) => {
+    const handleKeyDown = (
+      e: KeyboardEvent<HTMLButtonElement>,
+      library: Library,
+    ) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         unselectLibrary(library);
@@ -29,7 +32,7 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
         <h2 className="mb-2 text-lg font-semibold text-white">
           Selected Rules ({selectedLibraries.length})
         </h2>
-        <div 
+        <div
           className="flex flex-wrap gap-2"
           role="list"
           aria-label="Selected rules list"
@@ -40,7 +43,7 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
               <div
                 key={library}
                 className={`px-3 py-1.5 ${getLayerClasses.selectedRuleBadge(
-                  layerType
+                  layerType,
                 )} text-sm rounded-full flex items-center gap-1 shadow-sm`}
                 role="listitem"
               >
@@ -60,7 +63,7 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 SelectedRules.displayName = 'SelectedRules';

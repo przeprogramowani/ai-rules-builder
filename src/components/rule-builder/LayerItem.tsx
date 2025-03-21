@@ -59,7 +59,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
     const containerClasses = getLayerClasses.container(
       layerType,
       hasSelected,
-      isOpen
+      isOpen,
     );
 
     return (
@@ -76,7 +76,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
               </div>
               <span
                 className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${getLayerClasses.badge(
-                  layerType
+                  layerType,
                 )}`}
                 aria-label={`${selectedCount} of ${getLibrariesCountByLayer(layer)} libraries selected`}
               >
@@ -87,14 +87,14 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
           </AccordionTrigger>
 
           <AccordionContent isOpen={isOpen}>
-            <div 
+            <div
               className="grid gap-2"
               role="group"
               aria-label={`${layer} stacks`}
             >
               {getStacksByLayer(layer)
                 .filter(
-                  (stack) => !searchActive || stackContainsSearchMatch(stack)
+                  (stack) => !searchActive || stackContainsSearchMatch(stack),
                 )
                 .map((stack) => (
                   <StackItem
@@ -111,7 +111,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
                     filteredLibraries={
                       searchActive
                         ? getFilteredLibrariesByStack(stack).map(
-                            (lib) => lib as unknown as Library
+                            (lib) => lib as unknown as Library,
                           )
                         : undefined
                     }
@@ -122,7 +122,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
         </div>
       </AccordionItem>
     );
-  }
+  },
 );
 
 LayerItem.displayName = 'LayerItem';

@@ -21,7 +21,7 @@ export default function Footer() {
           </a>
           <a
             href={`https://x.com/share?text=${encodeURIComponent(
-              'Rules for AI - generate rules for @cursor_ai, @windsurf_ai and Copilot based on your tech stack.\n\n'
+              'Rules for AI - generate rules for @cursor_ai, @windsurf_ai and Copilot based on your tech stack.\n\n',
             )}&url=${encodeURIComponent('https://10xrules.ai')}`}
             target="_blank"
             rel="noopener noreferrer"

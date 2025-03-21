@@ -58,6 +58,6 @@ export const useProjectStore = create<ProjectState>()(
           state.setHydrated();
         }
       },
-    }
-  )
+    },
+  ),
 );
