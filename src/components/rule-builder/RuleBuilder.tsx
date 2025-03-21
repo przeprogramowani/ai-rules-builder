@@ -1,6 +1,5 @@
-import { Info, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
-import { Layer, Library } from '../../data/dictionaries';
 import { transitions } from '../../styles/theme';
 import { Accordion } from '../ui/Accordion';
 import { useRuleBuilder } from './hooks/useRuleBuilder';
@@ -40,14 +39,12 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
     getFilteredLibrariesByStack,
     getLibraryCounts,
     isSearchActive,
-    isSearchExpanded,
   } = useRuleBuilder();
 
   const { totalCount, matchedCount } = getLibraryCounts;
   const accordionRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const firstResultRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipTimerRef = useRef<number | null>(null);
 
@@ -60,7 +57,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
     if (searchQuery && getLibraryCounts.matchedCount > 0) {
       // Attempt to find the first visible library item after search
       const firstLibraryItem = document.querySelector(
-        '[role="checkbox"][tabindex="0"]'
+        '[role="checkbox"][tabindex="0"]',
       ) as HTMLElement;
       if (firstLibraryItem) {
         // Set a small delay to allow the UI to update

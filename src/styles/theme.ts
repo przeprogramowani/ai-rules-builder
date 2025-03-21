@@ -48,7 +48,7 @@ export const getLayerClasses = {
   container: (
     layerType: LayerType,
     isSelected: boolean,
-    isExpanded: boolean = false
+    isExpanded: boolean = false,
   ): string => {
     return isSelected
       ? `bg-gray-800/70 border-${layerColors[layerType]}-400 border shadow-md ${
@@ -66,7 +66,7 @@ export const getLayerClasses = {
   stackContainer: (
     layerType: LayerType,
     isSelected: boolean,
-    isExpanded = false
+    isExpanded = false,
   ): string => {
     return isSelected
       ? `bg-gray-700/40 border-${layerColors[layerType]}-300 border shadow-md ${
@@ -85,7 +85,7 @@ export const getLayerClasses = {
 
   toggleSwitch: (
     layerType: LayerType,
-    isSelected: boolean
+    isSelected: boolean,
   ): { borderColor: string; backgroundColor: string } => {
     return {
       borderColor: isSelected
@@ -99,7 +99,7 @@ export const getLayerClasses = {
 
   toggleHandle: (
     layerType: LayerType,
-    isSelected: boolean
+    isSelected: boolean,
   ): { backgroundColor: string; transform: string } => {
     return {
       backgroundColor: isSelected

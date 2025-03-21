@@ -57,6 +57,7 @@ export enum Stack {
 
 export enum Library {
   // React libraries
+  REACT_CODING_STANDARDS = 'React Coding Standards',
   NEXT_JS = 'Next.js',
   REACT_ROUTER = 'React Router',
   REDUX = 'Redux',
@@ -64,19 +65,23 @@ export enum Library {
   REACT_QUERY = 'React Query',
 
   // Vue libraries
+  VUE_CODING_STANDARDS = 'Vue Coding Standards',
   NUXT = 'Nuxt',
   VUEX = 'Vuex',
   VUE_ROUTER = 'Vue Router',
   PINIA = 'Pinia',
 
   // Angular libraries
+  ANGULAR_CODING_STANDARDS = 'Angular Coding Standards',
   NGRX = 'NgRx',
   ANGULAR_MATERIAL = 'Angular Material',
 
   // Svelte libraries
+  SVELTE_CODING_STANDARDS = 'Svelte Coding Standards',
   SVELTE_KIT = 'SvelteKit',
 
   // Astro libraries
+  ASTRO_CODING_STANDARDS = 'Astro Coding Standards',
   ASTRO_ISLANDS = 'Astro Islands',
 
   // Styling libraries
@@ -220,16 +225,27 @@ export const layerToStackMap: LayerToStackMap = {
 // Map stacks to libraries
 export const stackToLibraryMap: StackToLibraryMap = {
   [Stack.REACT]: [
+    Library.REACT_CODING_STANDARDS,
     Library.NEXT_JS,
     Library.REACT_ROUTER,
     Library.REDUX,
     Library.ZUSTAND,
     Library.REACT_QUERY,
   ],
-  [Stack.VUE]: [Library.NUXT, Library.VUEX, Library.VUE_ROUTER, Library.PINIA],
-  [Stack.ANGULAR]: [Library.NGRX, Library.ANGULAR_MATERIAL],
-  [Stack.SVELTE]: [Library.SVELTE_KIT],
-  [Stack.ASTRO]: [Library.ASTRO_ISLANDS],
+  [Stack.VUE]: [
+    Library.VUE_CODING_STANDARDS,
+    Library.NUXT,
+    Library.VUEX,
+    Library.VUE_ROUTER,
+    Library.PINIA,
+  ],
+  [Stack.ANGULAR]: [
+    Library.ANGULAR_CODING_STANDARDS,
+    Library.NGRX,
+    Library.ANGULAR_MATERIAL,
+  ],
+  [Stack.SVELTE]: [Library.SVELTE_CODING_STANDARDS, Library.SVELTE_KIT],
+  [Stack.ASTRO]: [Library.ASTRO_CODING_STANDARDS, Library.ASTRO_ISLANDS],
   [Stack.STYLING]: [Library.TAILWIND, Library.STYLED_COMPONENTS, Library.SCSS],
   [Stack.NODE]: [Library.EXPRESS, Library.NEST, Library.FASTIFY],
   [Stack.PYTHON]: [Library.DJANGO, Library.FLASK, Library.FASTAPI],

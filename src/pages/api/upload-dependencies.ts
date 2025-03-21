@@ -9,15 +9,10 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // Debug the request headers
-    const contentType = request.headers.get('content-type') || '';
-    console.log('Request content-type:', contentType);
-
     // Parse the form data
     let formData;
     try {
       formData = await request.formData();
-      console.log('FormData parsed successfully');
     } catch (error) {
       console.error('Error parsing form data:', error);
       return new Response(
@@ -30,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     }
 
@@ -39,7 +34,7 @@ export const POST: APIRoute = async ({ request }) => {
     console.log(
       'File from form data:',
       file ? 'exists' : 'missing',
-      file instanceof File ? 'is File object' : 'not File object'
+      file instanceof File ? 'is File object' : 'not File object',
     );
 
     if (!file || !(file instanceof File)) {
@@ -53,7 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     }
 
@@ -78,7 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     }
 
@@ -105,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
   } catch (error) {
     console.error('Error processing file:', error);
@@ -119,7 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
   }
 };

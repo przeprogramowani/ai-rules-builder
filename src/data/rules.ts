@@ -38,7 +38,7 @@ export const getRulesForLibrary = (library: Library): string[] => {
  * @returns Record with libraries as keys and arrays of rules as values
  */
 export const getRulesForLibraries = (
-  libraries: Library[]
+  libraries: Library[],
 ): Record<Library, string[]> => {
   // Convert the partial record to a full record by filtering only requested libraries
   const partialResult = getLibrariesRules(libraryRules, libraries);

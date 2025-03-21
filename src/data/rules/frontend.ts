@@ -1,8 +1,9 @@
-import { Library, Stack } from '../dictionaries';
-import { type LibraryRulesMap, type StackRulesMap } from './types';
+import { Library } from '../dictionaries';
+import { type LibraryRulesMap } from './types';
 
-export const frontendStackRules: StackRulesMap = {
-  [Stack.REACT]: [
+export const frontendRules: LibraryRulesMap = {
+  // React libraries
+  [Library.REACT_CODING_STANDARDS]: [
     'Use functional components with hooks instead of class components',
     'Implement React.memo() for expensive components that render often with the same props',
     'Utilize React.lazy() and Suspense for code-splitting and performance optimization',
@@ -14,57 +15,6 @@ export const frontendStackRules: StackRulesMap = {
     'Consider using the new useOptimistic hook for optimistic UI updates in forms',
     'Use useTransition for non-urgent state updates to keep the UI responsive',
   ],
-  [Stack.VUE]: [
-    'Use the Composition API instead of the Options API for better type inference and code reuse',
-    'Implement <script setup> for more concise component definitions',
-    'Use Suspense and async components for handling loading states during code-splitting',
-    'Leverage the defineProps and defineEmits macros for type-safe props and events',
-    'Use the new defineOptions for additional component options',
-    'Implement provide/inject for dependency injection instead of prop drilling in deeply nested components',
-    'Use the Teleport component for portal-like functionality to render UI elsewhere in the DOM',
-    'Leverage ref over reactive for primitive values to avoid unintended unwrapping',
-    'Use v-memo for performance optimization in render-heavy list rendering scenarios',
-    "Implement shallow refs for large objects that don't need deep reactivity",
-  ],
-  [Stack.ANGULAR]: [
-    'Use standalone components, directives, and pipes instead of NgModules',
-    'Implement signals for state management instead of traditional RxJS-based approaches',
-    'Use the new inject function instead of constructor injection',
-    'Implement control flow with @if, @for, and @switch instead of *ngIf, *ngFor, etc.',
-    'Leverage functional guards and resolvers instead of class-based ones',
-    'Use the new deferrable views for improved loading states',
-    'Implement OnPush change detection strategy for improved performance',
-    'Use TypeScript decorators with explicit visibility modifiers (public, private)',
-    'Leverage Angular CLI for schematics and code generation',
-    'Implement proper lazy loading with loadComponent and loadChildren',
-  ],
-  [Stack.SVELTE]: [
-    'Use runes for $state, $effect and $props management instead of the $ prefix',
-    'Use the $ prefix for reactive store values instead of manual store subscription',
-    'Use slot props for better component composition',
-    'Leverage the :global() modifier sparingly for global CSS',
-    'Implement Svelte transitions and animations for smooth UI changes',
-    'Use $effect rune for derived state',
-    'Use simple callback props instead of createEventDispatcher',
-    'Use lifecycle functions (onMount, onDestroy) for setup and cleanup',
-    'Leverage special elements like <svelte:window> and <svelte:component> for dynamic behavior',
-  ],
-  [Stack.ASTRO]: [
-    'Use Astro components (.astro) for static content and layout',
-    'Implement framework components in {{framework_name}} only when interactivity is needed',
-    'Leverage View Transitions API for smooth page transitions',
-    'Use content collections with type safety for blog posts, documentation, etc.',
-    'Implement middleware for request/response modification',
-    'Use image optimization with the Astro Image integration',
-    'Leverage Server Endpoints for API routes',
-    'Implement hybrid rendering with server-side rendering where needed',
-    'Use Astro.cookies for server-side cookie management',
-    'Leverage import.meta.env for environment variables',
-  ],
-};
-
-export const frontendRules: LibraryRulesMap = {
-  // React libraries
   [Library.REACT_ROUTER]: [
     'Use createBrowserRouter instead of BrowserRouter for better data loading and error handling',
     'Implement lazy loading with React.lazy() for route components to improve initial load time',
@@ -127,6 +77,18 @@ export const frontendRules: LibraryRulesMap = {
   ],
 
   // Vue libraries
+  [Library.VUE_CODING_STANDARDS]: [
+    'Use the Composition API instead of the Options API for better type inference and code reuse',
+    'Implement <script setup> for more concise component definitions',
+    'Use Suspense and async components for handling loading states during code-splitting',
+    'Leverage the defineProps and defineEmits macros for type-safe props and events',
+    'Use the new defineOptions for additional component options',
+    'Implement provide/inject for dependency injection instead of prop drilling in deeply nested components',
+    'Use the Teleport component for portal-like functionality to render UI elsewhere in the DOM',
+    'Leverage ref over reactive for primitive values to avoid unintended unwrapping',
+    'Use v-memo for performance optimization in render-heavy list rendering scenarios',
+    "Implement shallow refs for large objects that don't need deep reactivity",
+  ],
   [Library.VUEX]: [
     'Migrate to Pinia instead of Vuex for Vue 3 projects as it provides better TypeScript support',
     'If using Vuex, implement modules pattern to organize related state, getters, mutations, and actions',
@@ -177,7 +139,18 @@ export const frontendRules: LibraryRulesMap = {
   ],
 
   // Angular libraries
-
+  [Library.ANGULAR_CODING_STANDARDS]: [
+    'Use standalone components, directives, and pipes instead of NgModules',
+    'Implement signals for state management instead of traditional RxJS-based approaches',
+    'Use the new inject function instead of constructor injection',
+    'Implement control flow with @if, @for, and @switch instead of *ngIf, *ngFor, etc.',
+    'Leverage functional guards and resolvers instead of class-based ones',
+    'Use the new deferrable views for improved loading states',
+    'Implement OnPush change detection strategy for improved performance',
+    'Use TypeScript decorators with explicit visibility modifiers (public, private)',
+    'Leverage Angular CLI for schematics and code generation',
+    'Implement proper lazy loading with loadComponent and loadChildren',
+  ],
   [Library.NGRX]: [
     'Use the createFeature and createReducer functions to simplify reducer creation',
     'Implement the facade pattern to abstract NgRx implementation details from components',
@@ -204,6 +177,17 @@ export const frontendRules: LibraryRulesMap = {
   ],
 
   // Svelte libraries
+  [Library.SVELTE_CODING_STANDARDS]: [
+    'Use runes for $state, $effect and $props management instead of the $ prefix',
+    'Use the $ prefix for reactive store values instead of manual store subscription',
+    'Use slot props for better component composition',
+    'Leverage the :global() modifier sparingly for global CSS',
+    'Implement Svelte transitions and animations for smooth UI changes',
+    'Use $effect rune for derived state',
+    'Use simple callback props instead of createEventDispatcher',
+    'Use lifecycle functions (onMount, onDestroy) for setup and cleanup',
+    'Leverage special elements like <svelte:window> and <svelte:component> for dynamic behavior',
+  ],
   [Library.SVELTE_KIT]: [
     'Use server-side load functions to fetch data before rendering pages',
     'Implement form actions for handling form submissions with progressive enhancement',
@@ -218,6 +202,18 @@ export const frontendRules: LibraryRulesMap = {
   ],
 
   // Astro libraries
+  [Library.ASTRO_CODING_STANDARDS]: [
+    'Use Astro components (.astro) for static content and layout',
+    'Implement framework components in {{framework_name}} only when interactivity is needed',
+    'Leverage View Transitions API for smooth page transitions',
+    'Use content collections with type safety for blog posts, documentation, etc.',
+    'Implement middleware for request/response modification',
+    'Use image optimization with the Astro Image integration',
+    'Leverage Server Endpoints for API routes',
+    'Implement hybrid rendering with server-side rendering where needed',
+    'Use Astro.cookies for server-side cookie management',
+    'Leverage import.meta.env for environment variables',
+  ],
   [Library.ASTRO_ISLANDS]: [
     'Use client:visible directive for components that should hydrate when visible in viewport',
     'Implement shared state with nanostores instead of prop drilling between islands',

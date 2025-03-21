@@ -13,10 +13,8 @@ export const RulePreview: React.FC = () => {
   const { projectName, projectDescription, isMultiFileEnvironment } = useProjectStore();
   const [markdownContent, setMarkdownContent] = useState<RulesContent[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { isUploading, uploadStatus, uploadDependencyFile } =
-    useDependencyUpload();
+  const { uploadStatus, uploadDependencyFile } = useDependencyUpload();
 
-  // Generate markdown content when libraries or project metadata changes
   useEffect(() => {
     const markdowns = RulesBuilderService.generateRulesContent(
       projectName,
@@ -54,12 +52,12 @@ export const RulePreview: React.FC = () => {
           await uploadDependencyFile(file);
         } else {
           console.warn(
-            'Invalid file type. Please drop a package.json or requirements.txt file.'
+            'Invalid file type. Please drop a package.json or requirements.txt file.',
           );
         }
       }
     },
-    [uploadDependencyFile]
+    [uploadDependencyFile],
   );
 
   return (

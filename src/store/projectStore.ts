@@ -54,7 +54,7 @@ export const useProjectStore = create<ProjectState>()(
         if (state) {
           state.setHydrated();
         }
-      }
-    }
-  )
+      },
+    },
+  ),
 );

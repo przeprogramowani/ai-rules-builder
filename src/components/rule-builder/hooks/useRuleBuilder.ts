@@ -27,10 +27,10 @@ export const useRuleBuilder = () => {
 
   // Save the state before search for restoration when search is cleared
   const [preSearchOpenLayers, setPreSearchOpenLayers] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [preSearchOpenStacks, setPreSearchOpenStacks] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   // Search state
@@ -78,18 +78,18 @@ export const useRuleBuilder = () => {
       const layer = layers.find((l) => getStacksByLayer(l).includes(stack));
       return layer ? getLayerType(layer) : 'craftsmanship';
     },
-    [layers, getLayerType]
+    [layers, getLayerType],
   );
 
   // Helper functions for accordion state
   const isLayerOpen = useCallback(
     (layer: Layer) => openLayers.has(layer),
-    [openLayers]
+    [openLayers],
   );
 
   const isStackOpen = useCallback(
     (stack: Stack) => openStacks.has(stack),
-    [openStacks]
+    [openStacks],
   );
 
   // Toggle functions for accordions
@@ -106,7 +106,7 @@ export const useRuleBuilder = () => {
         return newOpenLayers;
       });
     },
-    [selectLayer]
+    [selectLayer],
   );
 
   const toggleStack = useCallback(
@@ -122,7 +122,7 @@ export const useRuleBuilder = () => {
         return newOpenStacks;
       });
     },
-    [selectStack]
+    [selectStack],
   );
 
   // Filtering libraries based on search query
@@ -133,10 +133,10 @@ export const useRuleBuilder = () => {
 
       const normalizedQuery = debouncedSearchQuery.toLowerCase();
       return libraries.filter((library) =>
-        library.toLowerCase().includes(normalizedQuery)
+        library.toLowerCase().includes(normalizedQuery),
       );
     },
-    [debouncedSearchQuery]
+    [debouncedSearchQuery],
   );
 
   // Check if any libraries from this layer match the search query
@@ -153,7 +153,7 @@ export const useRuleBuilder = () => {
         return filterLibraries(libraries).length > 0;
       });
     },
-    [debouncedSearchQuery, filterLibraries]
+    [debouncedSearchQuery, filterLibraries],
   );
 
   // Check if any libraries from this stack match the search query
@@ -164,7 +164,7 @@ export const useRuleBuilder = () => {
       const libraries = getLibrariesByStack(stack);
       return filterLibraries(libraries).length > 0;
     },
-    [debouncedSearchQuery, filterLibraries]
+    [debouncedSearchQuery, filterLibraries],
   );
 
   // Get filtered libraries for a stack
@@ -173,7 +173,7 @@ export const useRuleBuilder = () => {
       const libraries = getLibrariesByStack(stack);
       return filterLibraries(libraries);
     },
-    [filterLibraries]
+    [filterLibraries],
   );
 
   // Calculate total and matched libraries counts
@@ -207,7 +207,7 @@ export const useRuleBuilder = () => {
         return libraries.some((library) => selectedLibraries.includes(library));
       });
     },
-    [selectedLibraries]
+    [selectedLibraries],
   );
 
   // Check if any libraries from this stack are selected
@@ -216,7 +216,7 @@ export const useRuleBuilder = () => {
       const libraries = getLibrariesByStack(stack);
       return libraries.some((library) => selectedLibraries.includes(library));
     },
-    [selectedLibraries]
+    [selectedLibraries],
   );
 
   // Get count of selected libraries for a stack
@@ -226,7 +226,7 @@ export const useRuleBuilder = () => {
       return libraries.filter((library) => selectedLibraries.includes(library))
         .length;
     },
-    [selectedLibraries]
+    [selectedLibraries],
   );
 
   // Get count of selected libraries for a layer
@@ -239,19 +239,19 @@ export const useRuleBuilder = () => {
       });
       return count;
     },
-    [getSelectedLibrariesCount]
+    [getSelectedLibrariesCount],
   );
 
   // Handle library toggle
   const handleLibraryToggle = useCallback(
-    (library: LibraryType) => {
+    (library: Library) => {
       if (isLibrarySelected(library)) {
         unselectLibrary(library);
       } else {
         selectLibrary(library);
       }
     },
-    [isLibrarySelected, selectLibrary, unselectLibrary]
+    [isLibrarySelected, selectLibrary, unselectLibrary],
   );
 
   // Handle clear all
@@ -274,7 +274,7 @@ export const useRuleBuilder = () => {
       }
       return 'craftsmanship';
     },
-    [getStackLayerType]
+    [getStackLayerType],
   );
 
   // Improved auto-expand logic for search matches with better timing
@@ -294,7 +294,7 @@ export const useRuleBuilder = () => {
 
       // First update layer state (open matching layers)
       layerTimer = setTimeout(() => {
-        setOpenLayers((prev) => {
+        setOpenLayers(() => {
           const newOpenLayers = new Set<string>();
           matchingLayers.forEach((layer) => {
             newOpenLayers.add(layer);
@@ -316,7 +316,7 @@ export const useRuleBuilder = () => {
           });
 
           // Update stack state
-          setOpenStacks((prev) => {
+          setOpenStacks(() => {
             const newOpenStacks = new Set<string>();
             matchingStacks.forEach((stack) => {
               newOpenStacks.add(stack);

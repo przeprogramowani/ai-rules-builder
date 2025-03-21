@@ -1,4 +1,10 @@
-import { getLayerByStack, getStacksByLibrary, Layer, Library, Stack } from '../data/dictionaries';
+import {
+  Layer,
+  Library,
+  Stack,
+  getLayerByStack,
+  getStacksByLibrary,
+} from '../data/dictionaries';
 import { getRulesForLibrary } from '../data/rules';
 import { slugify } from '../utils/slugify.ts';
 
@@ -30,7 +36,7 @@ export class RulesBuilderService {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
     const stacksByLayer = this.groupStacksByLayer(
-      Object.keys(librariesByStack) as Stack[]
+      Object.keys(librariesByStack) as Stack[],
     );
 
     const projectMarkdown = `# AI Rules for ${projectName}\n\n${projectDescription}\n\n`;
@@ -131,7 +137,7 @@ export class RulesBuilderService {
    * @returns Record with stacks as keys and arrays of libraries as values
    */
   private static groupLibrariesByStack(
-    libraries: Library[]
+    libraries: Library[],
   ): Record<Stack, Library[]> {
     const result: Record<Stack, Library[]> = {} as Record<Stack, Library[]>;
 
