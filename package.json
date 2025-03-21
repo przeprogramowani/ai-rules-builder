@@ -39,7 +39,7 @@
     "prettier-plugin-astro": "0.14.1"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{ts,tsx,astro}": [
       "eslint --fix",
       "prettier --write"
     ],
