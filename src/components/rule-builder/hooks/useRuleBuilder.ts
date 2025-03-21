@@ -244,7 +244,7 @@ export const useRuleBuilder = () => {
 
   // Handle library toggle
   const handleLibraryToggle = useCallback(
-    (library: LibraryType) => {
+    (library: Library) => {
       if (isLibrarySelected(library)) {
         unselectLibrary(library);
       } else {

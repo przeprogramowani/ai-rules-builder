@@ -15,7 +15,6 @@ import {
   AccordionTrigger,
 } from '../ui/Accordion';
 import { StackItem } from './StackItem';
-import type { LibraryType } from './hooks/useRuleBuilder';
 
 interface LayerItemProps {
   layer: Layer;
@@ -32,7 +31,7 @@ interface LayerItemProps {
   getLayerType: (layer: Layer) => LayerType;
   getStackLayerType: (stack: Stack) => LayerType;
   stackContainsSearchMatch: (stack: Stack) => boolean;
-  getFilteredLibrariesByStack: (stack: Stack) => LibraryType[];
+  getFilteredLibrariesByStack: (stack: Stack) => Library[];
   searchActive: boolean;
 }
 
