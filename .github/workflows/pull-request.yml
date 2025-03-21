@@ -29,3 +29,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy ./dist --project-name=ai-rules-builder --branch=${{ github.head_ref }}
+
+      - name: Extract deployment URL
+        run: |
+          URL="https://${{ github.head_ref }}.ai-rules-builder.pages.dev"
+          echo "🚀 Preview deployment is ready at $URL" >> $GITHUB_STEP_SUMMARY
