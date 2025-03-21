@@ -24,7 +24,6 @@ jobs:
         run: npm run build
 
       - name: Publish to Cloudflare
-        id: publish
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -32,20 +31,6 @@ jobs:
           command: pages deploy ./dist --project-name=ai-rules-builder --branch=${{ github.head_ref }}
 
       - name: Extract deployment URL
-        id: deployment-url
         run: |
           URL="https://${{ github.head_ref }}.ai-rules-builder.pages.dev"
-          echo "url=$URL" >> $GITHUB_OUTPUT
-
-      - name: Comment PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 Preview deployment is ready!\n\n${process.env.DEPLOYMENT_URL}`
-            })
-        env:
-          DEPLOYMENT_URL: ${{ steps.deployment-url.outputs.url }}
+          echo "🚀 Preview deployment is ready at $URL" >> $GITHUB_STEP_SUMMARY
