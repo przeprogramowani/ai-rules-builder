@@ -6,6 +6,7 @@ import {
   infrastructureRules,
   testingRules,
   codingRules,
+  accessibilityRules,
   getRulesForLibrary as getLibraryRules,
   getRulesForLibraries as getLibrariesRules,
 } from './rules/index';
@@ -21,6 +22,7 @@ export const libraryRules: Record<Library, string[]> = {
   ...infrastructureRules,
   ...testingRules,
   ...codingRules,
+  ...accessibilityRules,
 } as Record<Library, string[]>;
 
 /**

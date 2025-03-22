@@ -53,6 +53,7 @@ export enum Stack {
   DOCUMENTATION = 'Documentation',
   ARCHITECTURE = 'Architecture',
   STATIC_ANALYSIS = 'Static analysis',
+  ACCESSIBILITY = 'Accessibility',
 }
 
 export enum Library {
@@ -182,6 +183,15 @@ export enum Library {
   DDD = 'Domain-Driven Design',
   MICROSERVICES = 'Microservices',
   MONOREPO = 'Monorepo',
+
+  // Accessibility libraries
+  WCAG_PERCEIVABLE = 'WCAG - Perceivable',
+  WCAG_OPERABLE = 'WCAG - Operable',
+  WCAG_UNDERSTANDABLE = 'WCAG - Understandable',
+  WCAG_ROBUST = 'WCAG - Robust',
+  ARIA = 'ARIA Best Practices',
+  ACCESSIBILITY_TESTING = 'Accessibility Testing',
+  MOBILE_ACCESSIBILITY = 'Mobile Accessibility',
 }
 
 // Define relationships between layers, stacks, and libraries
@@ -209,6 +219,7 @@ export const layerToStackMap: LayerToStackMap = {
     Stack.SVELTE,
     Stack.ASTRO,
     Stack.STYLING,
+    Stack.ACCESSIBILITY,
   ],
   [Layer.BACKEND]: [
     Stack.NODE,
@@ -287,6 +298,15 @@ export const stackToLibraryMap: StackToLibraryMap = {
     Library.DDD,
     Library.MICROSERVICES,
     Library.MONOREPO,
+  ],
+  [Stack.ACCESSIBILITY]: [
+    Library.WCAG_PERCEIVABLE,
+    Library.WCAG_OPERABLE,
+    Library.WCAG_UNDERSTANDABLE,
+    Library.WCAG_ROBUST,
+    Library.ARIA,
+    Library.ACCESSIBILITY_TESTING,
+    Library.MOBILE_ACCESSIBILITY,
   ],
 };
 
