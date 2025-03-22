@@ -1,20 +1,13 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-
-// Define the AI environment types for easier maintenance
-export type AIEnvironment =
-  | 'github'
-  | 'cursor'
-  | 'windsurf'
-  | 'aider'
-  | 'cline'
-  | 'junie';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { type AIEnvironment, AIEnvironmentName } from '../data/ai-environments.ts';
 
 interface ProjectState {
   // Project metadata
   projectName: string;
   projectDescription: string;
   selectedEnvironment: AIEnvironment;
+  isMultiFileEnvironment: boolean;
 
   // Hydration state
   isHydrated: boolean;
@@ -26,6 +19,9 @@ interface ProjectState {
   setHydrated: () => void;
 }
 
+export const multiFileEnvironments: ReadonlySet<AIEnvironment> = new Set<AIEnvironment>([AIEnvironmentName.Cline, AIEnvironmentName.Cursor]);
+export const initialEnvironment: Readonly<AIEnvironment> = AIEnvironmentName.Cursor;
+
 // Create a store with persistence
 export const useProjectStore = create<ProjectState>()(
   persist(
@@ -33,7 +29,8 @@ export const useProjectStore = create<ProjectState>()(
       // Initial state
       projectName: '{{project-name}}',
       projectDescription: '{{project-description}}',
-      selectedEnvironment: 'github' as AIEnvironment,
+      selectedEnvironment: initialEnvironment,
+      isMultiFileEnvironment: multiFileEnvironments.has(initialEnvironment),
       isHydrated: false,
 
       // Actions
@@ -41,8 +38,8 @@ export const useProjectStore = create<ProjectState>()(
       setProjectDescription: (description: string) =>
         set({ projectDescription: description }),
       setSelectedEnvironment: (environment: AIEnvironment) =>
-        set({ selectedEnvironment: environment }),
-      setHydrated: () => set({ isHydrated: true }),
+        set({ selectedEnvironment: environment, isMultiFileEnvironment: multiFileEnvironments.has(environment) }),
+      setHydrated: () => set({ isHydrated: true })
     }),
     {
       name: 'ai-rules-project-storage',
@@ -50,7 +47,7 @@ export const useProjectStore = create<ProjectState>()(
       partialize: (state) => ({
         projectName: state.projectName,
         projectDescription: state.projectDescription,
-        selectedEnvironment: state.selectedEnvironment,
+        selectedEnvironment: state.selectedEnvironment
       }),
       // Set hydration flag when storage is hydrated
       onRehydrateStorage: () => (state) => {
