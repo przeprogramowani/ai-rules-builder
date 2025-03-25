@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { useProjectStore } from '../../store/projectStore';
-import type { RulesContent } from '../../services/rules-builder/RulesBuilderService.ts';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 import { aiEnvironmentConfig } from '../../data/ai-environments.ts';
 
 interface RulesPreviewCopyDownloadActionsProps {

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RulesContent } from '../services/rules-builder/RulesBuilderService.ts';
+import type { RulesContent } from '../services/rules-builder/RulesBuilderTypes.ts';
 
 /**
  * Highlights curly bracket placeholders in the text with lime color

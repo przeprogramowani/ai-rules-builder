@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RulesContent } from '../../services/rules-builder/RulesBuilderService.ts';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 import { processRulesContentMarkdown } from '../../utils/markdownStyling.tsx';
 

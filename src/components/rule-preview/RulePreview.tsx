@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RulesBuilderService, type RulesContent } from '../../services/rules-builder/RulesBuilderService.ts';
+import { RulesBuilderService } from '../../services/rules-builder/RulesBuilderService.ts';
 import { useProjectStore } from '../../store/projectStore';
 import { useTechStackStore } from '../../store/techStackStore';
 import { useDependencyUpload } from '../rule-parser/useDependencyUpload';
 import { RulePreviewTopbar } from './RulePreviewTopbar';
 import { DependencyUpload } from './DependencyUpload.tsx';
 import { MarkdownContentRenderer } from './MarkdownContentRenderer.tsx';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 
 export const RulePreview: React.FC = () => {
   const { selectedLibraries } = useTechStackStore();

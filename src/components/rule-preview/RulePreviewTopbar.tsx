@@ -2,7 +2,7 @@ import React from 'react';
 import { useProjectStore } from '../../store/projectStore';
 import { RulesPath } from './RulesPath';
 import { RulesPreviewActions } from './RulesPreviewActions';
-import type { RulesContent } from '../../services/rules-builder/RulesBuilderService.ts';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 import { type AIEnvironment, AIEnvironmentName } from '../../data/ai-environments.ts';
 import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 
