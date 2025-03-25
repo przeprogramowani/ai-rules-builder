@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RulesBuilderService, type RulesContent } from '../../services/rulesBuilderService';
+import { RulesBuilderService, type RulesContent } from '../../services/rules-builder/RulesBuilderService.ts';
 import { useProjectStore } from '../../store/projectStore';
 import { useTechStackStore } from '../../store/techStackStore';
 import { useDependencyUpload } from '../rule-parser/useDependencyUpload';

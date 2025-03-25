@@ -1,5 +1,5 @@
 import React from 'react';
-import type { RulesContent } from '../services/rulesBuilderService.ts';
+import type { RulesContent } from '../services/rules-builder/RulesBuilderService.ts';
 
 /**
  * Highlights curly bracket placeholders in the text with lime color
@@ -59,19 +59,13 @@ export const processRulesContentMarkdown = (text: string): React.ReactNode => {
     return `${start}<h2-styled>${content}</h2-styled>${end}`;
   });
 
-  processedText = processedText.replace(
-    h3Regex,
-    (match, start, content, end) => {
-      return `${start}<h3-styled>${content}</h3-styled>${end}`;
-    },
-  );
+  processedText = processedText.replace(h3Regex, (match, start, content, end) => {
+    return `${start}<h3-styled>${content}</h3-styled>${end}`;
+  });
 
-  processedText = processedText.replace(
-    h4Regex,
-    (match, start, content, end) => {
-      return `${start}<h4-styled>${content}</h4-styled>${end}`;
-    },
-  );
+  processedText = processedText.replace(h4Regex, (match, start, content, end) => {
+    return `${start}<h4-styled>${content}</h4-styled>${end}`;
+  });
 
   // Split by custom tags and placeholders
   const combinedRegex =
@@ -82,35 +76,23 @@ export const processRulesContentMarkdown = (text: string): React.ReactNode => {
   return parts.map((part, index) => {
     if (part.startsWith('<h2-styled>') && part.endsWith('</h2-styled>')) {
       // H2 header - primary purple (indigo)
-      const content = part
-        .replace('<h2-styled>', '')
-        .replace('</h2-styled>', '');
+      const content = part.replace('<h2-styled>', '').replace('</h2-styled>', '');
       return (
         <span key={index} className="text-indigo-400">
           {content}
         </span>
       );
-    } else if (
-      part.startsWith('<h3-styled>') &&
-      part.endsWith('</h3-styled>')
-    ) {
+    } else if (part.startsWith('<h3-styled>') && part.endsWith('</h3-styled>')) {
       // H3 header - secondary purple
-      const content = part
-        .replace('<h3-styled>', '')
-        .replace('</h3-styled>', '');
+      const content = part.replace('<h3-styled>', '').replace('</h3-styled>', '');
       return (
         <span key={index} className="text-purple-400">
           {content}
         </span>
       );
-    } else if (
-      part.startsWith('<h4-styled>') &&
-      part.endsWith('</h4-styled>')
-    ) {
+    } else if (part.startsWith('<h4-styled>') && part.endsWith('</h4-styled>')) {
       // H4 header - lighter purple
-      const content = part
-        .replace('<h4-styled>', '')
-        .replace('</h4-styled>', '');
+      const content = part.replace('<h4-styled>', '').replace('</h4-styled>', '');
       return (
         <span key={index} className="text-purple-300">
           {content}
