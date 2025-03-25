@@ -1,10 +1,9 @@
 import React from 'react';
-import { multiFileEnvironments, useProjectStore } from '../../store/projectStore';
+import { useProjectStore } from '../../store/projectStore';
 import { RulesPath } from './RulesPath';
 import { RulesPreviewActions } from './RulesPreviewActions';
 import type { RulesContent } from '../../services/rulesBuilderService.ts';
 import { type AIEnvironment, AIEnvironmentName } from '../../data/ai-environments.ts';
-import Tooltip from '../helpers/Tooltip.tsx';
 import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 
 interface RulePreviewTopbarProps {
@@ -12,43 +11,37 @@ interface RulePreviewTopbarProps {
 }
 
 interface EnvButtonProps {
-  environment: AIEnvironment,
-  selectedEnvironment: AIEnvironment,
-  isMultiFileEnvironment: boolean,
-  onSetSelectedEnvironment: (environment: AIEnvironment) => void
+  environment: AIEnvironment;
+  selectedEnvironment: AIEnvironment;
+  isMultiFileEnvironment: boolean;
+  onSetSelectedEnvironment: (environment: AIEnvironment) => void;
 }
 
-const EnvButton: React.FC<EnvButtonProps> = ({
-                                               environment,
-                                               selectedEnvironment,
-                                               isMultiFileEnvironment,
-                                               onSetSelectedEnvironment
-                                             }) => {
-  return (<button
-    onClick={() => onSetSelectedEnvironment(environment)}
-    className={`px-3 py-1 text-xs rounded-md ${
-      selectedEnvironment === environment
-        ? (isMultiFileEnvironment ? 'bg-amber-700 hover:bg-amber-600' : 'bg-indigo-700 hover:bg-indigo-600') + ' text-white'
-        : 'bg-gray-700 text-gray-300 ' + (multiFileEnvironments.has(environment) ? 'hover:bg-stone-600' : 'hover:bg-gray-600')
-    }`}
-  >
-    {environment[0].toUpperCase()}{environment.slice(1)}
-  </button>);
+const EnvButton: React.FC<EnvButtonProps> = ({ environment, selectedEnvironment, onSetSelectedEnvironment }) => {
+  return (
+    <button
+      onClick={() => onSetSelectedEnvironment(environment)}
+      className={`px-3 py-1 text-xs rounded-md ${
+        selectedEnvironment === environment
+          ? 'bg-indigo-700 hover:bg-indigo-600 text-white'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+      }`}
+    >
+      {environment[0].toUpperCase()}
+      {environment.slice(1)}
+    </button>
+  );
 };
 
-export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
-                                                                      rulesContent
-                                                                    }) => {
-  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } =
-    useProjectStore();
+export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesContent }) => {
+  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } = useProjectStore();
 
   // If state hasn't been hydrated from storage yet, don't render the selector
   // This prevents the "blinking" effect when loading persisted state
   if (!isHydrated) {
     return (
       <div className="p-2 bg-gray-800 rounded-lg">
-        <div
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 opacity-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 opacity-0">
           {/* Invisible placeholder content with the same structure to prevent layout shift */}
           <div className="flex items-center space-x-2">
             <div className="flex space-x-1">
@@ -75,18 +68,15 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
         <div className="flex flex-col space-y-2 w-full sm:w-auto">
           {/* Environment selector buttons - make them wrap on small screens */}
           <div className="flex flex-wrap gap-1">
-            {Object.values(AIEnvironmentName).map((environment) =>
-              (multiFileEnvironments.has(environment) ?
-                <Tooltip content={'Multi-file environment'} key={'tooltip-' + environment}>
-                  <EnvButton key={'button-' + environment} environment={environment}
-                             selectedEnvironment={selectedEnvironment}
-                             isMultiFileEnvironment={isMultiFileEnvironment}
-                             onSetSelectedEnvironment={setSelectedEnvironment} />
-                </Tooltip> : <EnvButton key={'button-' + environment} environment={environment}
-                                        selectedEnvironment={selectedEnvironment}
-                                        isMultiFileEnvironment={isMultiFileEnvironment}
-                                        onSetSelectedEnvironment={setSelectedEnvironment} />)
-            )}
+            {Object.values(AIEnvironmentName).map((environment) => (
+              <EnvButton
+                key={'button-' + environment}
+                environment={environment}
+                selectedEnvironment={selectedEnvironment}
+                isMultiFileEnvironment={isMultiFileEnvironment}
+                onSetSelectedEnvironment={setSelectedEnvironment}
+              />
+            ))}
           </div>
 
           {/* Path display */}
@@ -95,9 +85,10 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
 
         {/* Right side: Action buttons */}
         <div className="w-full sm:w-auto">
-          <RulesPreviewActions rulesContent={rulesContent}>
+          <div className="flex flex-wrap gap-2 w-full">
             <RulesPreviewCopyDownloadActions rulesContent={rulesContent} />
-          </RulesPreviewActions>
+            <RulesPreviewActions></RulesPreviewActions>
+          </div>
         </div>
       </div>
     </div>

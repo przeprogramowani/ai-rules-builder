@@ -1,22 +1,13 @@
-import React, { type ReactNode } from 'react';
+import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useProjectStore } from '../../store/projectStore';
-import type { RulesContent } from '../../services/rulesBuilderService.ts';
-import { envConfig } from '../../data/ai-environments.ts';
+import { aiEnvironmentConfig } from '../../data/ai-environments.ts';
 
-interface RulesPreviewActionsProps {
-  children: ReactNode;
-  rulesContent: RulesContent[];
-}
-
-export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
-                                                                          children,
-                                                                          rulesContent
-                                                                        }) => {
+export const RulesPreviewActions: React.FC<unknown> = () => {
   const { selectedEnvironment } = useProjectStore();
 
   // Get the documentation URL based on the selected format
-  const getDocsUrl = (): string => envConfig[selectedEnvironment].docsUrl;
+  const getDocsUrl = (): string => aiEnvironmentConfig[selectedEnvironment].docsUrl;
 
   // Open the documentation URL in a new tab
   const handleOpenDocs = () => {
@@ -24,16 +15,12 @@ export const RulesPreviewActions: React.FC<RulesPreviewActionsProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap gap-2 w-full">
-      {children}
-      <button
-        onClick={handleOpenDocs}
-        className="px-3 py-1 bg-purple-700 text-white rounded-md hover:bg-purple-600 flex items-center text-sm opacity-40 hover:opacity-100"
-      >
-        <ExternalLink className="h-4 w-4 mr-1" />
-        Docs
-      </button>
-    </div>
+    <button
+      onClick={handleOpenDocs}
+      className="px-3 py-1 bg-purple-700 text-white rounded-md hover:bg-purple-600 flex items-center text-sm opacity-40 hover:opacity-100"
+    >
+      <ExternalLink className="h-4 w-4" />
+    </button>
   );
 };
 
