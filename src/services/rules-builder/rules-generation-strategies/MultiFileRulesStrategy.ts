@@ -31,24 +31,46 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
 
     Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
       stacks.forEach((stack) => {
-        const libraries = librariesByStack[stack];
-        if (libraries) {
-          libraries.forEach((library) => {
-            const libraryRules = getRulesForLibrary(library);
-            const label = `${layer} - ${stack} - ${library}`,
-              fileName: RulesContent['fileName'] = `${slugify(`${layer}-${stack}-${library}`)}.mdc`;
-            const markdown = (function () {
-              if (libraryRules.length > 0) {
-                return `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n${libraryRules.map((rule) => `- ${rule}`).join('\n')}\n\n`;
-              }
-              return `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n- Use ${library} according to best practices\n\n`;
-            })();
-            markdowns.push({ markdown, label, fileName });
-          });
-        }
+        librariesByStack[stack].forEach((library) => {
+          markdowns.push(this.buildRulesContent({ layer, stack, library, libraryRules: getRulesForLibrary(library) }));
+        });
       });
     });
 
     return markdowns;
   }
+
+  private buildRulesContent({
+    libraryRules,
+    layer,
+    stack,
+    library,
+  }: {
+    libraryRules: string[];
+    layer: string;
+    stack: string;
+    library: string;
+  }): RulesContent {
+    const label = `${layer} - ${stack} - ${library}`;
+    const fileName: RulesContent['fileName'] = `${slugify(`${layer}-${stack}-${library}`)}.mdc`;
+    const content =
+      libraryRules.length > 0
+        ? `${libraryRules.map((rule) => `- ${rule}`).join('\n')}`
+        : `- Use ${library} according to best practices`;
+    const markdown = this.renderRuleMarkdown({ content, layer, stack, library });
+    return { markdown, label, fileName };
+  }
+
+  private renderRuleMarkdown = ({
+    content,
+    layer,
+    stack,
+    library,
+  }: {
+    content: string;
+    layer: string;
+    stack: string;
+    library: string;
+  }) =>
+    `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n{{content}}\n\n`.replace('{{content}}', content);
 }
