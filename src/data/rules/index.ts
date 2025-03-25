@@ -6,3 +6,4 @@ export * from './infrastructure';
 export * from './testing';
 export * from './coding';
 export * from './helpers';
+export * from './accessibility';
