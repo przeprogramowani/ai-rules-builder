@@ -20,7 +20,7 @@ export const RulePreview: React.FC = () => {
       projectName,
       projectDescription,
       selectedLibraries,
-      isMultiFileEnvironment
+      isMultiFileEnvironment,
     );
     setMarkdownContent(markdowns);
   }, [selectedLibraries, projectName, projectDescription, isMultiFileEnvironment]);
@@ -51,9 +51,7 @@ export const RulePreview: React.FC = () => {
         if (file.name.endsWith('.json') || file.name.endsWith('.txt')) {
           await uploadDependencyFile(file);
         } else {
-          console.warn(
-            'Invalid file type. Please drop a package.json or requirements.txt file.',
-          );
+          console.warn('Invalid file type. Please drop a package.json or requirements.txt file.');
         }
       }
     },
@@ -69,43 +67,40 @@ export const RulePreview: React.FC = () => {
     >
       <RulePreviewTopbar rulesContent={markdownContent} />
 
-      <div>
-        {markdownContent.map((rule, index) => (
-          <div key={'markdownContent-' + index}
-               className="overflow-y-auto relative flex-1 p-4 mt-4 h-full min-h-0 bg-gray-900 rounded-lg">
-            {markdownContent.length > 1 && (<div className="absolute top-4 right-4 flex flex-wrap gap-2">
-              <RulesPreviewCopyDownloadActions rulesContent={[rule]} />
-            </div>)}
-
-            <pre className="font-mono text-sm text-gray-300 whitespace-pre-wrap">
-            {processRulesContentMarkdown(rule.markdown)}
-          </pre>
-            {/* Dropzone overlay that appears when dragging */}
-            {isDragging && (
-              <div
-                className="flex absolute inset-0 z-10 flex-col justify-center items-center bg-gray-800 bg-opacity-80 rounded-lg border-2 border-blue-400 border-dashed">
-                <FileUp className="mb-4 text-blue-400 size-12" />
-                <p className="text-lg font-medium text-blue-400">
-                  Drop dependency file to identify libraries
-                </p>
-                <p className="mt-2 text-sm text-gray-400">
-                  Supported: package.json, requirements.txt
-                </p>
-              </div>
-            )}
-          </div>))}
-      </div>
-
       {/* Upload status message */}
       {uploadStatus.message && (
-        <div
-          className={`text-xs mt-2 ${
-            uploadStatus.success ? 'text-green-400' : 'text-red-400'
-          }`}
-        >
+        <div className={`text-xs mt-2 ${uploadStatus.success ? 'text-green-400' : 'text-red-400'}`}>
           {uploadStatus.message}
         </div>
       )}
+
+      {/* Dropzone overlay that appears when dragging */}
+      {isDragging && (
+        <div className="flex absolute inset-0 z-10 flex-col justify-center items-center bg-gray-800 bg-opacity-80 rounded-lg border-2 border-blue-400 border-dashed">
+          <FileUp className="mb-4 text-blue-400 size-12" />
+          <p className="text-lg font-medium text-blue-400">Drop dependency file to identify libraries</p>
+          <p className="mt-2 text-sm text-gray-400">Supported: package.json, requirements.txt</p>
+        </div>
+      )}
+
+      <div>
+        {markdownContent.map((rule, index) => (
+          <div
+            key={'markdownContent-' + index}
+            className="overflow-y-auto relative flex-1 p-4 mt-4 h-full min-h-0 bg-gray-900 rounded-lg"
+          >
+            {markdownContent.length > 1 && (
+              <div className="absolute top-4 right-4 flex flex-wrap gap-2">
+                <RulesPreviewCopyDownloadActions rulesContent={[rule]} />
+              </div>
+            )}
+
+            <pre className="font-mono text-sm text-gray-300 whitespace-pre-wrap">
+              {processRulesContentMarkdown(rule.markdown)}
+            </pre>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
