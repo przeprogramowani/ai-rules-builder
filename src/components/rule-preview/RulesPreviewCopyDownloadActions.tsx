@@ -11,6 +11,7 @@ interface RulesPreviewCopyDownloadActionsProps {
 export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadActionsProps> = ({ rulesContent }) => {
   const { selectedEnvironment, isMultiFileEnvironment } = useProjectStore();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+  const singleRuleContent = rulesContent.length <= 1;
 
   // Get the appropriate file path based on the selected format
   const getFilePath = (): string => aiEnvironmentConfig[selectedEnvironment].filePath;
@@ -63,14 +64,18 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
     let download: string;
 
     if (isMultiFileEnvironment) {
-      content = zipSync(
-        rulesContent.reduce((zippable, ruleContent) => {
-          zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
-          return zippable;
-        }, {} as Zippable),
-      );
-      blob = new Blob([content], { type: 'application/zip' });
-      download = `${selectedEnvironment}-rules.zip`;
+      content = singleRuleContent
+        ? (rulesContent[0]?.markdown ?? '')
+        : zipSync(
+            rulesContent.reduce((zippable, ruleContent) => {
+              zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
+              return zippable;
+            }, {} as Zippable),
+          );
+      blob = new Blob([content], { type: singleRuleContent ? 'text/markdown;charset=utf-8' : 'application/zip' });
+      download = singleRuleContent
+        ? (rulesContent[0]?.fileName ?? `${selectedEnvironment}-rules.md`)
+        : `${selectedEnvironment}-rules.zip`;
     } else {
       content = rulesContent[0].markdown;
       blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
