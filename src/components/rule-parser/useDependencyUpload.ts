@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTechStackStore } from '../../store/techStackStore';
 import { Library } from '../../data/dictionaries';
 
-interface UploadStatus {
+export interface UploadStatus {
   success?: boolean;
   message?: string;
 }
@@ -73,8 +73,7 @@ export function useDependencyUpload() {
       console.error('Error uploading file:', error);
       setUploadStatus({
         success: false,
-        message:
-          error instanceof Error ? error.message : 'Failed to process file',
+        message: error instanceof Error ? error.message : 'Failed to process file',
       });
     } finally {
       setIsUploading(false);
