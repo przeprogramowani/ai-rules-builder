@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import { type Zippable, zipSync } from 'fflate';
 import { useProjectStore } from '../../store/projectStore';
 import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 import { aiEnvironmentConfig } from '../../data/ai-environments.ts';
@@ -8,9 +9,8 @@ interface RulesPreviewCopyDownloadActionsProps {
 }
 
 export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadActionsProps> = ({ rulesContent }) => {
-  const { selectedEnvironment } = useProjectStore();
+  const { selectedEnvironment, isMultiFileEnvironment } = useProjectStore();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
-  const singleFile = rulesContent.length === 1;
 
   // Get the appropriate file path based on the selected format
   const getFilePath = (): string => aiEnvironmentConfig[selectedEnvironment].filePath;
@@ -48,14 +48,33 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
 
   // Download the markdown content as a file
   const handleDownload = () => {
-    const markdown = singleFile
-      ? rulesContent[0].markdown
-      : rulesContent.map((content) => content.markdown).join('\n\n');
+    if (isMultiFileEnvironment) {
+      const zipped = zipSync(
+        rulesContent.reduce((zippable, ruleContent) => {
+          zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
+          return zippable;
+        }, {} as Zippable),
+      );
+      const a = document.createElement('a');
+      const blob = new Blob([zipped], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      const download = `${selectedEnvironment}-rules.zip`;
 
+      a.href = url;
+      a.download = download;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      return;
+    }
+
+    const markdown = rulesContent[0].markdown;
     const a = document.createElement('a');
     const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const download = singleFile ? rulesContent[0].fileName : getFilePath().split('/').pop() || 'rules.md';
+    const download = getFilePath().split('/').pop() || `${selectedEnvironment}-rules.md`;
 
     a.href = url;
     a.download = download;
