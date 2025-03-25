@@ -51,13 +51,18 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
     const markdown = singleFile
       ? rulesContent[0].markdown
       : rulesContent.map((content) => content.markdown).join('\n\n');
-    const element = document.createElement('a');
-    const file = new Blob([markdown], { type: 'text/markdown' });
-    element.href = URL.createObjectURL(file);
-    element.download = singleFile ? rulesContent[0].fileName : getFilePath().split('/').pop() || 'rules.md';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+
+    const a = document.createElement('a');
+    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const download = singleFile ? rulesContent[0].fileName : getFilePath().split('/').pop() || 'rules.md';
+
+    a.href = url;
+    a.download = download;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
