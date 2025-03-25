@@ -46,42 +46,39 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
     }
   };
 
-  // Download the markdown content as a file
-  const handleDownload = () => {
-    if (isMultiFileEnvironment) {
-      const zipped = zipSync(
-        rulesContent.reduce((zippable, ruleContent) => {
-          zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
-          return zippable;
-        }, {} as Zippable),
-      );
-      const a = document.createElement('a');
-      const blob = new Blob([zipped], { type: 'application/zip' });
-      const url = URL.createObjectURL(blob);
-      const download = `${selectedEnvironment}-rules.zip`;
-
-      a.href = url;
-      a.download = download;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      return;
-    }
-
-    const markdown = rulesContent[0].markdown;
+  const invokeDownload = ({ url, download }: { url: string; download: string }) => {
     const a = document.createElement('a');
-    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const download = getFilePath().split('/').pop() || `${selectedEnvironment}-rules.md`;
-
     a.href = url;
     a.download = download;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  // Download the markdown content as a file
+  const handleDownload = () => {
+    let content: Uint8Array<ArrayBufferLike> | string;
+    let blob: Blob;
+    let download: string;
+
+    if (isMultiFileEnvironment) {
+      content = zipSync(
+        rulesContent.reduce((zippable, ruleContent) => {
+          zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
+          return zippable;
+        }, {} as Zippable),
+      );
+      blob = new Blob([content], { type: 'application/zip' });
+      download = `${selectedEnvironment}-rules.zip`;
+    } else {
+      content = rulesContent[0].markdown;
+      blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+      download = getFilePath().split('/').pop() || `${selectedEnvironment}-rules.md`;
+    }
+
+    const url = URL.createObjectURL(blob);
+    invokeDownload({ url, download });
   };
 
   return (
