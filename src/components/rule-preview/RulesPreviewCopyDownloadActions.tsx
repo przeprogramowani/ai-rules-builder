@@ -1,8 +1,8 @@
-import React, { Fragment, useState } from 'react';
 import { type Zippable, zipSync } from 'fflate';
-import { useProjectStore } from '../../store/projectStore';
-import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
+import React, { Fragment, useState } from 'react';
 import { aiEnvironmentConfig } from '../../data/ai-environments.ts';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
+import { useProjectStore } from '../../store/projectStore';
 
 interface RulesPreviewCopyDownloadActionsProps {
   rulesContent: RulesContent[];
@@ -92,7 +92,8 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
         onClick={handleCopy}
         className={`px-3 py-1 ${
           showCopiedMessage ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-        } rounded-md flex items-center transition-colors duration-200 text-sm opacity-40 hover:opacity-100`}
+        } rounded-md flex items-center transition-colors duration-200 text-sm opacity-40 hover:opacity-100 cursor-pointer`}
+        aria-label="Copy"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           {showCopiedMessage ? (
@@ -111,7 +112,8 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
       </button>
       <button
         onClick={handleDownload}
-        className="px-3 py-1 bg-indigo-700 text-white rounded-md hover:bg-indigo-600 flex items-center text-sm opacity-40 hover:opacity-100"
+        className="px-3 py-1 bg-indigo-700 text-white rounded-md hover:bg-indigo-600 flex items-center text-sm opacity-40 hover:opacity-100 cursor-pointer"
+        aria-label="Download"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           <path
