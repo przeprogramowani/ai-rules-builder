@@ -18,7 +18,6 @@
     "@types/react-dom": "18.3.5",
     "astro": "^5.5.2",
     "clsx": "^2.1.1",
-    "esbuild": "^0.25.0",
     "fflate": "^0.8.2",
     "lucide-react": "0.479.0",
     "react": "18.3.0",
@@ -48,11 +47,5 @@
     "*.{json,css,md}": [
       "prettier --write"
     ]
-  },
-  "overrides": {
-    "wrangler": "^4.2.0",
-    "miniflare": "^4.20250317.0",
-    "esbuild": "^0.25.0",
-    "cookie": "^0.7.0"
   }
 }
