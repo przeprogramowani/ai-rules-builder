@@ -2,16 +2,38 @@ import React from 'react';
 import { useProjectStore } from '../../store/projectStore';
 import { RulesPath } from './RulesPath';
 import { RulesPreviewActions } from './RulesPreviewActions';
+import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
+import { type AIEnvironment, AIEnvironmentName } from '../../data/ai-environments.ts';
+import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.tsx';
 
 interface RulePreviewTopbarProps {
-  markdown: string;
+  rulesContent: RulesContent[];
 }
 
-export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
-  markdown,
-}) => {
-  const { selectedEnvironment, setSelectedEnvironment, isHydrated } =
-    useProjectStore();
+interface EnvButtonProps {
+  environment: AIEnvironment;
+  selectedEnvironment: AIEnvironment;
+  isMultiFileEnvironment: boolean;
+  onSetSelectedEnvironment: (environment: AIEnvironment) => void;
+}
+
+const EnvButton: React.FC<EnvButtonProps> = ({ environment, selectedEnvironment, onSetSelectedEnvironment }) => {
+  return (
+    <button
+      onClick={() => onSetSelectedEnvironment(environment)}
+      className={`px-3 py-1 text-xs rounded-md ${
+        selectedEnvironment === environment
+          ? 'bg-indigo-700 hover:bg-indigo-600 text-white'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+      }`}
+    >
+      {`${environment[0].toUpperCase()}${environment.slice(1)}`}
+    </button>
+  );
+};
+
+export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesContent }) => {
+  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } = useProjectStore();
 
   // If state hasn't been hydrated from storage yet, don't render the selector
   // This prevents the "blinking" effect when loading persisted state
@@ -45,66 +67,15 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
         <div className="flex flex-col space-y-2 w-full sm:w-auto">
           {/* Environment selector buttons - make them wrap on small screens */}
           <div className="flex flex-wrap gap-1">
-            <button
-              onClick={() => setSelectedEnvironment('github')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'github'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Copilot
-            </button>
-            <button
-              onClick={() => setSelectedEnvironment('cursor')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'cursor'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Cursor
-            </button>
-            <button
-              onClick={() => setSelectedEnvironment('windsurf')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'windsurf'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Windsurf
-            </button>
-            <button
-              onClick={() => setSelectedEnvironment('aider')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'aider'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Aider
-            </button>
-            <button
-              onClick={() => setSelectedEnvironment('cline')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'cline'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Cline
-            </button>
-            <button
-              onClick={() => setSelectedEnvironment('junie')}
-              className={`px-3 py-1 text-xs rounded-md ${
-                selectedEnvironment === 'junie'
-                  ? 'bg-indigo-700 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-            >
-              Junie
-            </button>
+            {Object.values(AIEnvironmentName).map((environment) => (
+              <EnvButton
+                key={'button-' + environment}
+                environment={environment}
+                selectedEnvironment={selectedEnvironment}
+                isMultiFileEnvironment={isMultiFileEnvironment}
+                onSetSelectedEnvironment={setSelectedEnvironment}
+              />
+            ))}
           </div>
 
           {/* Path display */}
@@ -113,7 +84,10 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({
 
         {/* Right side: Action buttons */}
         <div className="w-full sm:w-auto">
-          <RulesPreviewActions markdown={markdown} />
+          <div className="flex flex-wrap gap-2 w-full">
+            <RulesPreviewCopyDownloadActions rulesContent={rulesContent} />
+            <RulesPreviewActions></RulesPreviewActions>
+          </div>
         </div>
       </div>
     </div>

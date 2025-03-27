@@ -1,15 +1,8 @@
-import {
-  Layer,
-  Library,
-  Stack,
-  getLayerByStack,
-  getStacksByLibrary,
-} from '../data/dictionaries';
-import { getRulesForLibrary } from '../data/rules';
-
-interface RulesContent {
-  markdown: string;
-}
+import { Layer, Library, Stack, getLayerByStack, getStacksByLibrary } from '../../data/dictionaries.ts';
+import type { RulesContent } from './RulesBuilderTypes.ts';
+import type { RulesGenerationStrategy } from './RulesGenerationStrategy.ts';
+import { MultiFileRulesStrategy } from './rules-generation-strategies/MultiFileRulesStrategy.ts';
+import { SingleFileRulesStrategy } from './rules-generation-strategies/SingleFileRulesStrategy.ts';
 
 /**
  * Service for building AI rules based on selected libraries
@@ -21,60 +14,22 @@ export class RulesBuilderService {
    * @param projectName - The name of the project
    * @param projectDescription - The description of the project
    * @param selectedLibraries - Array of selected libraries
+   * @param multiFile - Whether to generate multiple files per each rule content
    * @returns The generated markdown content
    */
   static generateRulesContent(
     projectName: string,
     projectDescription: string,
     selectedLibraries: Library[],
-  ): RulesContent {
+    multiFile?: boolean,
+  ): RulesContent[] {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
-    const stacksByLayer = this.groupStacksByLayer(
-      Object.keys(librariesByStack) as Stack[],
-    );
+    const stacksByLayer = this.groupStacksByLayer(Object.keys(librariesByStack) as Stack[]);
 
-    // Generate markdown content
-    let markdown = `# AI Rules for ${projectName}\n\n`;
-    markdown += `${projectDescription}\n\n`;
+    const strategy: RulesGenerationStrategy = multiFile ? new MultiFileRulesStrategy() : new SingleFileRulesStrategy();
 
-    if (selectedLibraries.length === 0) {
-      markdown += `---\n\n`;
-      markdown += `👈 Use the Rule Builder on the left or drop dependency file here`;
-      return { markdown };
-    }
-
-    // Generate content for each layer and its stacks
-    Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
-      markdown += `## ${layer}\n\n`;
-
-      stacks.forEach((stack) => {
-        markdown += `### Guidelines for ${stack}\n\n`;
-
-        const libraries = librariesByStack[stack];
-        if (libraries) {
-          libraries.forEach((library) => {
-            markdown += `#### ${library}\n\n`;
-
-            // Get specific rules for this library
-            const libraryRules = getRulesForLibrary(library);
-            if (libraryRules.length > 0) {
-              libraryRules.forEach((rule) => {
-                markdown += `- ${rule}\n`;
-              });
-            } else {
-              markdown += `- Use ${library} according to best practices\n`;
-            }
-
-            markdown += '\n';
-          });
-        }
-
-        markdown += '\n';
-      });
-    });
-
-    return { markdown };
+    return strategy.generateRules(projectName, projectDescription, selectedLibraries, stacksByLayer, librariesByStack);
   }
 
   /**
@@ -83,9 +38,7 @@ export class RulesBuilderService {
    * @param libraries - Array of libraries to group
    * @returns Record with stacks as keys and arrays of libraries as values
    */
-  private static groupLibrariesByStack(
-    libraries: Library[],
-  ): Record<Stack, Library[]> {
+  private static groupLibrariesByStack(libraries: Library[]): Record<Stack, Library[]> {
     const result: Record<Stack, Library[]> = {} as Record<Stack, Library[]>;
 
     libraries.forEach((library) => {
