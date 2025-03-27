@@ -1,5 +1,5 @@
 /**
- * Dictionaries for AI Rules Builder
+ * Dictionaries for 10xRules.ai
  *
  * This file defines the relationships between layers, stacks, and libraries
  * - Layers contain stacks
@@ -221,13 +221,7 @@ export const layerToStackMap: LayerToStackMap = {
     Stack.STYLING,
     Stack.ACCESSIBILITY,
   ],
-  [Layer.BACKEND]: [
-    Stack.NODE,
-    Stack.PYTHON,
-    Stack.JAVA,
-    Stack.DOTNET,
-    Stack.GO,
-  ],
+  [Layer.BACKEND]: [Stack.NODE, Stack.PYTHON, Stack.JAVA, Stack.DOTNET, Stack.GO],
   [Layer.DATABASE]: [Stack.SQL, Stack.NOSQL, Stack.GRAPH],
   [Layer.DEVOPS]: [Stack.CI_CD, Stack.CONTAINERIZATION, Stack.CLOUD],
   [Layer.TESTING]: [Stack.UNIT, Stack.INTEGRATION, Stack.E2E],
@@ -243,18 +237,8 @@ export const stackToLibraryMap: StackToLibraryMap = {
     Library.ZUSTAND,
     Library.REACT_QUERY,
   ],
-  [Stack.VUE]: [
-    Library.VUE_CODING_STANDARDS,
-    Library.NUXT,
-    Library.VUEX,
-    Library.VUE_ROUTER,
-    Library.PINIA,
-  ],
-  [Stack.ANGULAR]: [
-    Library.ANGULAR_CODING_STANDARDS,
-    Library.NGRX,
-    Library.ANGULAR_MATERIAL,
-  ],
+  [Stack.VUE]: [Library.VUE_CODING_STANDARDS, Library.NUXT, Library.VUEX, Library.VUE_ROUTER, Library.PINIA],
+  [Stack.ANGULAR]: [Library.ANGULAR_CODING_STANDARDS, Library.NGRX, Library.ANGULAR_MATERIAL],
   [Stack.SVELTE]: [Library.SVELTE_CODING_STANDARDS, Library.SVELTE_KIT],
   [Stack.ASTRO]: [Library.ASTRO_CODING_STANDARDS, Library.ASTRO_ISLANDS],
   [Stack.STYLING]: [Library.TAILWIND, Library.STYLED_COMPONENTS, Library.SCSS],
@@ -273,32 +257,10 @@ export const stackToLibraryMap: StackToLibraryMap = {
   [Stack.INTEGRATION]: [Library.SUPERTEST],
   [Stack.E2E]: [Library.CYPRESS, Library.PLAYWRIGHT, Library.SELENIUM],
   [Stack.SUPPORT_LEVEL]: [Library.SUPPORT_BEGINNER, Library.SUPPORT_EXPERT],
-  [Stack.STATIC_ANALYSIS]: [
-    Library.ESLINT,
-    Library.PRETTIER,
-    Library.SONARQUBE,
-    Library.CODECOV,
-  ],
-  [Stack.DOCUMENTATION]: [
-    Library.DOC_UPDATES,
-    Library.JSDOC,
-    Library.TYPEDOC,
-    Library.STORYBOOK,
-    Library.SWAGGER,
-  ],
-  [Stack.VERSION_CONTROL]: [
-    Library.GIT,
-    Library.GITHUB,
-    Library.GITLAB,
-    Library.CONVENTIONAL_COMMITS,
-  ],
-  [Stack.ARCHITECTURE]: [
-    Library.ADR,
-    Library.CLEAN_ARCHITECTURE,
-    Library.DDD,
-    Library.MICROSERVICES,
-    Library.MONOREPO,
-  ],
+  [Stack.STATIC_ANALYSIS]: [Library.ESLINT, Library.PRETTIER, Library.SONARQUBE, Library.CODECOV],
+  [Stack.DOCUMENTATION]: [Library.DOC_UPDATES, Library.JSDOC, Library.TYPEDOC, Library.STORYBOOK, Library.SWAGGER],
+  [Stack.VERSION_CONTROL]: [Library.GIT, Library.GITHUB, Library.GITLAB, Library.CONVENTIONAL_COMMITS],
+  [Stack.ARCHITECTURE]: [Library.ADR, Library.CLEAN_ARCHITECTURE, Library.DDD, Library.MICROSERVICES, Library.MONOREPO],
   [Stack.ACCESSIBILITY]: [
     Library.WCAG_PERCEIVABLE,
     Library.WCAG_OPERABLE,
