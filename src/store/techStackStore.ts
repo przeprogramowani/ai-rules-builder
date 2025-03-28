@@ -1,17 +1,14 @@
 import { create } from 'zustand';
-import {
-  Layer,
-  Stack,
-  Library,
-  getLayersByLibrary,
-  getStacksByLibrary,
-} from '../data/dictionaries';
+import { Layer, Stack, Library, getLayersByLibrary, getStacksByLibrary } from '../data/dictionaries';
 
 interface TechStackState {
   // Selected items
   selectedLayers: Layer[];
   selectedStacks: Stack[];
   selectedLibraries: Library[];
+
+  // Original collection libraries (for dirty state comparison)
+  originalLibraries: Library[];
 
   // Actions
   selectLayer: (layer: Layer) => void;
@@ -26,11 +23,13 @@ interface TechStackState {
   resetStacks: () => void;
   resetLibraries: () => void;
   resetAll: () => void;
+  setOriginalLibraries: (libraries: Library[]) => void;
 
   // Utility functions
   isLayerSelected: (layer: Layer) => boolean;
   isStackSelected: (stack: Stack) => boolean;
   isLibrarySelected: (library: Library) => boolean;
+  isDirty: () => boolean;
 
   // Get related items
   getSelectedLayersByLibrary: (library: Library) => Layer[];
@@ -42,13 +41,12 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
   selectedLayers: [],
   selectedStacks: [],
   selectedLibraries: [],
+  originalLibraries: [],
 
   // Layer actions
   selectLayer: (layer: Layer) =>
     set((state) => ({
-      selectedLayers: state.selectedLayers.includes(layer)
-        ? state.selectedLayers
-        : [...state.selectedLayers, layer],
+      selectedLayers: state.selectedLayers.includes(layer) ? state.selectedLayers : [...state.selectedLayers, layer],
     })),
 
   unselectLayer: (layer: Layer) =>
@@ -59,9 +57,7 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
   // Stack actions
   selectStack: (stack: Stack) =>
     set((state) => ({
-      selectedStacks: state.selectedStacks.includes(stack)
-        ? state.selectedStacks
-        : [...state.selectedStacks, stack],
+      selectedStacks: state.selectedStacks.includes(stack) ? state.selectedStacks : [...state.selectedStacks, stack],
     })),
 
   unselectStack: (stack: Stack) =>
@@ -93,26 +89,38 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
       selectedLibraries: [],
     }),
 
+  setOriginalLibraries: (libraries: Library[]) =>
+    set({
+      originalLibraries: libraries,
+    }),
+
   // Utility functions
   isLayerSelected: (layer: Layer) => get().selectedLayers.includes(layer),
-
   isStackSelected: (stack: Stack) => get().selectedStacks.includes(stack),
+  isLibrarySelected: (library: Library) => get().selectedLibraries.includes(library),
+  isDirty: () => {
+    const { selectedLibraries, originalLibraries } = get();
 
-  isLibrarySelected: (library: Library) =>
-    get().selectedLibraries.includes(library),
+    // If lengths are different, state is definitely dirty
+    if (selectedLibraries.length !== originalLibraries.length) return true;
+
+    // Check if all original libraries are still selected
+    const hasAllOriginal = originalLibraries.every((lib) => selectedLibraries.includes(lib));
+
+    // Check if all selected libraries were in original
+    const allSelectedWereOriginal = selectedLibraries.every((lib) => originalLibraries.includes(lib));
+
+    return !hasAllOriginal || !allSelectedWereOriginal;
+  },
 
   // Get related items
   getSelectedLayersByLibrary: (library: Library) => {
     const allLayersForLibrary = getLayersByLibrary(library);
-    return allLayersForLibrary.filter((layer) =>
-      get().selectedLayers.includes(layer),
-    );
+    return allLayersForLibrary.filter((layer) => get().selectedLayers.includes(layer));
   },
 
   getSelectedStacksByLibrary: (library: Library) => {
     const allStacksForLibrary = getStacksByLibrary(library);
-    return allStacksForLibrary.filter((stack) =>
-      get().selectedStacks.includes(stack),
-    );
+    return allStacksForLibrary.filter((stack) => get().selectedStacks.includes(stack));
   },
 }));
