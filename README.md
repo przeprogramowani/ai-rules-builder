@@ -1,7 +1,7 @@
 # 10xRules.ai by 10xDevs
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml)
@@ -81,6 +81,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/damianidczak"><img src="https://avatars.githubusercontent.com/u/21343496?v=4?s=100" width="100px;" alt="Damian"/><br /><sub><b>Damian</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=damianidczak" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/pawel-twardziak"><img src="https://avatars.githubusercontent.com/u/180847852?v=4?s=100" width="100px;" alt="pawel-twardziak"/><br /><sub><b>pawel-twardziak</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=pawel-twardziak" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dudziakm"><img src="https://avatars.githubusercontent.com/u/10773170?v=4?s=100" width="100px;" alt="Michal Dudziak"/><br /><sub><b>Michal Dudziak</b></sub></a><br /><a href="#maintenance-dudziakm" title="Maintenance">🚧</a></td>
     </tr>
   </tbody>
 </table>
