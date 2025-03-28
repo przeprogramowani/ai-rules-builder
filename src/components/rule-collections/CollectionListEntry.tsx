@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Book, Trash2, Save } from 'lucide-react';
+import { Book, Trash2, Pencil, Save } from 'lucide-react';
 import type { Collection } from '../../store/collectionsStore';
 import { useCollectionsStore } from '../../store/collectionsStore';
 import DeletionDialog from './DeletionDialog';
+import SaveCollectionDialog from './SaveCollectionDialog';
 
 interface CollectionListEntryProps {
   collection: Collection;
@@ -11,12 +12,14 @@ interface CollectionListEntryProps {
 
 export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collection, onClick }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const selectedCollection = useCollectionsStore((state) => state.selectedCollection);
   const deleteCollection = useCollectionsStore((state) => state.deleteCollection);
   const isDirty = useCollectionsStore((state) => state.isDirty);
   const saveChanges = useCollectionsStore((state) => state.saveChanges);
+  const updateCollection = useCollectionsStore((state) => state.updateCollection);
   const isSelected = selectedCollection?.id === collection.id;
 
   const handleClick = () => {
@@ -54,6 +57,20 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
     }
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSave = async (name: string, description: string) => {
+    try {
+      await updateCollection(collection.id, { ...collection, name, description });
+    } catch (error) {
+      console.error('Error updating collection:', error);
+      throw error;
+    }
+  };
+
   return (
     <>
       <button
@@ -72,33 +89,35 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            {isSelected && isDirty() && (
+            {!collection.isDefault && (
               <div
-                onClick={handleSaveClick}
+                onClick={handleEditClick}
                 role="button"
                 tabIndex={0}
-                className={`p-1.5 rounded-md text-blue-400 hover:text-blue-300 hover:bg-blue-900/50 transition-colors ${
-                  isSaving ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'
-                }`}
-                aria-label={`Save changes to ${collection.name}`}
+                className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
+                aria-label={`Edit ${collection.name}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    handleSaveClick(e as unknown as React.MouseEvent);
+                    handleEditClick(e as unknown as React.MouseEvent);
                   }
                 }}
               >
-                <Save className="size-4" />
+                <Pencil className="size-4" />
               </div>
             )}
             <div
-              onClick={handleDeleteClick}
+              onClick={collection.isDefault ? undefined : handleDeleteClick}
               role="button"
-              tabIndex={0}
-              className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-              aria-label={`Delete ${collection.name}`}
+              tabIndex={collection.isDefault ? -1 : 0}
+              className={`p-1.5 rounded-md text-gray-400 transition-colors ${
+                collection.isDefault
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer'
+              }`}
+              aria-label={collection.isDefault ? 'Cannot delete default collection' : `Delete ${collection.name}`}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (!collection.isDefault && (e.key === 'Enter' || e.key === ' ')) {
                   e.preventDefault();
                   handleDeleteClick(e as unknown as React.MouseEvent);
                 }
@@ -114,9 +133,14 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
             {collection.libraries.length} rules
           </span>
           {isSelected && isDirty() && (
-            <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-300">
-              {isSaving ? 'Saving...' : 'Pending changes'}
-            </span>
+            <button
+              onClick={handleSaveClick}
+              disabled={isSaving}
+              className="text-xs px-3 py-1 rounded-full bg-blue-900/50 text-blue-300 hover:bg-blue-800/50 transition-colors flex items-center"
+            >
+              <Save className="size-4 mr-1" />
+              {isSaving ? 'Saving...' : 'Save changes'}
+            </button>
           )}
         </div>
       </button>
@@ -127,6 +151,14 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
         onConfirm={handleConfirmDelete}
         itemName={collection.name}
         title="Delete Collection"
+      />
+
+      <SaveCollectionDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleEditSave}
+        initialName={collection.name}
+        initialDescription={collection.description}
       />
     </>
   );

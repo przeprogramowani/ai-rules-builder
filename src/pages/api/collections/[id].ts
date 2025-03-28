@@ -56,8 +56,7 @@ export const PUT = (async ({ params, request }) => {
     });
   }
 
-  const url = new URL(request.url);
-  const userId = url.searchParams.get('userId') || DEFAULT_USER_ID;
+  const userId = DEFAULT_USER_ID;
 
   // Check if user exists
   if (!mockCollections[userId]) {

@@ -9,18 +9,30 @@ export interface Collection {
   libraries: Library[];
   createdAt: string;
   updatedAt: string;
+  isDefault?: boolean;
 }
+
+export const DEFAULT_COLLECTION: Collection = {
+  id: 'default',
+  name: 'Default',
+  description: 'Your first collection',
+  libraries: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  isDefault: true,
+};
 
 interface CollectionsState {
   collections: Collection[];
   selectedCollection: Collection | null;
   isLoading: boolean;
   error: string | null;
-  fetchCollections: (userId: string) => Promise<void>;
+  fetchCollections: () => Promise<void>;
   selectCollection: (collection: Collection) => void;
   deleteCollection: (collectionId: string) => Promise<void>;
   isDirty: () => boolean;
   saveChanges: () => Promise<void>;
+  updateCollection: (collectionId: string, updatedCollection: Collection) => Promise<void>;
 }
 
 export const useCollectionsStore = create<CollectionsState>((set, get) => ({
@@ -28,17 +40,18 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   selectedCollection: null,
   isLoading: false,
   error: null,
-  fetchCollections: async (userId: string) => {
+  fetchCollections: async () => {
     try {
       set({ isLoading: true, error: null });
-      const response = await fetch(`/api/collections?userId=${userId}`);
+      const response = await fetch(`/api/collections`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch collections');
       }
 
       const data = await response.json();
-      set({ collections: data, isLoading: false });
+      const collections = data.length > 0 ? data : [DEFAULT_COLLECTION];
+      set({ collections, isLoading: false });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Unknown error', isLoading: false });
     }
@@ -61,6 +74,19 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   },
   deleteCollection: async (collectionId: string) => {
     try {
+      const { collections } = get();
+
+      // Prevent deletion of default collection
+      const collectionToDelete = collections.find((c) => c.id === collectionId);
+      if (collectionToDelete?.isDefault) {
+        throw new Error('Cannot delete the default collection');
+      }
+
+      // Prevent deletion if it's the last collection
+      if (collections.length <= 1) {
+        throw new Error('Cannot delete the last collection');
+      }
+
       set({ isLoading: true, error: null });
 
       const response = await fetch(`/api/collections/${collectionId}`, {
@@ -71,9 +97,8 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
         throw new Error(`Failed to delete collection: ${response.statusText}`);
       }
 
-      const { collections, selectedCollection } = get();
       const updatedCollections = collections.filter((c) => c.id !== collectionId);
-
+      const { selectedCollection } = get();
       const updatedSelection = selectedCollection?.id === collectionId ? null : selectedCollection;
 
       if (selectedCollection?.id === collectionId) {
@@ -92,6 +117,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
         error: error instanceof Error ? error.message : 'Unknown error',
         isLoading: false,
       });
+      throw error;
     }
   },
   isDirty: () => {
@@ -136,6 +162,39 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
 
       // Update original libraries in tech stack store to match saved state
       techStackStore.setOriginalLibraries(techStackStore.selectedLibraries);
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+  updateCollection: async (collectionId: string, updatedCollection: Collection) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch(`/api/collections/${collectionId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCollection),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update collection');
+      }
+
+      const savedCollection = await response.json();
+
+      // Update collections list and selected collection
+      set((state) => ({
+        collections: state.collections.map((c) => (c.id === savedCollection.id ? savedCollection : c)),
+        selectedCollection:
+          state.selectedCollection?.id === savedCollection.id ? savedCollection : state.selectedCollection,
+        isLoading: false,
+      }));
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Unknown error',

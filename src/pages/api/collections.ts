@@ -41,10 +41,8 @@ const mockCollections: Record<string, Collection[]> = {
   ],
 };
 
-export const GET = (async ({ request }) => {
-  const url = new URL(request.url);
-  const userId = url.searchParams.get('userId') || DEFAULT_USER_ID;
-  const collections = mockCollections[userId] || mockCollections[DEFAULT_USER_ID];
+export const GET = (async () => {
+  const collections = mockCollections[DEFAULT_USER_ID];
 
   return new Response(JSON.stringify(collections), {
     status: 200,
