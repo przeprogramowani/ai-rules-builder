@@ -89,35 +89,29 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            {!collection.isDefault && (
-              <div
-                onClick={handleEditClick}
-                role="button"
-                tabIndex={0}
-                className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
-                aria-label={`Edit ${collection.name}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleEditClick(e as unknown as React.MouseEvent);
-                  }
-                }}
-              >
-                <Pencil className="size-4" />
-              </div>
-            )}
             <div
-              onClick={collection.isDefault ? undefined : handleDeleteClick}
+              onClick={handleEditClick}
               role="button"
-              tabIndex={collection.isDefault ? -1 : 0}
-              className={`p-1.5 rounded-md text-gray-400 transition-colors ${
-                collection.isDefault
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer'
-              }`}
-              aria-label={collection.isDefault ? 'Cannot delete default collection' : `Delete ${collection.name}`}
+              tabIndex={0}
+              className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
+              aria-label={`Edit ${collection.name}`}
               onKeyDown={(e) => {
-                if (!collection.isDefault && (e.key === 'Enter' || e.key === ' ')) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleEditClick(e as unknown as React.MouseEvent);
+                }
+              }}
+            >
+              <Pencil className="size-4" />
+            </div>
+            <div
+              onClick={handleDeleteClick}
+              role="button"
+              tabIndex={0}
+              className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-colors"
+              aria-label={`Delete ${collection.name}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   handleDeleteClick(e as unknown as React.MouseEvent);
                 }

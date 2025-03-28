@@ -3,14 +3,12 @@ import { useCollectionsStore, type Collection } from '../../store/collectionsSto
 import { useTechStackStore } from '../../store/techStackStore';
 import CollectionListEntry from './CollectionListEntry';
 import SaveCollectionDialog from './SaveCollectionDialog';
-import { AlertCircle, Loader2 } from 'lucide-react';
-
-const DEFAULT_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
+import { AlertCircle, Loader2, Plus } from 'lucide-react';
+import { Library } from '../../data/dictionaries';
 
 export const CollectionsList: React.FC = () => {
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const { collections, isLoading, error, selectCollection, selectedCollection, isDirty, fetchCollections } =
-    useCollectionsStore();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { collections, isLoading, error, selectCollection, fetchCollections } = useCollectionsStore();
   const { resetAll, selectLibrary, selectedLibraries } = useTechStackStore();
 
   const handleCollectionSelect = (collection: Collection) => {
@@ -24,22 +22,15 @@ export const CollectionsList: React.FC = () => {
     collection.libraries.forEach((library) => {
       selectLibrary(library);
     });
-
-    // If it's the default collection and has changes, show the save dialog
-    if (collection.isDefault && isDirty()) {
-      setIsSaveDialogOpen(true);
-    }
   };
 
-  const handleSaveDefault = async (name: string, description: string) => {
-    if (!selectedCollection?.isDefault) return;
-
-    // Create a new collection based on the default one
-    const newCollection: Collection = {
-      id: crypto.randomUUID(),
+  const handleCreateCollection = async (name: string, description: string) => {
+    // Create a new collection with currently selected libraries
+    // Ensure libraries are valid Library enum values
+    const newCollection = {
       name,
       description,
-      libraries: selectedLibraries,
+      libraries: selectedLibraries.map((lib) => lib as Library), // This ensures type safety
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -54,14 +45,19 @@ export const CollectionsList: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save collection');
+        throw new Error('Failed to create collection');
       }
 
+      const savedCollection = await response.json();
+
       // Refresh collections list
-      await fetchCollections(DEFAULT_USER_ID);
-      setIsSaveDialogOpen(false);
+      await fetchCollections();
+      setIsCreateDialogOpen(false);
+
+      // Select the newly created collection
+      handleCollectionSelect(savedCollection);
     } catch (error) {
-      console.error('Failed to save collection:', error);
+      console.error('Failed to create collection:', error);
       throw error;
     }
   };
@@ -83,26 +79,27 @@ export const CollectionsList: React.FC = () => {
     );
   }
 
-  if (collections.length === 0) {
-    return (
-      <div className="text-center p-8">
-        <p className="text-gray-400">No collections found</p>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="space-y-4">
         {collections.map((collection) => (
           <CollectionListEntry key={collection.id} collection={collection} onClick={handleCollectionSelect} />
         ))}
+        <button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="w-full p-4 rounded-lg border border-dashed border-gray-700 hover:border-blue-400/50 hover:bg-gray-800/50 transition-colors group"
+        >
+          <div className="flex items-center justify-center gap-2 text-gray-400 group-hover:text-blue-400">
+            <Plus className="size-5" />
+            <span>Create new collection</span>
+          </div>
+        </button>
       </div>
 
       <SaveCollectionDialog
-        isOpen={isSaveDialogOpen}
-        onClose={() => setIsSaveDialogOpen(false)}
-        onSave={handleSaveDefault}
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSave={handleCreateCollection}
       />
     </>
   );

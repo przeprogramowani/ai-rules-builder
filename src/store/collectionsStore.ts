@@ -9,18 +9,7 @@ export interface Collection {
   libraries: Library[];
   createdAt: string;
   updatedAt: string;
-  isDefault?: boolean;
 }
-
-export const DEFAULT_COLLECTION: Collection = {
-  id: 'default',
-  name: 'Default',
-  description: 'Your first collection',
-  libraries: [],
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  isDefault: true,
-};
 
 interface CollectionsState {
   collections: Collection[];
@@ -50,8 +39,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       }
 
       const data = await response.json();
-      const collections = data.length > 0 ? data : [DEFAULT_COLLECTION];
-      set({ collections, isLoading: false });
+      set({ collections: data, isLoading: false });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Unknown error', isLoading: false });
     }
@@ -75,18 +63,6 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   deleteCollection: async (collectionId: string) => {
     try {
       const { collections } = get();
-
-      // Prevent deletion of default collection
-      const collectionToDelete = collections.find((c) => c.id === collectionId);
-      if (collectionToDelete?.isDefault) {
-        throw new Error('Cannot delete the default collection');
-      }
-
-      // Prevent deletion if it's the last collection
-      if (collections.length <= 1) {
-        throw new Error('Cannot delete the last collection');
-      }
-
       set({ isLoading: true, error: null });
 
       const response = await fetch(`/api/collections/${collectionId}`, {
@@ -99,12 +75,20 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
 
       const updatedCollections = collections.filter((c) => c.id !== collectionId);
       const { selectedCollection } = get();
-      const updatedSelection = selectedCollection?.id === collectionId ? null : selectedCollection;
+      let updatedSelection = selectedCollection;
 
       if (selectedCollection?.id === collectionId) {
         const techStackStore = useTechStackStore.getState();
         techStackStore.resetAll();
-        techStackStore.setOriginalLibraries([]);
+
+        // If we deleted the selected collection, select the first available collection
+        updatedSelection = updatedCollections[0] || null;
+        if (updatedSelection) {
+          techStackStore.setOriginalLibraries(updatedSelection.libraries);
+          updatedCollections[0].libraries.forEach((library) => {
+            techStackStore.selectLibrary(library);
+          });
+        }
       }
 
       set({

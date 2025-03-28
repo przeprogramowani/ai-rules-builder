@@ -4,8 +4,6 @@ import { transitions } from '../../styles/theme';
 import { CollectionsList } from './CollectionsList';
 import { useCollectionsStore } from '../../store/collectionsStore';
 
-const DEFAULT_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
-
 interface CollectionsSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -15,7 +13,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
   const fetchCollections = useCollectionsStore((state) => state.fetchCollections);
 
   useEffect(() => {
-    fetchCollections(DEFAULT_USER_ID);
+    fetchCollections();
   }, [fetchCollections]);
 
   return (
