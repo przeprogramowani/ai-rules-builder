@@ -14,6 +14,8 @@ export interface Collection {
 interface CollectionsState {
   collections: Collection[];
   selectedCollection: Collection | null;
+  pendingCollection: Collection | null;
+  isUnsavedChangesDialogOpen: boolean;
   isLoading: boolean;
   error: string | null;
   fetchCollections: () => Promise<void>;
@@ -22,11 +24,16 @@ interface CollectionsState {
   isDirty: () => boolean;
   saveChanges: () => Promise<void>;
   updateCollection: (collectionId: string, updatedCollection: Collection) => Promise<void>;
+  handlePendingCollectionSelect: (collection: Collection) => void;
+  confirmPendingCollection: () => void;
+  closeUnsavedChangesDialog: () => void;
 }
 
 export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   collections: [],
   selectedCollection: null,
+  pendingCollection: null,
+  isUnsavedChangesDialogOpen: false,
   isLoading: false,
   error: null,
   fetchCollections: async () => {
@@ -58,7 +65,39 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       techStackStore.selectLibrary(library);
     });
 
-    set({ selectedCollection: collection });
+    set({
+      selectedCollection: collection,
+      pendingCollection: null,
+      isUnsavedChangesDialogOpen: false,
+    });
+  },
+  handlePendingCollectionSelect: (collection: Collection) => {
+    const { selectedCollection, isDirty } = get();
+
+    if (selectedCollection?.id === collection.id) {
+      return;
+    }
+
+    if (selectedCollection && isDirty()) {
+      set({
+        pendingCollection: collection,
+        isUnsavedChangesDialogOpen: true,
+      });
+    } else {
+      get().selectCollection(collection);
+    }
+  },
+  confirmPendingCollection: () => {
+    const { pendingCollection } = get();
+    if (pendingCollection) {
+      get().selectCollection(pendingCollection);
+    }
+  },
+  closeUnsavedChangesDialog: () => {
+    set({
+      pendingCollection: null,
+      isUnsavedChangesDialogOpen: false,
+    });
   },
   deleteCollection: async (collectionId: string) => {
     try {

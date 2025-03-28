@@ -3,25 +3,41 @@ import { useCollectionsStore, type Collection } from '../../store/collectionsSto
 import { useTechStackStore } from '../../store/techStackStore';
 import CollectionListEntry from './CollectionListEntry';
 import SaveCollectionDialog from './SaveCollectionDialog';
+import UnsavedChangesDialog from './UnsavedChangesDialog';
 import { AlertCircle, Loader2, Plus } from 'lucide-react';
 import { Library } from '../../data/dictionaries';
 
 export const CollectionsList: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { collections, isLoading, error, selectCollection, fetchCollections } = useCollectionsStore();
-  const { resetAll, selectLibrary, selectedLibraries } = useTechStackStore();
+  const {
+    collections,
+    isLoading,
+    error,
+    handlePendingCollectionSelect,
+    isUnsavedChangesDialogOpen,
+    saveChanges,
+    confirmPendingCollection,
+    closeUnsavedChangesDialog,
+    selectedCollection,
+    fetchCollections,
+  } = useCollectionsStore();
+  const { selectedLibraries } = useTechStackStore();
 
   const handleCollectionSelect = (collection: Collection) => {
-    // Reset current selection
-    resetAll();
+    handlePendingCollectionSelect(collection);
+  };
 
-    // Select the collection
-    selectCollection(collection);
+  const handleSaveAndContinue = async () => {
+    try {
+      await saveChanges();
+      confirmPendingCollection();
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+    }
+  };
 
-    // Apply collection rules
-    collection.libraries.forEach((library) => {
-      selectLibrary(library);
-    });
+  const handleSkipSave = () => {
+    confirmPendingCollection();
   };
 
   const handleCreateCollection = async (name: string, description: string) => {
@@ -100,6 +116,14 @@ export const CollectionsList: React.FC = () => {
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSave={handleCreateCollection}
+      />
+
+      <UnsavedChangesDialog
+        isOpen={isUnsavedChangesDialogOpen}
+        onClose={closeUnsavedChangesDialog}
+        onSave={handleSaveAndContinue}
+        onSkip={handleSkipSave}
+        collectionName={selectedCollection?.name || ''}
       />
     </>
   );
