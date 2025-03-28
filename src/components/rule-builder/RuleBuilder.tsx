@@ -49,16 +49,13 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const tooltipTimerRef = useRef<number | null>(null);
 
   // Calculate if we need to show "no results" message
-  const hasNoSearchResults =
-    isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
+  const hasNoSearchResults = isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
 
   // Focus management after search
   useEffect(() => {
     if (searchQuery && getLibraryCounts.matchedCount > 0) {
       // Attempt to find the first visible library item after search
-      const firstLibraryItem = document.querySelector(
-        '[role="checkbox"][tabindex="0"]',
-      ) as HTMLElement;
+      const firstLibraryItem = document.querySelector('[role="checkbox"][tabindex="0"]') as HTMLElement;
       if (firstLibraryItem) {
         // Set a small delay to allow the UI to update
         setTimeout(() => {
@@ -93,11 +90,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   }, []);
 
   return (
-    <div
-      className={`flex flex-col space-y-4 h-full ${className}`}
-      role="application"
-      aria-label="Rule Builder"
-    >
+    <div className={`flex flex-col space-y-4 h-full ${className}`} role="application" aria-label="Rule Builder">
       <div
         ref={containerRef}
         className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
@@ -106,16 +99,16 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Rule Builder</h2>
 
-          <button
-            onClick={handleClearAll}
-            className={`flex gap-2 items-center px-3 py-1.5 text-sm bg-gray-800/50 rounded-md transition-colors hover:bg-gray-700/50 text-gray-400 cursor-pointer hover:shadow-sm ${
-              selectedLibraries.length > 0 ? 'opacity-100' : 'opacity-0'
-            }`}
-            title="Clear all selections"
-          >
-            <Trash2 className="size-4" />
-            <span>Clear all</span>
-          </button>
+          {selectedLibraries.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="flex gap-2 items-center px-3 py-1.5 text-sm bg-gray-800/50 rounded-md transition-colors hover:bg-gray-700/50 text-gray-400 cursor-pointer hover:shadow-sm"
+              title="Clear all selections"
+            >
+              <Trash2 className="size-4" />
+              <span>Clear all</span>
+            </button>
+          )}
         </div>
 
         <div ref={searchContainerRef} className="w-full">
@@ -145,11 +138,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
               </a>
             </div>
           ) : (
-            <Accordion
-              type="multiple"
-              className="space-y-3 w-full"
-              isNested={false}
-            >
+            <Accordion type="multiple" className="space-y-3 w-full" isNested={false}>
               {layers.map((layer) => {
                 const selectedCount = getSelectedLibrariesCountForLayer(layer);
                 const isOpen = isLayerOpen(layer);
