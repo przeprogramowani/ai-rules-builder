@@ -20,7 +20,7 @@
     "test:e2e:codegen": "playwright codegen"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "12.2.4",
+    "@astrojs/cloudflare": "12.3.0",
     "@astrojs/react": "4.2.1",
     "@supabase/ssr": "0.6.1",
     "@supabase/supabase-js": "2.49.3",
