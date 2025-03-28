@@ -24,6 +24,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dudziakm",
+      "name": "Michal Dudziak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10773170?v=4",
+      "profile": "https://github.com/dudziakm",
+      "contributions": [
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7,
