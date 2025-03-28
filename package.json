@@ -14,6 +14,8 @@
   "dependencies": {
     "@astrojs/cloudflare": "12.2.4",
     "@astrojs/react": "4.2.1",
+    "@supabase/ssr": "0.6.1",
+    "@supabase/supabase-js": "2.49.3",
     "@tailwindcss/vite": "4.0.14",
     "@types/react-dom": "18.3.5",
     "astro": "^5.5.2",
