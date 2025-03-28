@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
-import { Library } from '../../data/dictionaries';
+import { Library } from '../../../data/dictionaries';
+
+export const prerender = false;
 
 interface Collection {
   id: string;
@@ -12,6 +14,7 @@ interface Collection {
 
 const DEFAULT_USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
+// Define mock collections directly in this file to avoid import issues
 const mockCollections: Record<string, Collection[]> = {
   [DEFAULT_USER_ID]: [
     {
@@ -41,12 +44,39 @@ const mockCollections: Record<string, Collection[]> = {
   ],
 };
 
-export const GET = (async ({ request }) => {
+export const DELETE = (async ({ params, request }) => {
+  const collectionId = params.id;
   const url = new URL(request.url);
   const userId = url.searchParams.get('userId') || DEFAULT_USER_ID;
-  const collections = mockCollections[userId] || mockCollections[DEFAULT_USER_ID];
 
-  return new Response(JSON.stringify(collections), {
+  // Check if user exists
+  if (!mockCollections[userId]) {
+    return new Response(JSON.stringify({ error: 'User not found' }), {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Find collection index
+  const collectionIndex = mockCollections[userId].findIndex((col) => col.id === collectionId);
+
+  if (collectionIndex === -1) {
+    return new Response(JSON.stringify({ error: 'Collection not found' }), {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Remove collection from mock data
+  mockCollections[userId].splice(collectionIndex, 1);
+
+  return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
@@ -54,5 +84,3 @@ export const GET = (async ({ request }) => {
     },
   });
 }) satisfies APIRoute;
-
-// DELETE endpoint has been moved to [id].ts

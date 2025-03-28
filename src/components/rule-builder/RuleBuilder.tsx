@@ -46,7 +46,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const tooltipTimerRef = useRef<number | null>(null);
+  const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Calculate if we need to show "no results" message
   const hasNoSearchResults = isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
@@ -93,7 +93,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
     <div className={`flex flex-col space-y-4 h-full ${className}`} role="application" aria-label="Rule Builder">
       <div
         ref={containerRef}
-        className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
+        className="p-4 space-y-4 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
         data-component-name="RuleBuilder"
       >
         <div className="flex justify-between items-center mb-4">

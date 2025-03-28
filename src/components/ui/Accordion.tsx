@@ -9,8 +9,7 @@ const AccordionContentContext = createContext<boolean>(false);
 const AccordionRootContext = createContext<boolean>(true);
 
 // Export the hook to be used by focusable elements inside the accordion
-export const useAccordionContentOpen = () =>
-  useContext(AccordionContentContext);
+export const useAccordionContentOpen = () => useContext(AccordionContentContext);
 // Hook to determine if the component is inside a nested accordion
 export const useIsRootAccordion = () => useContext(AccordionRootContext);
 
@@ -24,17 +23,13 @@ interface AccordionProps {
   isNested?: boolean;
 }
 
-export const Accordion: React.FC<AccordionProps> = React.memo(
-  ({ children, className = '', isNested = false }) => {
-    return (
-      <div className={`space-y-2 ${className}`} role="region">
-        <AccordionRootContext.Provider value={!isNested}>
-          {children}
-        </AccordionRootContext.Provider>
-      </div>
-    );
-  },
-);
+export const Accordion: React.FC<AccordionProps> = React.memo(({ children, className = '', isNested = false }) => {
+  return (
+    <div className={`space-y-2 ${className}`} role="region">
+      <AccordionRootContext.Provider value={!isNested}>{children}</AccordionRootContext.Provider>
+    </div>
+  );
+});
 Accordion.displayName = 'Accordion';
 
 interface AccordionItemProps {
@@ -43,17 +38,15 @@ interface AccordionItemProps {
   isNested?: boolean;
 }
 
-export const AccordionItem: React.FC<AccordionItemProps> = React.memo(
-  ({ children, isNested }) => {
-    return (
-      <AccordionRootContext.Provider value={!isNested}>
-        <div className="rounded-lg" role="presentation">
-          {children}
-        </div>
-      </AccordionRootContext.Provider>
-    );
-  },
-);
+export const AccordionItem: React.FC<AccordionItemProps> = React.memo(({ children, isNested }) => {
+  return (
+    <AccordionRootContext.Provider value={!isNested}>
+      <div className="rounded-lg" role="presentation">
+        {children}
+      </div>
+    </AccordionRootContext.Provider>
+  );
+});
 AccordionItem.displayName = 'AccordionItem';
 
 interface AccordionTriggerProps {
@@ -81,7 +74,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = React.memo(
 
     return (
       <div
-        className={`flex justify-between items-center p-4 rounded-lg transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${className}`}
+        className={`flex justify-between items-center py-2 px-4 rounded-lg transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${className}`}
         onClick={onClick}
         onKeyDown={handleKeyDown}
         role="button"
@@ -119,9 +112,7 @@ export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
       <div
         className={`grid transition-all duration-${transitions.duration.slow} ${
           transitions.timing.default
-        } will-change-[grid-template-rows] ${
-          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-        }`}
+        } will-change-[grid-template-rows] ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
         role="region"
         aria-hidden={!isOpen}
       >
@@ -131,14 +122,10 @@ export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
             style={{
               opacity: isOpen ? 1 : 0,
               transition: `opacity ${transitions.duration.medium} ${transitions.timing.smooth}`,
-              transitionDelay: isOpen
-                ? transitions.delay.medium
-                : transitions.delay.none,
+              transitionDelay: isOpen ? transitions.delay.medium : transitions.delay.none,
             }}
           >
-            <AccordionContentContext.Provider value={effectiveIsOpen}>
-              {children}
-            </AccordionContentContext.Provider>
+            <AccordionContentContext.Provider value={effectiveIsOpen}>{children}</AccordionContentContext.Provider>
           </div>
         </div>
       </div>
