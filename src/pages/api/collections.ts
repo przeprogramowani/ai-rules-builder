@@ -1,39 +1,29 @@
 import type { APIRoute } from 'astro';
-import { mockCollections, DEFAULT_USER_ID, type Collection } from './collections/mockStorage';
+import { DEFAULT_USER_ID, type Collection, collectionMapper } from '../../types/collection.types';
 
 export const prerender = false;
 
-// const mockCollections: Record<string, Collection[]> = {
-//   [DEFAULT_USER_ID]: [
-//     {
-//       id: '550e8400-e29b-41d4-a716-446655440001',
-//       name: 'React Project Setup',
-//       description: 'Standard configuration for React projects',
-//       libraries: [
-//         Library.REACT_CODING_STANDARDS,
-//         Library.NEXT_JS,
-//         Library.ZUSTAND,
-//         Library.TAILWIND,
-//         Library.ESLINT,
-//         Library.PRETTIER,
-//         Library.JEST,
-//       ],
-//       createdAt: '2024-03-20T10:00:00Z',
-//       updatedAt: '2024-03-20T10:00:00Z',
-//     },
-//     {
-//       id: '550e8400-e29b-41d4-a716-446655440002',
-//       name: 'Testing Suite',
-//       description: 'Complete testing configuration',
-//       libraries: [Library.JEST, Library.CYPRESS, Library.PLAYWRIGHT, Library.CODECOV],
-//       createdAt: '2024-03-20T11:00:00Z',
-//       updatedAt: '2024-03-20T11:00:00Z',
-//     },
-//   ],
-// };
+export const GET: APIRoute = (async ({ locals }) => {
+  const { data, error } = await locals.supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', DEFAULT_USER_ID);
 
-export const GET = (async () => {
-  const collections = mockCollections[DEFAULT_USER_ID];
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  let collections: Collection[] = [];
+
+  if (data) {
+    collections = data.map(collectionMapper);
+  }
 
   return new Response(JSON.stringify(collections), {
     status: 200,
@@ -44,7 +34,7 @@ export const GET = (async () => {
   });
 }) satisfies APIRoute;
 
-export const POST = (async ({ request }) => {
+export const POST = (async ({ request, locals }) => {
   try {
     const collection = await request.json();
 
@@ -60,17 +50,27 @@ export const POST = (async ({ request }) => {
     }
 
     // Create a new collection with server-generated ID
-    const newCollection: Collection = {
-      ...collection,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const { data, error } = await locals.supabase
+      .from('collections')
+      .insert({
+        name: collection.name,
+        description: collection.description,
+        libraries: collection.libraries,
+        user_id: DEFAULT_USER_ID,
+      })
+      .select();
 
-    // Add the collection to the mock database
-    mockCollections[DEFAULT_USER_ID].push(newCollection);
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
 
-    return new Response(JSON.stringify(newCollection), {
+    return new Response(JSON.stringify(data), {
       status: 201,
       headers: {
         'Content-Type': 'application/json',

@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { mockCollections, DEFAULT_USER_ID, type Collection } from './mockStorage';
+import { DEFAULT_USER_ID, type Collection } from '../../../types/collection.types';
 
 export const prerender = false;
 
-export const PUT = (async ({ params, request }) => {
+export const PUT: APIRoute = (async ({ params, request, locals }) => {
   const collectionId = params.id;
   if (!collectionId) {
     return new Response(JSON.stringify({ error: 'Collection ID is required' }), {
@@ -17,21 +17,15 @@ export const PUT = (async ({ params, request }) => {
 
   const userId = DEFAULT_USER_ID;
 
-  // Check if user exists
-  if (!mockCollections[userId]) {
-    return new Response(JSON.stringify({ error: 'User not found' }), {
-      status: 404,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  }
+  // Check if collection exists for the user
+  const { error: findError } = await locals.supabase
+    .from('collections')
+    .select('*')
+    .eq('id', collectionId)
+    .eq('user_id', userId)
+    .single();
 
-  // Find collection index
-  const collectionIndex = mockCollections[userId].findIndex((col) => col.id === collectionId);
-
-  if (collectionIndex === -1) {
+  if (findError) {
     return new Response(JSON.stringify({ error: 'Collection not found' }), {
       status: 404,
       headers: {
@@ -45,7 +39,11 @@ export const PUT = (async ({ params, request }) => {
     const updatedCollection: Collection = await request.json();
 
     // Validate the updated collection
-    if (!updatedCollection.id || !updatedCollection.name || !Array.isArray(updatedCollection.libraries)) {
+    if (
+      !updatedCollection.id ||
+      !updatedCollection.name ||
+      !Array.isArray(updatedCollection.libraries)
+    ) {
       return new Response(JSON.stringify({ error: 'Invalid collection data' }), {
         status: 400,
         headers: {
@@ -55,13 +53,29 @@ export const PUT = (async ({ params, request }) => {
       });
     }
 
-    // Update collection in mock data
-    mockCollections[userId][collectionIndex] = {
-      ...updatedCollection,
-      id: collectionId, // Ensure ID doesn't change
-    };
+    // Update collection in database
+    const { data, error } = await locals.supabase
+      .from('collections')
+      .update({
+        name: updatedCollection.name,
+        description: updatedCollection.description,
+        libraries: updatedCollection.libraries,
+      })
+      .eq('id', collectionId)
+      .eq('user_id', userId)
+      .select();
 
-    return new Response(JSON.stringify(mockCollections[userId][collectionIndex]), {
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
+
+    return new Response(JSON.stringify(data[0]), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -80,15 +94,11 @@ export const PUT = (async ({ params, request }) => {
   }
 }) satisfies APIRoute;
 
-export const DELETE = (async ({ params, request }) => {
+export const DELETE: APIRoute = (async ({ params, locals }) => {
   const collectionId = params.id;
-  const url = new URL(request.url);
-  const userId = url.searchParams.get('userId') || DEFAULT_USER_ID;
-
-  // Check if user exists
-  if (!mockCollections[userId]) {
-    return new Response(JSON.stringify({ error: 'User not found' }), {
-      status: 404,
+  if (!collectionId) {
+    return new Response(JSON.stringify({ error: 'Collection ID is required' }), {
+      status: 400,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -96,10 +106,17 @@ export const DELETE = (async ({ params, request }) => {
     });
   }
 
-  // Find collection index
-  const collectionIndex = mockCollections[userId].findIndex((col) => col.id === collectionId);
+  const userId = DEFAULT_USER_ID;
 
-  if (collectionIndex === -1) {
+  // Check if collection exists for the user
+  const { error: findError } = await locals.supabase
+    .from('collections')
+    .select('*')
+    .eq('id', collectionId)
+    .eq('user_id', userId)
+    .single();
+
+  if (findError) {
     return new Response(JSON.stringify({ error: 'Collection not found' }), {
       status: 404,
       headers: {
@@ -109,8 +126,22 @@ export const DELETE = (async ({ params, request }) => {
     });
   }
 
-  // Remove collection from mock data
-  mockCollections[userId].splice(collectionIndex, 1);
+  // Remove collection from database
+  const { error } = await locals.supabase
+    .from('collections')
+    .delete()
+    .eq('id', collectionId)
+    .eq('user_id', userId);
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
