@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LoginForm from '../components/auth/LoginForm';
+---
+
+<Layout>
+  <main class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-100">Welcome back</h2>
+        <p class="mt-2 text-sm text-gray-400">Sign in to your account to continue</p>
+      </div>
+
+      <div class="bg-gray-900/90 p-8 shadow-lg rounded-lg">
+        <LoginForm client:load onSubmit={() => {}} />
+      </div>
+    </div>
+  </main>
+</Layout>
