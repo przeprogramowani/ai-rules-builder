@@ -2,7 +2,7 @@
 
 ## 1. Zwięzły opis projektu i jego celów
 
-Projekt 10xRules.ai to nowoczesna aplikacja webowa umożliwiająca programistom tworzenie, generowanie i wersjonowanie reguł dla narzędzi AI, takich jak GitHub Copilot, Cursor czy Windsurf. Aplikacja zapewnia intuicyjny, wizualny kreator reguł, pozwalający na budowanie hierarchicznych zestawów reguł przy użyciu interfejsu drag & drop. Głównym celem jest poprawa jakości współpracy programisty z AI poprzez automatyzację i standaryzację procesu definiowania reguł.
+Projekt 10xRules.ai to nowoczesna aplikacja webowa umożliwiająca programistom tworzenie, generowanie i wersjonowanie reguł dla narzędzi AI, takich jak GitHub Copilot, Cursor czy Windsurf. Aplikacja zapewnia intuicyjny kreator reguł (Rule Builder), pozwalający na budowanie hierarchicznych zestawów reguł. Głównym celem jest poprawa jakości współpracy programisty z AI poprzez automatyzację i standaryzację procesu definiowania reguł.
 
 ## 2. Jasno zdefiniowany problem użytkownika
 
@@ -12,12 +12,12 @@ Projekt 10xRules.ai to nowoczesna aplikacja webowa umożliwiająca programistom 
 
 ## 3. Wymagania funkcjonalne
 
-- Wizualny kreator reguł umożliwiający budowanie hierarchicznych zestawów reguł.
+- Kreator reguł umożliwiający budowanie hierarchicznych zestawów reguł.
 - Generowanie reguł w formacie Markdown oraz możliwość kopiowania wygenerowanych reguł do schowka.
 - Możliwość pobierania gotowych zestawów reguł z predefiniowanego katalogu podzielonego na warstwy (np. Frontend, React, Zustand).
 - Generowanie reguł na podstawie plików dependency (np. package.json, requirements.txt) poprzez analizę zawartości tych plików.
-- Inteligentne sugestie dodatkowych reguł proponowanych przez AI na podstawie wyborów użytkownika.
-- Wersjonowanie tworzonego zestawu reguł z możliwością przeglądania historii oraz przywracania wcześniejszych wersji.
+- Logowanie i autoryzacja użytkowników.
+- Kolekcje reguł umożliwiające zapamiętywanie wcześniej utworzonych zestawów reguł.
 
 ## 4. Granice projektu
 
@@ -46,39 +46,27 @@ US-002: Generowanie reguł na podstawie pliku dependency
   - System analizuje zawartość pliku i dopasowuje odpowiednie reguły.
   - Wygenerowany zestaw reguł odpowiada konfiguracji projektu.
 
-US-003: Sugestie dodatkowych reguł przez AI
+US-003: Kolekcje reguł
 
-- Tytuł: Sugestie AI
-- Opis: Jako użytkownik chcę otrzymać inteligentne sugestie dodatkowych reguł na podstawie moich wyborów z katalogu, aby upewnić się, że nie pominąłem istotnych aspektów.
+- Tytuł: Kolekcje reguł
+- Opis: Jako użytkownik chcę móc zapisywać i edytować zestawy reguł, aby szybko wykorzystywać sprawdzone rozwiązania w różnych projektach.
 - Kryteria akceptacji:
-  - Po wybraniu reguł system prezentuje propozycje dodatkowych reguł generowane przez AI.
-  - Użytkownik może zaakceptować lub odrzucić sugerowane reguły.
+  - Użytkownik może zapisać aktualny zestaw reguł jako kolekcję (nazwa, opis, reguły).
+  - Użytkownik może aktualizować kolekcję.
+  - Użytkownik może usunąć kolekcję.
+  - Użytkownik może przywrócić kolekcję do poprzedniej wersji (pending changes).
 
-US-004: Wersjonowanie reguł
-
-- Tytuł: Zarządzanie wersjami reguł
-- Opis: Jako użytkownik chcę mieć możliwość zapisywania różnych wersji wygenerowanych zestawów reguł, aby móc wrócić do poprzednich konfiguracji w razie potrzeby.
-- Kryteria akceptacji:
-  - System zapisuje historię wersji wygenerowanych reguł.
-  - Użytkownik może przeglądać historię wersji i przywracać wybrane wersje.
-
-US-005: Bezpieczny dostęp i uwierzytelnianie
+US-004: Bezpieczny dostęp i uwierzytelnianie
 
 - Tytuł: Bezpieczny dostęp
-- Opis: Jako użytkownik chcę mieć możliwość logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych oraz wygenerowanych reguł.
+- Opis: Jako użytkownik chcę mieć możliwość logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych oraz wygenerowanych kolekcji reguł.
 - Kryteria akceptacji:
-  - Użytkownik musi przejść proces rejestracji i logowania przed korzystaniem z głównych funkcji aplikacji.
-  - System implementuje bezpieczne mechanizmy uwierzytelniania.
-  - Użytkownik może odzyskać hasło w przypadku problemów z logowaniem.
-
-US-006: Udostępnianie i import reguł
-
-- Tytuł: Udostępnianie reguł
-- Opis: Jako użytkownik chcę móc zapisywać, udostępniać oraz importować zestawy reguł, aby szybko wykorzystywać sprawdzone rozwiązania w różnych projektach.
-- Kryteria akceptacji:
-  - Użytkownik może zapisać aktualny zestaw reguł jako szablon.
-  - Użytkownik może udostępnić szablon innym użytkownikom.
-  - Użytkownik może importować szablony i zastosować je w nowych projektach.
+  - Użytkownik MOŻE korzystać z tworzenia reguł "ad-hoc" bez logowania się do systemu.
+  - Użytkownik NIE MOŻE korzystać z funkcji Kolekcji bez logowania się do systemu.
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu.
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Odzyskiwanie hasła powinno być możliwe.
 
 ## 6. Metryki sukcesu
 
