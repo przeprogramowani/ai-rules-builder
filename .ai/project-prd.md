@@ -61,11 +61,14 @@ US-004: Bezpieczny dostęp i uwierzytelnianie
 - Tytuł: Bezpieczny dostęp
 - Opis: Jako użytkownik chcę mieć możliwość logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych oraz wygenerowanych kolekcji reguł.
 - Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
   - Użytkownik MOŻE korzystać z tworzenia reguł "ad-hoc" bez logowania się do systemu.
   - Użytkownik NIE MOŻE korzystać z funkcji Kolekcji bez logowania się do systemu.
   - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
   - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu.
-  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
   - Odzyskiwanie hasła powinno być możliwe.
 
 ## 6. Metryki sukcesu
