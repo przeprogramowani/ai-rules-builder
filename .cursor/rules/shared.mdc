@@ -20,10 +20,11 @@ When introducing changes to the project, always follow the directory structure b
 - `./src/pages` - Astro pages
 - `./src/pages/api` - API endpoints
 - `./src/db` - database client and schema (Supabase)
-- `./src/middleware` - Astro middlewares
+- `./src/middleware/index.ts` - Astro middleware
 - `./src/components` - client-side components written in Astro (static) and React (dynamic)
 - `./src/store` - state management (Zustand)
 - `./src/assets` - static internal assets
+- `./src/env.d.ts` - Extending global namespace context with extra types
 - `./public` - public assets
 
 When modifying the directory structure, always update this section.
