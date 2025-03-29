@@ -59,7 +59,7 @@ US-003: Kolekcje reguł
 US-004: Bezpieczny dostęp i uwierzytelnianie
 
 - Tytuł: Bezpieczny dostęp
-- Opis: Jako użytkownik chcę mieć możliwość logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych oraz wygenerowanych kolekcji reguł.
+- Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
 - Kryteria akceptacji:
   - Logowanie i rejestracja odbywają się na dedykowanych stronach.
   - Logowanie wymaga podania adresu email i hasła.

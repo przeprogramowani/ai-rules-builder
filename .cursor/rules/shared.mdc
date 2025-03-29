@@ -30,16 +30,30 @@ When modifying the directory structure, always update this section.
 
 ## Guidelines
 
+### Astro & React Components
+
 - Use React for dynamic components and Astro for static components
 - Unless the component requires interactivity, generate Astro components
-- Use React function components over classes
-- Use TypeScript with sound types and avoid any
 - Prefer hooks whenever there's custom logic
-- Use Zustand for state management
+- Use React function components over classes
+
+### TypeScript
+
+- Use TypeScript with sound types and avoid any
 - For dictionary values, use `enum`
+
+### State management
+
+- Use Zustand for state management
+- Create dedicated stores for each domain
+
+### Project references
+
+- When referencing Github, always use 'przeprogramowani' organization and 'ai-rules-builder' repository
+
+### UI & Styles
 - Always use Tailwind 4 to add styles to components (both React and Astro)
 - Always apply styles inspired by dark mode as default theme
 - UI should be influenced by Fluent 2.0 design system
 - Use lucide-react instead of inline svg
 - Use 'size-\*' class in Tailwind when height and width are the same
-- When referencing Github, always use 'przeprogramowani' organization and 'ai-rules-builder' repository
