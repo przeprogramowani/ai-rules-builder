@@ -1,6 +1,6 @@
 Frontend - Astro z React dla komponentów interaktywnych:
 
-- Astro 5 pozwala na tworzenie szybkich, wydajnych stron i aplikacji z minimalną ilością JavaScript
+- Astro 5 z nastawieniem na routing server-side
 - React 18.3 zapewni interaktywność tam, gdzie jest potrzebna
 - TypeScript 5 dla lepszej jakości kodu i wsparcia IDE
 - Tailwind CSS 4 dla szybkiego stylowania
@@ -9,7 +9,7 @@ Frontend - Astro z React dla komponentów interaktywnych:
 
 Backend - Supabase jako kompleksowe rozwiązanie backendowe:
 
-- Baza danych PostgreSQL
+- Baza danych PostgreSQL w oparciu o Supabase
 - Wbudowana autentykacja użytkowników
 - Storage dla przechowywania plików
 - API do komunikacji z frontendem
