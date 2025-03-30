@@ -25,4 +25,4 @@ export function collectionMapper(
   };
 }
 
-export const DEFAULT_USER_ID = '17f19534-ce5d-43b0-a92e-194542f659cd';
+export const DEFAULT_USER_ID = '899b93b3-f661-4471-9995-1165701d9f51';
