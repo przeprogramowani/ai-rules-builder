@@ -26,6 +26,11 @@ stateDiagram-v2
             if_logowanie --> PomyslneLogowanie: Dane poprawne
             if_logowanie --> BladLogowania: Błędne dane
             BladLogowania --> FormularzLogowania
+
+            note right of FormularzLogowania
+                Email i hasło wymagane
+                Minimum 8 znaków dla hasła
+            end note
         }
 
         state "Rejestracja" as Rejestracja {
@@ -37,6 +42,12 @@ stateDiagram-v2
             if_rejestracja --> PomyslnaRejestracja: Dane poprawne
             if_rejestracja --> BladRejestracji: Email zajęty
             BladRejestracji --> FormularzRejestracji
+
+            note right of FormularzRejestracji
+                Email i hasło wymagane
+                Minimum 8 znaków dla hasła
+                Potwierdzenie hasła
+            end note
         }
 
         state "Odzyskiwanie Hasła" as OdzyskiwanieHasla {
@@ -75,10 +86,12 @@ stateDiagram-v2
     note right of TworzenieRegul
         Podstawowa funkcjonalność
         dostępna bez logowania
+        (US-001)
     end note
 
     note right of Kolekcje
         Pełna funkcjonalność
         dostępna po zalogowaniu
+        (US-003)
     end note
 ```

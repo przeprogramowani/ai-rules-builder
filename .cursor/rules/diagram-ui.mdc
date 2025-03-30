@@ -3,79 +3,99 @@ description:
 globs: 
 alwaysApply: false
 ---
-Przeanalizuj specyfikację modułu logowania i rejestracji, a następnie stwórz diagram Mermaid w pliku `.ai/diagrams/ui.md`. Powinien zawierać:
+You are a skilled software architect tasked with creating a Mermaid diagram to visualize the architecture of Astro pages and React components for a login and registration module. The diagram should be created in the following file:
 
-## Diagram architektury stron Astro i komponentów React
+You will need to reference the following files for existing components:
 
-- Przedstaw strukturę UI zaktualizowaną po wdrożeniu nowych wymagań
-- Uwzględnij layouty, strony serwerowe oraz aktualizację istniejących komponentów
-- Pogrupuj elementy według funkcjonalności
-- Zaznacz kierunek przepływu danych między komponentami
-- Wyróżnij moduły odpowiedzialne za stan aplikacji
-- Uwzględnij podział na komponenty współdzielone i specyficzne dla konkretnych stron
-- Pokaż zależności między komponentami związanymi z autentykacją a resztą aplikacji
-- Wyróżnij komponenty, które wymagały aktualizacji w związku z nowymi wymaganiami
+<file_references>
+[project-prd.md](mdc:.ai/project-prd.md)
+</file_references>
 
-## Uwagi dodatkowe dotyczące Mermaid:
+<destination>
+.ai/diagrams/ui.md
+</destination>
 
-- Zadbaj o pełną zgodność składni ze standardem Mermaid
-- Oznaczenie sekcji Mermaid (backticks - code snippet) MUSI znaleźć się w pierwszej linii: ```mermaid
-- Deklaracja typu diagramu MUSI znaleźć się w drugiej linii: `flowchart TD` (Top-Down) lub `flowchart LR` (Left-Right)
-- Stosuj spójne formatowanie ID węzłów:
-  ```
-  flowchart TD
-    A[Panel Główny] --> B[Formularz Logowania]
-    B --> C[Walidacja Danych]
-  ```
-- Pamiętaj, że ID węzłów są unikalne i wielkość liter ma znaczenie
-- Poprawnie formatuj opisy węzłów:
-  - `[Tekst]` - zwykły prostokąt
-  - `(Tekst)` - zaokrąglony prostokąt
-  - `((Tekst))` - okrąg
-  - `{Tekst}` - romb
-  - `>Tekst]` - flaga
-  - `[[Tekst]]` - podprocesy
-- Twórz podgrafy dla grupowania powiązanych elementów:
-  ```
-  subgraph "Moduł Autentykacji"
-    A[Formularz Logowania]
-    B[Walidacja Danych]
-    C[Zarządzanie Sesją]
-  end
-  ```
-- Dla złożonych relacji używaj węzłów pośrednich zamiast skomplikowanych połączeń
-- Preferuj pionowy układ dla hierarchii i poziomy dla przepływu procesów
-- Używaj poprawnych typów połączeń:
-  - `-->` strzałka standardowa
-  - `---` linia bez strzałki
-  - `-.->` linia przerywana ze strzałką
-  - `==>` linia pogrubiona ze strzałką
-  - `--Tekst-->` strzałka z opisem
-- NIE umieszczaj w nazwach diagramów adresów URL, adresów endpointów, nawiasów, długich nazw funkcji czy złożonych wyrażeń, np.:
-  ŹLE: [Strona Główna<br/>(Kreator Reguł)]
-  DOBRZE: [Kreator Reguł]
-- Stosuj spójne nazewnictwo w całym dokumencie
-- Unikaj długich etykiet, które mogą powodować problemy z renderowaniem
-- Pamiętaj o używaniu cudzysłowów dla tekstów zawierających spacje:
-  ```
-  A["Komponent Autentykacji"] --> B["Zarządzanie Stanem"]
-  ```
-- Dla stylowania węzłów używaj poprawnej składni:
-  ```
-  A:::styleClass --> B
-  ```
-  wraz z definicją klasy:
-  ```
-  classDef styleClass fill:#f96,stroke:#333,stroke-width:2px;
-  ```
+Your task is to analyze the specification of the login and registration module and create a comprehensive Mermaid diagram that accurately represents the system architecture. The diagram should be in Polish language.
 
-## Najczęstsze błędy do uniknięcia:
+Before creating the diagram, please analyze the requirements and plan your approach. Wrap your analysis inside <architecture_analysis> tags. In this analysis:
 
-1. Brak deklaracji sekcji Mermaid i typu diagramu na początku
-2. Nieprawidłowe ID węzłów (zawierające niedozwolone znaki)
-3. Niezamknięte subgrafy (brak "end" dla rozpoczętego "subgraph")
-4. Niedomknięte nawiasy kwadratowe w opisach węzłów
-5. Niespójne kierunki przepływu (mieszanie TD i LR bez uzasadnienia)
-6. Zbyt złożone diagramy bez odpowiedniego grupowania
-7. Nakładające się etykiety i połączenia
-8. Brak pustej linii przed i po bloku kodu mermaid
+1. List out all the components mentioned in the file references.
+2. Identify the main pages and their corresponding components.
+3. Outline the data flow between components.
+4. Provide a brief description of each component's functionality.
+
+When you're ready to create the diagram, please follow these guidelines:
+
+1. Start the diagram with the following syntax:
+   ```mermaid
+   flowchart TD
+   ```
+
+2. Include the following elements in your diagram:
+   - Updated UI structure after implementing new requirements
+   - Layouts, server pages, and updates to existing components
+   - Grouping of elements by functionality
+   - Data flow direction between components
+   - Modules responsible for application state
+   - Division into shared components and page-specific components
+   - Dependencies between authentication-related components and the rest of the application
+   - Highlight components that required updates due to new requirements
+
+3. Follow these Mermaid syntax rules:
+   - Use consistent node ID formatting:
+     ```
+     A[Panel Główny] --> B[Formularz Logowania]
+     B --> C[Walidacja Danych]
+     ```
+   - Remember that node IDs are case-sensitive and must be unique
+   - Use correct node shapes:
+     - `[Tekst]` for rectangles
+     - `(Tekst)` for rounded rectangles
+     - `((Tekst))` for circles
+     - `{Tekst}` for diamonds
+     - `>Tekst]` for flags
+     - `[[Tekst]]` for subroutines
+   - Group related elements using subgraphs:
+     ```
+     subgraph "Moduł Autentykacji"
+       A[Formularz Logowania]
+       B[Walidacja Danych]
+       C[Zarządzanie Sesją]
+     end
+     ```
+   - Use intermediate nodes for complex relationships instead of complicated connections
+   - Prefer vertical layout for hierarchy and horizontal for process flow
+   - Use correct connection types:
+     - `-->` for standard arrows
+     - `---` for lines without arrows
+     - `-.->` for dotted lines with arrows
+     - `==>` for thick lines with arrows
+     - `--Tekst-->` for arrows with labels
+   - Avoid using URLs, endpoint addresses, brackets, long function names, or complex expressions in node names
+   - Use consistent naming throughout the document
+   - Avoid long labels that may cause rendering issues
+   - Use quotes for text containing spaces:
+     ```
+     A["Komponent Autentykacji"] --> B["Zarządzanie Stanem"]
+     ```
+   - For node styling, use the correct syntax:
+     ```
+     A:::styleClass --> B
+     ```
+     with class definition:
+     ```
+     classDef styleClass fill:#f96,stroke:#333,stroke-width:2px;
+     ```
+
+4. Avoid these common errors:
+   - Missing Mermaid section declaration and diagram type at the beginning
+   - Invalid node IDs (containing disallowed characters)
+   - Unclosed subgraphs (missing "end" for a started "subgraph")
+   - Unclosed square brackets in node descriptions
+   - Inconsistent flow directions (mixing TD and LR without justification)
+   - Overly complex diagrams without proper grouping
+   - Overlapping labels and connections
+
+After creating the diagram, please review it carefully to ensure there are no syntax errors or rendering issues. Make any necessary adjustments to improve clarity and accuracy.
+
+When you're ready to present the final diagram, please use <mermaid_diagram> tags to enclose it.

@@ -38,6 +38,22 @@ sequenceDiagram
     deactivate SupabaseAuth
     deactivate AstroAPI
 
+    %% Reset hasła
+    Browser->>AstroAPI: POST /api/auth/reset-password (email)
+    activate AstroAPI
+    AstroAPI->>SupabaseAuth: supabase.auth.resetPasswordForEmail()
+    activate SupabaseAuth
+    alt Email istnieje
+        SupabaseAuth-->>AstroAPI: Email wysłany
+        AstroAPI-->>Browser: 200 OK + komunikat
+        Note over Browser: Informacja o wysłaniu linku
+    else Email nie istnieje
+        SupabaseAuth-->>AstroAPI: Błąd
+        AstroAPI-->>Browser: 400 Bad Request + komunikat
+    end
+    deactivate SupabaseAuth
+    deactivate AstroAPI
+
     %% Dostęp do chronionej zawartości
     Browser->>Middleware: Żądanie chronionego zasobu
     activate Middleware
@@ -54,27 +70,14 @@ sequenceDiagram
     deactivate SupabaseAuth
     deactivate Middleware
 
-    %% Odświeżanie tokenu
-    Browser->>Middleware: Żądanie z wygasłym tokenem
-    activate Middleware
-    Middleware->>SupabaseAuth: Próba odświeżenia tokenu
-    activate SupabaseAuth
-    alt Odświeżenie udane
-        SupabaseAuth-->>Middleware: Nowy token JWT
-        Middleware-->>Browser: Aktualizacja cookie + kontynuacja
-    else Sesja wygasła
-        SupabaseAuth-->>Middleware: Błąd odświeżenia
-        Middleware-->>Browser: Przekierowanie do /auth/login
-    end
-    deactivate SupabaseAuth
-    deactivate Middleware
-
     %% Wylogowanie
     Browser->>AstroAPI: POST /api/auth/logout
     activate AstroAPI
     AstroAPI->>SupabaseAuth: supabase.auth.signOut()
-    SupabaseAuth-->>AstroAPI: Potwierdzenie wylogowania
-    AstroAPI-->>Browser: Usunięcie cookie + przekierowanie
+    activate SupabaseAuth
+    SupabaseAuth-->>AstroAPI: Sesja zakończona
+    AstroAPI-->>Browser: 200 OK + usunięcie cookie
+    Note over Browser: Reset authStore
+    deactivate SupabaseAuth
     deactivate AstroAPI
-    Note over Browser: Wyczyszczenie authStore
 ```
