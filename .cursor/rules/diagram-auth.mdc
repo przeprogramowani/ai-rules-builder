@@ -3,9 +3,9 @@ description:
 globs: 
 alwaysApply: false
 ---
-You are a security specialist tasked with creating a Mermaid diagram to visualize the authentication flow for a login and registration module. The diagram should be created in the following file:
+Jesteś specjalistą ds. bezpieczeństwa, którego zadaniem jest utworzenie diagramu Mermaid w celu wizualizacji przepływu autentykacji dla modułu logowania i rejestracji. Diagram powinien zostać utworzony w następującym pliku: DESTINATION
 
-You will need to reference the following files for existing requirements:
+Będziesz musiał odnieść się do następujących plików w celu poznania istniejących wymagań:
 
 <file_references>
 [project-prd.md](mdc:.ai/project-prd.md)
@@ -15,51 +15,51 @@ You will need to reference the following files for existing requirements:
 .ai/diagrams/auth.md
 </destination>
 
-Your task is to analyze the specification of the login and registration module and create a comprehensive Mermaid diagram that accurately represents the authentication sequence. The diagram should be in Polish language.
+Twoim zadaniem jest analiza specyfikacji modułu logowania i rejestracji oraz utworzenie kompleksowego diagramu Mermaid, który dokładnie przedstawia sekwencję autentykacji. Diagram powinien być w języku polskim.
 
-Before creating the diagram, please analyze the requirements and plan your approach. Wrap your analysis inside <authentication_analysis> tags. In this analysis:
+Przed utworzeniem diagramu, przeanalizuj wymagania i zaplanuj swoje podejście. Umieść swoją analizę wewnątrz tagów <authentication_analysis>. W tej analizie:
 
-1. List out all the authentication flows mentioned in the file references.
-2. Identify the main actors and their interactions.
-3. Outline the token verification and refresh processes.
-4. Provide a brief description of each authentication step.
+1. Wypisz wszystkie przepływy autentykacji wymienione w plikach referencyjnych.
+2. Zidentyfikuj głównych aktorów i ich interakcje.
+3. Określ procesy weryfikacji i odświeżania tokenów.
+4. Dostarcz krótki opis każdego kroku autentykacji.
 
-When you're ready to create the diagram, please follow these guidelines:
+Kiedy będziesz gotowy do utworzenia diagramu, postępuj zgodnie z poniższymi wytycznymi:
 
-1. Start the diagram with the following syntax:
+1. Rozpocznij diagram od następującej składni:
 
    ```mermaid
    sequenceDiagram
    ```
 
-2. Include the following elements in your diagram:
+2. Uwzględnij następujące elementy w swoim diagramie:
 
-   - The full lifecycle of the authentication process in a modern application using React, Astro, and Supabase Auth
-   - Communication between actors: 1) Browser 2) Middleware 3) Astro API 4) Supabase Auth
-   - Clear points where user redirection or token verification occurs
-   - Data flow after implementing new authentication requirements
-   - How the user session works after login and how the system responds to token expiration
-   - Token refresh process and protection against unauthorized access
+   - Pełny cykl życia procesu autentykacji w nowoczesnej aplikacji używającej React, Astro i Supabase Auth
+   - Komunikacja między aktorami: 1) Przeglądarka 2) Middleware 3) Astro API 4) Supabase Auth
+   - Wyraźne punkty, w których następuje przekierowanie użytkownika lub weryfikacja tokenu
+   - Przepływ danych po wdrożeniu nowych wymagań autentykacji
+   - Jak działa sesja użytkownika po zalogowaniu i jak system reaguje na wygaśnięcie tokenu
+   - Proces odświeżania tokenu i ochrona przed nieautoryzowanym dostępem
 
-3. Follow these Mermaid syntax rules:
+3. Przestrzegaj tych zasad składni Mermaid:
 
-   - Use the `autonumber` attribute for clarity of step sequence
-   - Maintain consistent spacing between elements for diagram readability
-   - Always use `participant` to declare actors before starting the sequence
-   - Remember the correct order of elements in a sequence (sender, arrow, receiver)
-   - Use proper activation and deactivation cycle of diagram elements
-   - Use appropriate arrow types:
-     - `->` for regular arrows (e.g., `Browser->API`)
-     - `-->` for dashed arrows (e.g., `API-->Browser: Token expired`)
-     - `->>` for arrows with empty arrowheads (e.g., `Browser->>Auth: Login request`)
-     - `-->>` for dashed arrows with empty arrowheads
-   - For activation blocks, correctly use `activate` and `deactivate`:
+   - Używaj atrybutu `autonumber` dla przejrzystości sekwencji kroków
+   - Utrzymuj spójne odstępy między elementami dla czytelności diagramu
+   - Zawsze używaj `participant` do deklarowania aktorów przed rozpoczęciem sekwencji
+   - Pamiętaj o poprawnej kolejności elementów w sekwencji (nadawca, strzałka, odbiorca)
+   - Używaj właściwego cyklu aktywacji i dezaktywacji elementów diagramu
+   - Używaj odpowiednich typów strzałek:
+     - `->` dla zwykłych strzałek (np. `Browser->API`)
+     - `-->` dla przerywanych strzałek (np. `API-->Browser: Token expired`)
+     - `->>` dla strzałek z pustymi grotami (np. `Browser->>Auth: Login request`)
+     - `-->>` dla przerywanych strzałek z pustymi grotami
+   - Dla bloków aktywacji, poprawnie używaj `activate` i `deactivate`:
      ```
      activate Browser
      Browser->>API: Request data
      deactivate Browser
      ```
-   - Use `alt`/`else`/`end` for conditional paths:
+   - Używaj `alt`/`else`/`end` dla ścieżek warunkowych:
      ```
      alt Authentication successful
        Browser->>Dashboard: Redirect to dashboard
@@ -67,7 +67,7 @@ When you're ready to create the diagram, please follow these guidelines:
        Browser->>LoginPage: Show error message
      end
      ```
-   - For parallel actions, use `par`/`and`/`end`:
+   - Dla działań równoległych, używaj `par`/`and`/`end`:
      ```
      par Send confirmation email
        API->>EmailService: Send verification
@@ -75,25 +75,25 @@ When you're ready to create the diagram, please follow these guidelines:
        API->>Database: Update status
      end
      ```
-   - For multi-line notes, use the correct syntax:
+   - Dla wieloliniowych notatek, używaj poprawnej składni:
      ```
      Note over Browser,API: Ten tekst pojawi się
      w notatce obejmującej oba elementy
      ```
-   - DO NOT exceed 80 characters in a single line of Mermaid code
-   - DO NOT include URLs, endpoint addresses, brackets, long function names, or complex expressions in diagram names:
-     BAD: [Strona Główna<br/>(Kreator Reguł)]
-     GOOD: [Kreator Reguł]
-   - Use consistent naming throughout the document
+   - NIE przekraczaj 80 znaków w pojedynczej linii kodu Mermaid
+   - NIE umieszczaj adresów URL, adresów endpointów, nawiasów, długich nazw funkcji ani złożonych wyrażeń w nazwach diagramu:
+     ŹLE: [Strona Główna<br/>(Kreator Reguł)]
+     DOBRZE: [Kreator Reguł]
+   - Używaj spójnego nazewnictwa w całym dokumencie
 
-4. Avoid these common errors:
-   - Missing Mermaid section declaration and diagram type at the beginning
-   - Incorrect arrow syntax (e.g., -> instead of ->>)
-   - Using disallowed characters in identifiers without enclosing them in quotes
-   - Unbalanced code blocks (missing end for started blocks)
-   - Exceeding line length limits
-   - Incorrect nesting of conditional blocks
+4. Unikaj tych typowych błędów:
+   - Brak deklaracji sekcji Mermaid i typu diagramu na początku
+   - Niepoprawna składnia strzałek (np. -> zamiast ->>)
+   - Używanie niedozwolonych znaków w identyfikatorach bez umieszczania ich w cudzysłowach
+   - Niezbalansowane bloki kodu (brakujące end dla rozpoczętych bloków)
+   - Przekraczanie limitów długości linii
+   - Niepoprawne zagnieżdżanie bloków warunkowych
 
-After creating the diagram, please review it carefully to ensure there are no syntax errors or rendering issues. Make any necessary adjustments to improve clarity and accuracy.
+Po utworzeniu diagramu, przejrzyj go dokładnie, aby upewnić się, że nie ma błędów składniowych ani problemów z renderowaniem. Wprowadź niezbędne poprawki, aby poprawić przejrzystość i dokładność.
 
-When you're ready to present the final diagram, please use <mermaid_diagram> tags to enclose it.
+Kiedy będziesz gotowy do przedstawienia końcowego diagramu, użyj tagów <mermaid_diagram> do jego otoczenia.
