@@ -1,0 +1,109 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Przeanalizuj specyfikację modułu logowania i rejestracji, a następnie stwórz diagram Mermaid w pliku `.ai/diagrams/journey.md`. Powinien zawierać:
+
+## Schemat blokowy akcji użytkownika
+
+- Przedstaw ścieżki użytkownika na podstawie istniejących wymagań z [project-prd.md](mdc:.ai/project-prd.md), w tym:
+  - korzystanie z aplikacji jako niezalogowany użytkownik
+  - dostęp do głównej funkcjonalności aplikacji
+  - logowanie
+  - zakładanie konta
+  - odzyskiwanie hasła
+- Uwzględnij wysokopoziomową ścieżkę użytkownika dopasowaną do wymagań projektowych i USER STORIES
+- Nie skupiaj się na aspektach technicznych - diagram ma zawierać wyłącznie ścieżki biznesowe
+- Zaznacz punkty decyzyjne i alternatywne ścieżki
+- Przedstaw przepływ po weryfikacji adresu email
+
+## Uwagi dodatkowe dotyczące Mermaid:
+
+- Zadbaj o pełną zgodność składni ze standardem Mermaid
+- Oznaczenie sekcji Mermaid (backticks - code snippet) MUSI znaleźć się w pierwszej linii: ```mermaid
+- Deklaracja typu diagramu MUSI znaleźć się w drugiej linii: `stateDiagram-v2`
+- Zdefiniuj stan początkowy i końcowy poprawnie:
+  ```
+  stateDiagram-v2
+    [*] --> StronaGlowna
+    StronaGlowna --> Formularz
+    Formularz --> PomyslnaRejestracja
+    PomyslnaRejestracja --> [*]
+  ```
+- Używaj stanów złożonych dla grupowania powiązanych stanów:
+  ```
+  state "Proces Rejestracji" as Rejestracja {
+    [*] --> FormularzRejestracji
+    FormularzRejestracji --> WalidacjaDanych
+    WalidacjaDanych --> WyslanieMaila
+  }
+  ```
+- Dla rozgałęzień decyzyjnych używaj poprawnej składni:
+  ```
+  state if_weryfikacja <<choice>>
+  WeryfikacjaTokena --> if_weryfikacja
+  if_weryfikacja --> TokenPoprawny: Token OK
+  if_weryfikacja --> TokenNiepoprawny: Token błędny
+  ```
+- Stosuj notatki przy stanach dla dodatkowych informacji:
+  ```
+  FormularzLogowania: Użytkownik może się zalogować
+  note right of FormularzLogowania
+    Formularz zawiera pola email i hasło
+    oraz link do odzyskiwania hasła
+  end note
+  ```
+- Dla stanów równoległych używaj poprawnej składni:
+
+  ```
+  state fork_state <<fork>>
+  state join_state <<join>>
+
+  Rejestracja --> fork_state
+  fork_state --> WyslanieMaila
+  fork_state --> AktualizacjaBazy
+  WyslanieMaila --> join_state
+  AktualizacjaBazy --> join_state
+  join_state --> StanKoncowy
+  ```
+
+- NIE umieszczaj w nazwach diagramów adresów URL, adresów endpointów, nawiasów, długich nazw funkcji czy złożonych wyrażeń, np.:
+  ŹLE: [Strona Główna<br/>(Kreator Reguł)]
+  DOBRZE: [Kreator Reguł]
+- Stosuj spójne nazewnictwo w całym dokumencie
+- Dla przejść ze zdarzeniami i warunkami używaj poprawnej składni:
+  ```
+  StanA --> StanB: Przycisk Dalej [dane poprawne]
+  ```
+- Używaj przestrzeni nazw dla organizacji złożonych diagramów:
+  ```
+  state "Autentykacja" as Autentykacja {
+    state "Logowanie" as Logowanie {
+      // stany dla procesu logowania
+    }
+    state "Rejestracja" as Rejestracja {
+      // stany dla procesu rejestracji
+    }
+  }
+  ```
+- Pamiętaj o unikatowych identyfikatorach stanów, aby uniknąć konfliktów
+- Dla historii stanów używaj poprawnej składni:
+  ```
+  state "Panel użytkownika" as Panel {
+    [*] --> historia
+    state historia <<history>>
+  }
+  ```
+
+## Najczęstsze błędy do uniknięcia:
+
+1. Brak deklaracji sekcji Mermaid i typu diagramu na początku
+2. Nieprawidłowe stany decyzyjne (brak choice, fork, join)
+3. Brak stanów początkowych i końcowych ([*])
+4. Niespójne nazewnictwo stanów
+5. Niedomknięte stany zagnieżdżone (brak końcowego nawiasu klamrowego)
+6. Zbyt skomplikowane diagramy bez odpowiedniego grupowania stanów
+7. Niepoprawne etykiety przejść
+8. Przekraczanie limitów długości linii
+9. Brak pustej linii przed i po bloku kodu Mermaid

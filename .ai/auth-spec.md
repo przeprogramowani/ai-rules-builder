@@ -1,105 +1,119 @@
-# Specyfikacja techniczna - System Autentykacji
+# Specyfikacja modułu autoryzacji i rejestracji użytkowników
 
 ## 1. ARCHITEKTURA INTERFEJSU UŻYTKOWNIKA
 
-**Struktura graficzna:**
+### A. Struktura interfejsu i relacje komponentów
 
-- **Strony autentykacji:**
-  - `/auth/register` – formularz rejestracji
-  - `/auth/login` – formularz logowania
-  - `/auth/reset-password` – formularz odzyskiwania hasła
-- **Aktualizacja interfejsu:**
-  - Modyfikacja np. navbaru, aby wyświetlał przyciski logowania/wylogowywania zgodnie z aktualnym stanem sesji.
+- **Strona główna (@index.astro):**
+  - **Layout:** Utrzymuje spójny wygląd aplikacji, w tym tło, nagłówek i stopkę.
+  - **Topbar (@Topbar.tsx):**
+    - Wyświetla logo, tytuł ("10xRules.ai") oraz dodatkowe akcje.
+    - Rozszerzony o przyciski autoryzacyjne ("Logowanie", "Rejestracja") – przy niezalogowanym użytkowniku.
+    - Po zalogowaniu przycisk "Wyloguj" pojawia się w miejsce opcji logowania.
+    - Otrzymuje zalogowanego użytkownika jako props, który jest przekazywany do aplikacji React w celu inicjalizacji globalnego store (np. `authStore` z Zustand).
+  - **TwoPane (@TwoPane.tsx):**
+    - Dzieli główną zawartość na dwa panele: **RuleBuilder** (po lewej) oraz **RulePreview** (po prawej).
+  - **CollectionsSidebar (@CollectionsSidebar.tsx):**
+    - Prezentuje listę kolekcji reguł (funkcjonalność US-003).
+    - Dostęp do pełnych funkcjonalności kolekcji wymaga autoryzacji. W przypadku braku logowania:
+      - Sidebar może wyświetlić komunikat typu "Zaloguj się, aby zobaczyć swoje kolekcje" lub zaoferować ograniczony widok.
 
-**Komponenty client-side:**
+### B. Elementy autoryzacyjne i interakcje
 
-- **RegistrationForm (React):**
-  - Formularz rejestracji z polami: email, hasło, potwierdzenie hasła.
-  - Integracja z Tailwind CSS 4 (domyślny styl dark mode) oraz ikonami z lucide-react dla sygnalizacji błędów.
-- **LoginForm (React):**
-  - Formularz logowania z interaktywną walidacją pól.
-- **PasswordResetForm (React):**
-  - Formularz odzyskiwania hasła, umożliwiający wysłanie żądania resetu.
-- **Zarządzanie stanem:**
-  - Wykorzystanie Zustand do przechowywania i aktualizacji stanu sesji.
+- **Nowe strony autoryzacyjne:**
 
-**Walidacja i komunikaty błędów:**
+  - Utworzenie dedykowanych stron Astro (np. `/pages/auth/login.astro`, `/pages/auth/signup.astro`, `/pages/auth/reset-password.astro`) obsługiwanych przez komponenty React, gdzie:
+    - Formularz **rejestracyjny** wymaga:
+      - Adresu email (sprawdzany pod kątem poprawnego formatu).
+      - Hasła (minimum 8 znaków).
+      - Potwierdzenia hasła (musi być zgodne z hasłem).
+    - Formularz **logowania** wymaga:
+      - Adresu email.
+      - Hasła.
+  - Po poprawnym zalogowaniu lub rejestracji, mechanizm globalny (np. `authStore` z Zustand) aktualizuje stan aplikacji, powodując dynamiczne zmiany w:
+    - Topbar – wyświetlenie opcji wylogowania.
+    - CollectionsSidebar – odblokowanie pełnej funkcjonalności kolekcji.
 
-- **Walidacja po stronie klienta:**
-  - **Email:** Sprawdzenie poprawności formatu (regex) oraz wymagalność pola.
-  - **Hasło:** Weryfikacja wymagań, np. minimum 8 znaków, obecność przynajmniej jednej wielkiej litery.
-  - **Potwierdzenie hasła:** Musi być identyczne z wprowadzonym hasłem.
-- **Komunikaty błędów:**
-  - „Niepoprawny format adresu email.”
-  - „Hasło musi zawierać co najmniej 8 znaków.”
-  - „Hasła nie są zgodne.”
-  - Komunikaty serwerowe (np. email już istnieje) wyświetlane jako alerty w UI.
-
----
+- **Walidacja i komunikaty błędów:**
+  - **Po stronie klienta:**
+    - Przed wysłaniem formularza weryfikowane są:
+      - Niepusty i poprawny format adresu email.
+      - Minimalna długość hasła.
+      - Zgodność hasła z potwierdzeniem.
+    - W przypadku błędnych danych wyświetlane są komunikaty, np.:
+      - "Nieprawidłowy adres email"
+      - "Hasło musi zawierać co najmniej 8 znaków"
+      - "Hasła nie są zgodne"
+  - **Po stronie serwera:**
+    - Weryfikacja unikalności adresu email – komunikat błędu np. "Konto z tym adresem email już istnieje".
+    - W przypadku nieprawidłowej próby logowania – komunikat "Nieprawidłowy email lub hasło".
+  - Komunikaty błędów prezentowane są w zgodzie z design systemem (Tailwind CSS, dark mode, Fluent 2.0).
 
 ## 2. LOGIKA BACKENDOWA
 
-**Struktura endpointów API (umieszczonych w `/src/pages/api/auth/`):**
+### A. Struktura endpointów API
 
-- **POST `/register`:**
-  - Rejestracja użytkownika. Odbiera dane: email, hasło, potwierdzenie hasła.
-- **POST `/login`:**
-  - Logowanie użytkownika. Przyjmuje email i hasło.
-- **POST `/logout`:**
-  - Wylogowanie użytkownika.
-- **POST `/reset-password`:**
-  - Inicjalizacja procesu odzyskiwania hasła, przyjmując adres email.
+- Endpointy związane z autoryzacją umieszczone w katalogu `/src/pages/api/auth/`:
+  - **POST `/api/auth/signup`:** Rejestracja nowego użytkownika.
+  - **POST `/api/auth/login`:** Logowanie użytkownika.
+  - **POST `/api/auth/logout`:** Wylogowanie użytkownika.
+  - **POST `/api/auth/reset-password`:** Inicjacja procesu odzyskiwania hasła.
 
-**Modele danych:**
+### B. Modele danych
 
-- **Użytkownik:**
-  - _email_ – unikalny identyfikator użytkownika.
-  - _created_at_ oraz _updated_at_ – znaczniki czasowe.
-  - Dodatkowe pola (np. nazwa użytkownika) mogą być rozbudowane w kolejnych iteracjach.
-- Operacje związane z zarządzaniem użytkownikami delegowane są do Supabase, który obsługuje przechowywanie i uwierzytelnianie.
+- **Supabase Auth:**
+  - Główne dane użytkownika (email, hasło, id) są obsługiwane przez Supabase Auth.
 
-**Mechanizmy walidacji danych wejściowych:**
+### C. Mechanizm walidacji danych wejściowych
 
-- Weryfikacja formatu email oraz siły hasła (np. długość, złożoność).
-- Sprawdzenie zgodności pól hasła i potwierdzenia hasła w przypadku rejestracji.
-- Możliwe użycie bibliotek typu Zod lub własnych funkcji walidacyjnych.
-- Wykonanie walidacji zarówno po stronie klienta, jak i backendu, by zabezpieczyć system przed nieprawidłowymi danymi.
+- Wykorzystanie biblioteki walidacyjnej (np. Zod) do:
+  - Weryfikacji formatu email.
+  - Sprawdzenia minimalnej długości hasła.
+  - Weryfikacji zgodności pola "hasło" z "potwierdzeniem hasła" podczas rejestracji.
+- Walidacja na poziomie API zwraca odpowiednie statusy HTTP (np. 400 dla błędnych danych) wraz z jasnym komunikatem w strukturze JSON.
 
-**Obsługa wyjątków:**
+### D. Obsługa wyjątków
 
-- Stosowanie bloków try/catch w każdym endpointzie API.
-- Zwracanie właściwych kodów HTTP:
-  - **400** – błąd walidacji danych wejściowych.
-  - **401** – błąd autoryzacji (np. niepoprawne dane logowania).
-  - **500** – błąd serwera.
-- Logowanie błędów (np. za pomocą narzędzi monitorujących) dla celów debugowania i bezpieczeństwa.
-
----
+- Logika endpointów zabezpieczona jest za pomocą bloków try-catch.
+- Wszelkie nieprzewidziane błędy są logowane na serwerze.
+- Klient otrzymuje spójną strukturę błędu (np. kod statusu, wiadomość błędu), co umożliwia poprawne wyświetlenie informacji w interfejsie użytkownika.
 
 ## 3. SYSTEM AUTENTYKACJI
 
-**Integracja z Supabase Auth:**
+### A. Wykorzystanie Supabase Auth
 
 - **Rejestracja:**
-  - Wywołanie metody `supabase.auth.signUp({ email, password })` celem utworzenia konta użytkownika.
+  - Metoda: `supabase.auth.signUp`
+  - Proces: Użytkownik podaje email i hasło. Po rejestracji opcjonalnie wysyłany jest mail weryfikacyjny.
 - **Logowanie:**
-  - Realizacja logowania przez `supabase.auth.signInWithPassword({ email, password })`.
-- **Wylogowywanie:**
-  - Obsługa wylogowania za pomocą `supabase.auth.signOut()`.
+  - Metoda: `supabase.auth.signInWithPassword`
+  - Proces: Przekazanie emaila oraz hasła. W przypadku niepowodzenia zwracany jest błąd autentykacji.
+- **Wylogowanie:**
+  - Metoda: `supabase.auth.signOut`
+  - Proces: Użytkownik kończy sesję, a globalny stan (np. `authStore`) jest aktualizowany.
 - **Odzyskiwanie hasła:**
-  - Implementacja procesu resetowania hasła wykorzystując funkcję `supabase.auth.resetPasswordForEmail(email)` lub inny dedykowany mechanizm Supabase.
+  - Metoda: `supabase.auth.resetPasswordForEmail`
+  - Proces: Użytkownik inicjuje proces resetowania hasła poprzez wpisanie adresu email, co skutkuje wysłaniem instrukcji resetowania hasła.
 
-**Integracja z Astro:**
+### B. Integracja z Astro i zarządzanie stanem
 
-- **Endpointy API:**
-  - Endpointy wywołujące metody Supabase są zintegrowane z backendem Astro, korzystając z konfiguracji zawierającej zmienne środowiskowe (klucze API, URL Supabase).
-- **Zarządzanie sesją:**
-  - Po stronie klienta użycie biblioteki supabase-js dla utrzymania stanu sesji, wraz z aktualizacją interfejsu poprzez Zustand.
+- **Przekazywanie użytkownika jako props:**
+  - Strona główna (@index.astro) pobiera zalogowanego użytkownika (np. z sesji Supabase) przed renderowaniem.
+  - Dane użytkownika przekazywane są jako props do głównych komponentów React oraz do inicjalizacji `authStore` w Zustand.
 - **Middleware:**
-  - Wdrożenie middleware (w `/src/middleware`) chroniącego zasoby wymagające autoryzacji poprzez weryfikację tokenu JWT.
+  - Aktualizacja middleware w `/src/middleware/index.ts` w celu zabezpieczenia endpointów i stron wymagających autoryzacji, np. poprzez sprawdzenie obecności ważnego tokenu JWT.
+- **Zarządzanie stanem:**
+  - Użycie Zustand (np. `authStore`) do przechowywania i aktualizacji stanu użytkownika (dane sesji, token, informacja o zalogowaniu).
+  - Dynamiczna modyfikacja interfejsu (Topbar, CollectionsSidebar) w zależności od stanu autoryzacji.
 
-**Bezpieczeństwo:**
+### C. Bezpieczeństwo
 
-- Przechowywanie tokenów autentykacyjnych przy użyciu bezpiecznych mechanizmów (np. httpOnly cookies).
-- Wymóg korzystania z HTTPS w celu zabezpieczenia transmisji danych.
-- Dodatkowa weryfikacja unikalności adresu email podczas rejestracji oraz egzekwowanie polityki silnych haseł.
+- Wszystkie operacje autoryzacyjne odbywają się po stronie backendu w bezpiecznym środowisku (HTTPS).
+- Używanie ciasteczek do przechowywania tokenów JWT w sposób bezpieczny (np. HttpOnly, Secure).
+- Stosowanie ochrony przed atakami CSRF i XSS.
+- Brak wykorzystania zewnętrznych serwisów logowania, zgodnie z wymaganiami US-004.
+
+---
+
+**Podsumowanie:**
+Przedstawiona specyfikacja zapewnia kompleksową integrację modułu rejestracji i logowania użytkowników, spójną z istniejącą architekturą aplikacji opartej na Astro, React, Supabase Auth, Tailwind CSS oraz Zustand. System gwarantuje przejrzystą walidację danych, obsługę wyjątków oraz bezpieczne zarządzanie sesjami użytkowników, z aktualizacją stanu przez przekazywanie danych sesji jako props do klienta, umożliwiając dostęp do chronionych funkcjonalności (np. kolekcje reguł).

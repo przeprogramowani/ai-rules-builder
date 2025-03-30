@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Przeanalizuj specyfikację modułu logowania i rejestracji, a następnie stwórz diagram Mermaid w pliku `.ai/diagrams/auth.md`. Powinien zawierać:
+
+## Diagram sekwencji
+
+- Odwzoruj pełny cykl życia procesu autentykacji w nowoczesnej aplikacji korzystającej z Reacta, Astro i Supabase Auth
+- Uwzględnij komunikację między aktorami: 1) Przeglądarka 2) Middleware 3) Astro API 4) Supabase Auth
+- Zaznacz jasno punkty, gdzie następuje przekierowanie użytkownika lub weryfikacja tokenu
+- Uwzględnij przepływ danych po wdrożeniu nowych wymagań związanych z autentykacją
+- Pokaż, jak działa sesja użytkownika po zalogowaniu i jak reaguje system na wygaśnięcie tokenu
+- Przedstaw proces odświeżania tokenu i zabezpieczenia przed nieautoryzowanym dostępem
+
+## Uwagi dodatkowe dotyczące Mermaid:
+
+- Zadbaj o pełną zgodność składni ze standardem Mermaid
+- Oznaczenie sekcji Mermaid (backticks - code snippet) MUSI znaleźć się w pierwszej linii: ```mermaid
+- Deklaracja typu diagramu MUSI znaleźć się w drugiej linii: `sequenceDiagram`
+- Używaj atrybutu `autonumber` dla przejrzystości kolejności kroków
+- Stosuj stałe odstępy między elementami dla czytelności diagramu
+- Zawsze używaj `participant` do deklaracji aktorów przed rozpoczęciem sekwencji
+- Pamiętaj o prawidłowej kolejności elementów w sekwencji (nadawca, strzałka, odbiorca)
+- Pamiętaj o poprawnym cyklu aktywacji i dezaktywacji elementów diagramu
+- Używaj odpowiednich typów strzałek:
+  - `->` dla zwykłych strzałek (np. `Browser->API`)
+  - `-->` dla strzałek przerywanych (np. `API-->Browser: Token expired`)
+  - `->>` dla strzałek z pustym grotem (np. `Browser->>Auth: Login request`)
+  - `-->>` dla przerywanych strzałek z pustym grotem
+- Dla bloków aktywacji używaj poprawnie `activate` i `deactivate`:
+  ```
+  activate Browser
+  Browser->>API: Request data
+  deactivate Browser
+  ```
+- NIE umieszczaj w nazwach diagramów adresów URL, adresów endpointów, nawiasów, długich nazw funkcji czy złożonych wyrażeń, np.:
+  ŹLE: [Strona Główna<br/>(Kreator Reguł)]
+  DOBRZE: [Kreator Reguł]
+- Stosuj spójne nazewnictwo w całym dokumencie
+- Dla wieloliniowych notatek używaj poprawnej składni:
+  ```
+  Note over Browser,API: Ten tekst pojawi się
+  w notatce obejmującej oba elementy
+  ```
+- NIE przekraczaj 80 znaków w jednej linii kodu Mermaid
+- Używaj `alt`/`else`/`end` dla ścieżek warunkowych:
+  ```
+  alt Authentication successful
+    Browser->>Dashboard: Redirect to dashboard
+  else Authentication failed
+    Browser->>LoginPage: Show error message
+  end
+  ```
+- Dla równoległych działań używaj `par`/`and`/`end`:
+  ```
+  par Send confirmation email
+    API->>EmailService: Send verification
+  and Update user status
+    API->>Database: Update status
+  end
+  ```
+
+## Najczęstsze błędy do uniknięcia:
+
+1. Brak deklaracji sekcji Mermaid i typu diagramu na początku
+2. Nieprawidłowa składnia strzałek (np. -> zamiast ->>)
+3. Używanie niedozwolonych znaków w identyfikatorach bez ujęcia ich w cudzysłowy
+4. Niezrównoważone bloki kodu (brak end dla rozpoczętych bloków)
+5. Przekraczanie limitów długości linii
+6. Niepoprawne zagnieżdżanie bloków warunkowych

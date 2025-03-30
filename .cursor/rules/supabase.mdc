@@ -3,15 +3,9 @@ description:
 globs: 
 alwaysApply: false
 ---
----
-description: Guidelines for implementing Supabase Auth in Astro applications with server-side rendering (SSR) support
-globs: '**/*.ts, **/*.tsx, **/*.astro'
-alwaysApply: false
----
-
 # Supabase Auth Integration with Astro
 
-Use this guide to introduce authentication (sign-up & sign-in) by using Supabase Auth.
+Use this guide to introduce authentication (sign-up & sign-in) in Astro applications with server-side rendering (SSR) support
 
 ## Before we start
 
@@ -103,7 +97,7 @@ export const createSupabaseServerInstance = (context: {
 
 ### 2. Implement OR Extend Authentication Middleware
 
-Update existing auth middleware or create one in  `src/middleware/index.ts`:
+Update existing auth middleware or create one in `src/middleware/index.ts`:
 
 ```typescript
 import { createSupabaseServerInstance } from '../db/supabase.client.ts';
@@ -114,7 +108,6 @@ const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/auth/reset-password'];
 
 export const onRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
-    
     // Skip auth check for public paths
     if (PUBLIC_PATHS.includes(url.pathname)) {
       return next();

@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Przeanalizuj specyfikację modułu logowania i rejestracji, a następnie stwórz diagram Mermaid w pliku `.ai/diagrams/ui.md`. Powinien zawierać:
+
+## Diagram architektury stron Astro i komponentów React
+
+- Przedstaw strukturę UI zaktualizowaną po wdrożeniu nowych wymagań
+- Uwzględnij layouty, strony serwerowe oraz aktualizację istniejących komponentów
+- Pogrupuj elementy według funkcjonalności
+- Zaznacz kierunek przepływu danych między komponentami
+- Wyróżnij moduły odpowiedzialne za stan aplikacji
+- Uwzględnij podział na komponenty współdzielone i specyficzne dla konkretnych stron
+- Pokaż zależności między komponentami związanymi z autentykacją a resztą aplikacji
+- Wyróżnij komponenty, które wymagały aktualizacji w związku z nowymi wymaganiami
+
+## Uwagi dodatkowe dotyczące Mermaid:
+
+- Zadbaj o pełną zgodność składni ze standardem Mermaid
+- Oznaczenie sekcji Mermaid (backticks - code snippet) MUSI znaleźć się w pierwszej linii: ```mermaid
+- Deklaracja typu diagramu MUSI znaleźć się w drugiej linii: `flowchart TD` (Top-Down) lub `flowchart LR` (Left-Right)
+- Stosuj spójne formatowanie ID węzłów:
+  ```
+  flowchart TD
+    A[Panel Główny] --> B[Formularz Logowania]
+    B --> C[Walidacja Danych]
+  ```
+- Pamiętaj, że ID węzłów są unikalne i wielkość liter ma znaczenie
+- Poprawnie formatuj opisy węzłów:
+  - `[Tekst]` - zwykły prostokąt
+  - `(Tekst)` - zaokrąglony prostokąt
+  - `((Tekst))` - okrąg
+  - `{Tekst}` - romb
+  - `>Tekst]` - flaga
+  - `[[Tekst]]` - podprocesy
+- Twórz podgrafy dla grupowania powiązanych elementów:
+  ```
+  subgraph "Moduł Autentykacji"
+    A[Formularz Logowania]
+    B[Walidacja Danych]
+    C[Zarządzanie Sesją]
+  end
+  ```
+- Dla złożonych relacji używaj węzłów pośrednich zamiast skomplikowanych połączeń
+- Preferuj pionowy układ dla hierarchii i poziomy dla przepływu procesów
+- Używaj poprawnych typów połączeń:
+  - `-->` strzałka standardowa
+  - `---` linia bez strzałki
+  - `-.->` linia przerywana ze strzałką
+  - `==>` linia pogrubiona ze strzałką
+  - `--Tekst-->` strzałka z opisem
+- NIE umieszczaj w nazwach diagramów adresów URL, adresów endpointów, nawiasów, długich nazw funkcji czy złożonych wyrażeń, np.:
+  ŹLE: [Strona Główna<br/>(Kreator Reguł)]
+  DOBRZE: [Kreator Reguł]
+- Stosuj spójne nazewnictwo w całym dokumencie
+- Unikaj długich etykiet, które mogą powodować problemy z renderowaniem
+- Pamiętaj o używaniu cudzysłowów dla tekstów zawierających spacje:
+  ```
+  A["Komponent Autentykacji"] --> B["Zarządzanie Stanem"]
+  ```
+- Dla stylowania węzłów używaj poprawnej składni:
+  ```
+  A:::styleClass --> B
+  ```
+  wraz z definicją klasy:
+  ```
+  classDef styleClass fill:#f96,stroke:#333,stroke-width:2px;
+  ```
+
+## Najczęstsze błędy do uniknięcia:
+
+1. Brak deklaracji sekcji Mermaid i typu diagramu na początku
+2. Nieprawidłowe ID węzłów (zawierające niedozwolone znaki)
+3. Niezamknięte subgrafy (brak "end" dla rozpoczętego "subgraph")
+4. Niedomknięte nawiasy kwadratowe w opisach węzłów
+5. Niespójne kierunki przepływu (mieszanie TD i LR bez uzasadnienia)
+6. Zbyt złożone diagramy bez odpowiedniego grupowania
+7. Nakładające się etykiety i połączenia
+8. Brak pustej linii przed i po bloku kodu mermaid
