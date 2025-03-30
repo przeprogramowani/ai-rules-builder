@@ -3,11 +3,14 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar';
 import TwoPane from '../components/TwoPane';
 import Footer from '../components/Footer';
+
+// Get user from locals (set by middleware)
+const user = Astro.locals.user;
 ---
 
 <Layout>
   <div class="flex flex-col h-screen max-h-screen bg-gray-950 overflow-hidden">
-    <Topbar client:load />
+    <Topbar client:load initialUser={user} />
     <main class="flex-grow overflow-auto">
       <TwoPane client:load />
     </main>

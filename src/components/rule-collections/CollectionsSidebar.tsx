@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Album, ChevronLeft } from 'lucide-react';
+import { Album, ChevronLeft, LogIn } from 'lucide-react';
 import { transitions } from '../../styles/theme';
 import { CollectionsList } from './CollectionsList';
 import { useCollectionsStore } from '../../store/collectionsStore';
+import { useAuthStore } from '../../store/authStore';
 
 interface CollectionsSidebarProps {
   isOpen: boolean;
@@ -11,10 +12,13 @@ interface CollectionsSidebarProps {
 
 export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, onToggle }) => {
   const fetchCollections = useCollectionsStore((state) => state.fetchCollections);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
+    if (isAuthenticated) {
+      fetchCollections();
+    }
+  }, [fetchCollections, isAuthenticated]);
 
   return (
     <div
@@ -27,7 +31,17 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
       >
         <div className="p-4 h-full overflow-y-auto">
           <h2 className="text-xl font-semibold text-white mb-6">Collections</h2>
-          <CollectionsList />
+          {isAuthenticated ? (
+            <CollectionsList />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center p-4 text-gray-400">
+              <LogIn className="size-8 mb-4" />
+              <p className="mb-2">Please log in to view and manage your collections</p>
+              <a href="/auth/login" className="text-blue-400 hover:text-blue-300 transition-colors">
+                Go to login page
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,13 +1,23 @@
 import type { APIRoute } from 'astro';
-import { DEFAULT_USER_ID, type Collection, collectionMapper } from '../../types/collection.types';
+import { type Collection, collectionMapper } from '../../types/collection.types';
 
 export const prerender = false;
 
 export const GET: APIRoute = (async ({ locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
   const { data, error } = await locals.supabase
     .from('collections')
     .select('*')
-    .eq('user_id', DEFAULT_USER_ID);
+    .eq('user_id', locals.user.id);
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
@@ -35,6 +45,16 @@ export const GET: APIRoute = (async ({ locals }) => {
 }) satisfies APIRoute;
 
 export const POST = (async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
   try {
     const collection = await request.json();
 
@@ -56,7 +76,7 @@ export const POST = (async ({ request, locals }) => {
         name: collection.name,
         description: collection.description,
         libraries: collection.libraries,
-        user_id: DEFAULT_USER_ID,
+        user_id: locals.user.id,
       })
       .select();
 
