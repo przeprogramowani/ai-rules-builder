@@ -19,16 +19,14 @@ export const testingRules: LibraryRulesMap = {
     'Leverage fake timers for testing time-dependent functionality',
   ],
   [Library.VITEST]: [
-    'Use Vitest for faster testing in Vite-based projects',
     'Leverage the vi object for mocks and spies',
-    'Implement the test.each pattern for parameterized tests',
     'Use the setup files for global test configuration',
     'Leverage the inline snapshot feature for small snapshots',
-    'Implement coverage reporting with c8 integration',
+    'Implement coverage reporting with @vitest/coverage-v8 integration',
     'Use the watch mode for development',
     'Leverage the UI mode for interactive test exploration',
     'Implement mocking for modules and dependencies',
-    'Use happy-dom or jsdom for DOM testing environment',
+    'Use jsdom for DOM testing environment',
   ],
   [Library.MOCHA]: [
     'Use Chai for assertions and Sinon for mocks and spies',
@@ -62,6 +60,7 @@ export const testingRules: LibraryRulesMap = {
     'Leverage visual testing for UI regression testing',
   ],
   [Library.PLAYWRIGHT]: [
+    'Initialize configuration only with Chromium/Desktop Chrome browser',
     'Use browser contexts for isolating test environments',
     'Implement the Page Object Model for maintainable tests',
     'Use locators for resilient element selection',
