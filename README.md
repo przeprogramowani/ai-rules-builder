@@ -1,7 +1,9 @@
 # 10xRules.ai by 10xDevs
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml)
@@ -45,6 +47,59 @@ This is a web application that enables developers to quickly create so called "r
 - Tailwind 4
 - Zustand
 - Lucide React
+
+### Testing
+
+This project uses a comprehensive testing stack including unit tests and end-to-end tests.
+
+### Unit Testing with Vitest
+
+Unit tests are implemented using Vitest with JSDOM for browser environment simulation and React Testing Library for component testing.
+
+Available commands:
+
+```bash
+# Run unit tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### End-to-End Testing with Playwright
+
+E2E tests are implemented using Playwright with the Page Object Model pattern for maintainable tests.
+
+Available commands:
+
+```bash
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+
+# Generate test code with codegen
+npm run test:e2e:codegen
+```
+
+### Test Structure
+
+- `tests/unit/` - Unit tests
+- `tests/setup/` - Test setup files
+- `e2e/` - End-to-end tests
+- `e2e/page-objects/` - Page Object Model classes
+- `e2e/fixtures/` - Test fixtures and data
+
+### CI/CD Integration
+
+Tests are automatically run in the CI/CD pipeline using GitHub Actions. See `.github/workflows/tests.yml` for configuration.
 
 ## Contributions
 
