@@ -20,6 +20,7 @@ export const testingRules: LibraryRulesMap = {
   ],
   [Library.VITEST]: [
     'Leverage the vi object for mocks and spies',
+    'If you are using "vi.mock" factory, make sure there are no top level variables inside, since this call is hoisted to top of the file.',
     'Use the setup files for global test configuration',
     'Leverage the inline snapshot feature for small snapshots',
     'Implement coverage reporting with @vitest/coverage-v8 integration',
