@@ -33,6 +33,15 @@
       "contributions": [
         "maintenance"
       ]
+    },
+    {
+      "login": "arturlaskowski",
+      "name": "Artur Laskowski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92392161?v=4",
+      "profile": "https://www.linkedin.com/in/artur-laskowski94",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
