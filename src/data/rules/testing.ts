@@ -25,7 +25,7 @@ export const testingRules: LibraryRulesMap = {
     'Implement coverage reporting with @vitest/coverage-v8 integration',
     'Use the watch mode for development',
     'Leverage the UI mode for interactive test exploration',
-    'Implement mocking for modules and dependencies',
+    'Implement mocking for optional modules and dependencies',
     'Use jsdom for DOM testing environment',
   ],
   [Library.MOCHA]: [
