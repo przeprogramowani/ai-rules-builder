@@ -31,7 +31,6 @@ Create `.env` file with required Supabase credentials:
 ```env
 SUPABASE_URL=your_project_url
 SUPABASE_PUBLIC_KEY=your_anon_key
-SUPABASE_SECRET_KEY=your_service_role_key
 ```
 
 For better TypeScript support, create or update `src/env.d.ts`:
@@ -41,7 +40,6 @@ For better TypeScript support, create or update `src/env.d.ts`:
 interface ImportMetaEnv {
   readonly SUPABASE_URL: string;
   readonly SUPABASE_PUBLIC_KEY: string;
-  readonly SUPABASE_SECRET_KEY: string;
 }
 
 interface ImportMeta {
