@@ -6,12 +6,12 @@ import type { RulesContent } from '../RulesBuilderTypes';
 import { Layer } from '../../../data/dictionaries';
 
 describe('RulesBuilderService', () => {
-  // Arrange - przykładowe dane testowe
+  // Arrange - test data
   const projectName = 'Test Project';
   const projectDescription = 'Test Description';
 
-  describe('generateRulesContent - podstawowe przypadki', () => {
-    it('powinno wygenerować podstawową strukturę dla pustej listy bibliotek', () => {
+  describe('generateRulesContent - basic cases', () => {
+    it('should generate basic structure for empty library list', () => {
       // Arrange
       const selectedLibraries: Library[] = [];
 
@@ -34,7 +34,7 @@ describe('RulesBuilderService', () => {
       expect(result[0]).toEqual(expectedContent);
     });
 
-    it('powinno wygenerować pojedynczy plik z regułami dla jednej biblioteki', () => {
+    it('should generate a single file with rules for one library', () => {
       // Arrange
       const selectedLibraries = [Library.VITEST];
 
@@ -55,8 +55,8 @@ describe('RulesBuilderService', () => {
     });
   });
 
-  describe('generateRulesContent - tryb wielu plików', () => {
-    it('powinno wygenerować oddzielne pliki dla każdej biblioteki', () => {
+  describe('generateRulesContent - multi-file mode', () => {
+    it('should generate separate files for each library', () => {
       // Arrange
       const selectedLibraries = [Library.REACT_CODING_STANDARDS, Library.ANGULAR_CODING_STANDARDS];
 
@@ -69,12 +69,12 @@ describe('RulesBuilderService', () => {
       );
 
       // Assert
-      expect(result.length).toBe(3); // Projekt + 2 biblioteki
-      expect(result[0].fileName).toContain('project.mdc'); // Sekcja projektu zawsze pierwszy
+      expect(result.length).toBe(3); // Project + 2 libraries
+      expect(result[0].fileName).toContain('project.mdc'); // Project section always first
       expect(result.some((r) => r.fileName.includes('react'))).toBeTruthy();
     });
 
-    it('powinno grupować biblioteki według warstw i stosów', () => {
+    it('should group libraries by layers and stacks', () => {
       // Arrange
       const selectedLibraries = [
         Library.REACT_CODING_STANDARDS, // Frontend/React
@@ -95,17 +95,17 @@ describe('RulesBuilderService', () => {
         result.map((r) => r.markdown.match(/## ([^\n]+)/)?.[1]).filter(Boolean),
       );
 
-      // Sprawdzamy czy mamy co najmniej 2 warstwy (FRONTEND, BACKEND) + projekt
+      // Check if we have at least 2 layers (FRONTEND, BACKEND) + project
       expect(layers.size).toBe(3);
 
-      // Sprawdzamy czy zawiera odpowiednie stosy
+      // Check if it contains appropriate stacks
       expect(result.some((r) => r.markdown.includes(Stack.REACT))).toBeTruthy();
       expect(result.some((r) => r.markdown.includes(Stack.NODE))).toBeTruthy();
     });
   });
 
-  describe('generateRulesContent - przypadki brzegowe', () => {
-    it('powinno zachować unikalność bibliotek w ramach stosu', () => {
+  describe('generateRulesContent - edge cases', () => {
+    it('should maintain library uniqueness within a stack', () => {
       // Arrange
       const duplicateLibrary = Library.REACT_CODING_STANDARDS;
       const selectedLibraries = [duplicateLibrary, duplicateLibrary];
@@ -119,7 +119,7 @@ describe('RulesBuilderService', () => {
       );
 
       // Assert
-      // Zliczamy wystąpienia biblioteki w wygenerowanych plikach
+      // Count occurrences of the library in generated files
       const libraryOccurrences = result.filter((r) =>
         r.markdown.includes(`#### ${duplicateLibrary}`),
       ).length;
@@ -127,8 +127,8 @@ describe('RulesBuilderService', () => {
     });
   });
 
-  describe('generateRulesContent - walidacja typów', () => {
-    it('powinno zwracać poprawne typy RulesContent', () => {
+  describe('generateRulesContent - type validation', () => {
+    it('should return correct RulesContent types', () => {
       // Arrange
       const result = RulesBuilderService.generateRulesContent(
         projectName,
@@ -148,15 +148,15 @@ describe('RulesBuilderService', () => {
     });
   });
 
-  describe('generateRulesContent - brak reguł dla biblioteki', () => {
-    it('powinno wygenerować domyślną regułę dla nowej biblioteki w systemie', () => {
+  describe('generateRulesContent - missing rules for library', () => {
+    it('should generate default rule for a new library in the system', () => {
       // Arrange
-      // Dodajemy nową bibliotekę do istniejącego stosu w warstwie FRONTEND
+      // Add a new library to an existing stack in the FRONTEND layer
       const newLibrary = 'NEW_FRONTEND_LIB' as Library;
-      const stack = Stack.REACT; // Istniejący stos z dictionaries.ts
-      const layer = Layer.FRONTEND; // Warstwa nadrzędna dla stosu REACT
+      const stack = Stack.REACT; // Existing stack from dictionaries.ts
+      const layer = Layer.FRONTEND; // Parent layer for REACT stack
 
-      // Rozszerzamy mapowanie stosu na biblioteki
+      // Extend stack to library mapping
       const originalStackToLibrary = stackToLibraryMap[Stack.REACT];
       stackToLibraryMap[Stack.REACT] = [...originalStackToLibrary, newLibrary];
 
@@ -169,18 +169,18 @@ describe('RulesBuilderService', () => {
       );
 
       // Assert
-      // 1. Sprawdzamy czy mamy dokładnie 2 pliki (projekt + biblioteka)
+      // 1. Check if we have exactly 2 files (project + library)
       expect(result).toHaveLength(2);
       expect(result[0].fileName).toBe('project.mdc');
 
-      // 2. Sprawdzamy czy plik biblioteki ma poprawną strukturę
+      // 2. Check if the library file has the correct structure
       const libraryFile = result[1];
       expect(libraryFile.markdown).toContain(`## ${layer}`);
       expect(libraryFile.markdown).toContain(`### Guidelines for ${stack}`);
       expect(libraryFile.markdown).toContain(`#### ${newLibrary}`);
       expect(libraryFile.markdown).toContain(`- Use ${newLibrary} according to best practices`);
 
-      // Cleanup - przywracamy oryginalne mapowanie
+      // Cleanup - restore original mapping
       stackToLibraryMap[Stack.REACT] = originalStackToLibrary;
     });
   });
