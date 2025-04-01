@@ -28,9 +28,4 @@ export default defineConfig({
       dependencies: ['setup'],
     },
   ],
-  webServer: {
-    command: 'npm run dev:e2e',
-    port: 3000,
-    reuseExistingServer: !process.env.CI,
-  },
 });

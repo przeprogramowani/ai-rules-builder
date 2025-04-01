@@ -16,8 +16,8 @@ if (!E2E_USERNAME || !E2E_PASSWORD) {
 setup('authenticate', async ({ page, baseURL }) => {
   // Perform authentication steps. Replace these actions with your own.
   await page.goto(`${baseURL}/auth/login`);
-  await page.locator('#email').pressSequentially(E2E_USERNAME);
-  await page.locator('#password').pressSequentially(E2E_PASSWORD);
+  await page.locator('input[data-testid="auth-input-email"]').fill(E2E_USERNAME);
+  await page.locator('input[data-testid="auth-input-password"]').fill(E2E_PASSWORD);
   await page.locator('button[type="submit"]').click();
   // Wait until the page receives the cookies.
   await expect(page.getByRole('heading', { name: 'Rule Builder', level: 2 })).toBeVisible();

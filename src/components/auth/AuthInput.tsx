@@ -14,6 +14,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({ label, error, ...props }) 
       </label>
       <input
         {...props}
+        data-testid={`auth-input-${props.id}`}
         className={`
           w-full px-3 py-2 bg-gray-800/50 border rounded-md
           text-gray-200 placeholder-gray-500

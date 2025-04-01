@@ -3,8 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar';
 import TwoPane from '../components/TwoPane';
 import Footer from '../components/Footer';
-
-// Get user from locals (set by middleware)
+const envName = import.meta.env.ENV_NAME;
 const user = Astro.locals.user;
 ---
 
@@ -14,6 +13,6 @@ const user = Astro.locals.user;
     <main class="flex-grow overflow-auto">
       <TwoPane client:load />
     </main>
-    <Footer client:load />
+    <Footer client:load envName={envName} />
   </div>
 </Layout>
