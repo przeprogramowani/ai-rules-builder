@@ -49,21 +49,8 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Calculate if we need to show "no results" message
-  const hasNoSearchResults = isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
-
-  // Focus management after search
-  useEffect(() => {
-    if (searchQuery && getLibraryCounts.matchedCount > 0) {
-      // Attempt to find the first visible library item after search
-      const firstLibraryItem = document.querySelector('[role="checkbox"][tabindex="0"]') as HTMLElement;
-      if (firstLibraryItem) {
-        // Set a small delay to allow the UI to update
-        setTimeout(() => {
-          firstLibraryItem.focus();
-        }, 100);
-      }
-    }
-  }, [searchQuery, getLibraryCounts.matchedCount]);
+  const hasNoSearchResults =
+    isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
 
   // Show keyboard help tooltip briefly on first load
   useEffect(() => {
@@ -90,7 +77,11 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   }, []);
 
   return (
-    <div className={`flex flex-col space-y-4 h-full ${className}`} role="application" aria-label="Rule Builder">
+    <div
+      className={`flex flex-col space-y-4 h-full ${className}`}
+      role="application"
+      aria-label="Rule Builder"
+    >
       <div
         ref={containerRef}
         className="p-4 space-y-4 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
