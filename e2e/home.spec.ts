@@ -7,7 +7,7 @@ test.describe('Home Page', () => {
     await homePage.goto();
 
     const title = await homePage.getTitle();
-    expect(title).toContain('AI Rules Builder');
+    expect(title).toContain('10xRules.ai');
   });
 
   test('should have a heading', async ({ page }) => {

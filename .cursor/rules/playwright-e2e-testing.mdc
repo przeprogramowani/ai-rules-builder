@@ -12,7 +12,7 @@ alwaysApply: false
 
 - Initialize configuration only with Chromium/Desktop Chrome browser
 - Use browser contexts for isolating test environments
-- Implement the Page Object Model for maintainable tests
+- Implement the Page Object Model for maintainable tests in ./e2e/page-objects
 - Use locators for resilient element selection
 - Leverage API testing for backend validation
 - Implement visual comparison with expect(page).toHaveScreenshot()
