@@ -22,6 +22,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
 
   return (
     <div
+      data-test-id="collections-sidebar"
       className={`h-full bg-gray-900/90 border-r border-gray-800 transition-all duration-${transitions.duration.medium} ${transitions.timing.default} relative`}
       style={{ width: isOpen ? '320px' : '48px' }}
     >
@@ -48,6 +49,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
       {/* Toggle button - positioned absolutely at the top-right */}
       <div className={`absolute h-12 ${isOpen ? 'top-2 right-2' : 'top-0 right-0'}`}>
         <button
+          data-test-id="collections-sidebar-toggle"
           onClick={onToggle}
           className="p-3 text-gray-200 hover:bg-gray-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset rounded-lg"
           aria-label={isOpen ? 'Close collections' : 'Open collections'}

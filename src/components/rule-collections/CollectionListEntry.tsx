@@ -10,7 +10,10 @@ interface CollectionListEntryProps {
   onClick?: (collection: Collection) => void;
 }
 
-export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collection, onClick }) => {
+export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
+  collection,
+  onClick,
+}) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,6 +77,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
   return (
     <>
       <button
+        data-test-id="collection-entry"
         onClick={handleClick}
         className={`w-full text-left p-4 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors group ${
           isSelected ? 'border border-blue-400/50' : 'border border-transparent'
@@ -83,6 +87,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
           <div className="flex items-center gap-1">
             <Book className="size-5 text-blue-400" />
             <h3
+              data-test-id="collection-entry-name"
               className={`font-medium transition-colors ${isSelected ? 'text-blue-400' : 'text-white group-hover:text-blue-400'}`}
             >
               {collection.name}
@@ -90,6 +95,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
           </div>
           <div className="flex items-center gap-2">
             <div
+              data-test-id="collection-edit-button"
               onClick={handleEditClick}
               role="button"
               tabIndex={0}
@@ -105,6 +111,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
               <Pencil className="size-4" />
             </div>
             <div
+              data-test-id="collection-delete-button"
               onClick={handleDeleteClick}
               role="button"
               tabIndex={0}
@@ -121,13 +128,19 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({ collec
             </div>
           </div>
         </div>
-        <p className="text-sm text-gray-400 line-clamp-2">{collection.description}</p>
+        <p
+          data-test-id="collection-entry-description"
+          className="text-sm text-gray-400 line-clamp-2"
+        >
+          {collection.description}
+        </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300">
             {collection.libraries.length} rules
           </span>
           {isSelected && isDirty() && (
             <button
+              data-test-id="collection-save-changes-button"
               onClick={handleSaveClick}
               disabled={isSaving}
               className="text-xs px-3 py-1 rounded-full bg-blue-900/50 text-blue-300 hover:bg-blue-800/50 transition-colors flex items-center"

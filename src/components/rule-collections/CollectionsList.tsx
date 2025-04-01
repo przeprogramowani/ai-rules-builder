@@ -97,11 +97,16 @@ export const CollectionsList: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-4">
+      <div data-test-id="collections-list" className="space-y-4">
         {collections.map((collection) => (
-          <CollectionListEntry key={collection.id} collection={collection} onClick={handleCollectionSelect} />
+          <CollectionListEntry
+            key={collection.id}
+            collection={collection}
+            onClick={handleCollectionSelect}
+          />
         ))}
         <button
+          data-test-id="create-collection-button"
           onClick={() => setIsCreateDialogOpen(true)}
           className="w-full p-4 rounded-lg border border-dashed border-gray-700 hover:border-blue-400/50 hover:bg-gray-800/50 transition-colors group"
         >

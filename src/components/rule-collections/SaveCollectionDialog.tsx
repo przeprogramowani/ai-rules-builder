@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { ConfirmDialog, ConfirmDialogHeader, ConfirmDialogContent, ConfirmDialogActions } from '../ui/ConfirmDialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogHeader,
+  ConfirmDialogContent,
+  ConfirmDialogActions,
+} from '../ui/ConfirmDialog';
 
 interface SaveCollectionDialogProps {
   isOpen: boolean;
@@ -41,53 +46,69 @@ export const SaveCollectionDialog: React.FC<SaveCollectionDialogProps> = ({
 
   return (
     <ConfirmDialog isOpen={isOpen} onClose={onClose}>
-      <ConfirmDialogHeader>Save Collection</ConfirmDialogHeader>
+      <ConfirmDialogHeader>
+        {initialName ? 'Edit Collection' : 'Create New Collection'}
+      </ConfirmDialogHeader>
       <ConfirmDialogContent>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter collection name"
-            />
+        <form
+          data-test-id="collection-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+        >
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-1">
+                Name
+              </label>
+              <input
+                data-test-id="collection-name-input"
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter collection name"
+              />
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-1">
+                Description
+              </label>
+              <textarea
+                data-test-id="collection-description-input"
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter collection description"
+                rows={3}
+              />
+            </div>
+            {error && (
+              <div data-test-id="collection-form-error" className="text-red-400 text-sm">
+                {error}
+              </div>
+            )}
           </div>
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter collection description"
-              rows={3}
-            />
-          </div>
-          {error && <div className="text-sm text-red-400">{error}</div>}
-        </div>
+        </form>
       </ConfirmDialogContent>
       <ConfirmDialogActions>
         <button
-          onClick={onClose}
-          className="px-4 py-2 text-sm rounded-md text-gray-300 bg-gray-800 hover:bg-gray-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-        >
-          Cancel
-        </button>
-        <button
+          data-test-id="collection-save-button"
           onClick={handleSave}
           disabled={isSaving}
-          className={`px-4 py-2 text-sm rounded-md bg-blue-500/80 hover:bg-blue-600 text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-            isSaving ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
         >
           {isSaving ? 'Saving...' : 'Save'}
+        </button>
+        <button
+          data-test-id="collection-cancel-button"
+          onClick={onClose}
+          className="px-4 py-2 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        >
+          Cancel
         </button>
       </ConfirmDialogActions>
     </ConfirmDialog>
