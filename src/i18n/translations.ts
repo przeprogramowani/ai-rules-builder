@@ -94,8 +94,9 @@ export const libraryTranslations: Record<Library, string> = {
   FASTAPI: 'FastAPI',
 
   // Java libraries
-  SPRING: 'Spring',
-  HIBERNATE: 'Hibernate',
+  SPRING_BOOT: 'Spring',
+  SPRING_DATA_JPA: 'Spring Data JPA',
+  LOMBOK: 'Lombok',
 
   // .NET libraries
   ENTITY_FRAMEWORK: 'Entity Framework',
