@@ -108,6 +108,8 @@ Send updates to:
 - `src/data/dictionaries.ts`
 - `src/data/rules/...`
 
+Important: Introduce translations for new rules in `src/i18n/translations.ts`, otherwise the unit test will fail.
+
 ## How to Write Effective Rules
 
 When contributing new rules, please:
