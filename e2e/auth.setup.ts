@@ -14,14 +14,33 @@ if (!E2E_USERNAME || !E2E_PASSWORD) {
 }
 
 setup('authenticate', async ({ page, baseURL }) => {
-  // Perform authentication steps. Replace these actions with your own.
+  // Navigate to login page and wait for it to load
   await page.goto(`${baseURL}/auth/login`);
-  await page.locator('input[data-testid="auth-input-email"]').fill(E2E_USERNAME);
-  await page.locator('input[data-testid="auth-input-password"]').fill(E2E_PASSWORD);
-  await page.locator('button[type="submit"]').click();
-  // Wait until the page receives the cookies.
-  await expect(page.getByRole('heading', { name: 'Rule Builder', level: 2 })).toBeVisible();
 
-  // End of authentication steps.
+  // Wait for and fill email input
+  const emailInput = page.locator('input[data-testid="auth-input-email"]');
+  await emailInput.waitFor({ state: 'visible' });
+  await emailInput.click();
+  await emailInput.fill(E2E_USERNAME);
+  await expect(emailInput).toHaveValue(E2E_USERNAME);
+
+  // Wait for and fill password input
+  const passwordInput = page.locator('input[data-testid="auth-input-password"]');
+  await passwordInput.waitFor({ state: 'visible' });
+  await passwordInput.click();
+  await passwordInput.fill(E2E_PASSWORD);
+  await expect(passwordInput).toHaveValue(E2E_PASSWORD);
+
+  // Wait for and click submit button
+  const submitButton = page.locator('button[type="submit"]');
+  await submitButton.waitFor({ state: 'visible' });
+  await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle' }), submitButton.click()]);
+
+  // Wait for successful navigation and verify we're logged in
+  await expect(page.getByRole('heading', { name: 'Rule Builder', level: 2 })).toBeVisible({
+    timeout: 10000,
+  });
+
+  // Store authentication state
   await page.context().storageState({ path: authFile });
 });

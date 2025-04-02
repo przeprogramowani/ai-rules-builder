@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 teardown('cleanup database', async () => {
   console.log('Cleaning up test database...');
 
-  if (!process.env.SUPABASE_URL!.startsWith('ueardaqpl')) {
+  if (!process.env.SUPABASE_URL!.includes('ueardaqpl')) {
     throw new Error('Cannot run teardown on non-test database!');
   }
 
