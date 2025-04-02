@@ -28,7 +28,7 @@ export default function TwoPane() {
           className={`
             transition-all duration-300 ease-in-out
             ${activePanel === 'builder' ? 'block' : 'hidden md:block'}
-            w-full md:w-1/3 lg:w-2/5 p-4 border-b md:border-b-0 md:border-r border-gray-800 min-h-full overflow-y-auto
+            w-full md:w-1/3 lg:w-2/5 md:p-4 border-b md:border-b-0 md:border-r border-gray-800 min-h-full overflow-y-auto
           `}
         >
           <RuleBuilder />
