@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { RuleBuilder } from './rule-builder';
 import { RulePreview } from './rule-preview';
-import { ArrowLeftRight } from 'lucide-react';
 import CollectionsSidebar from './rule-collections/CollectionsSidebar';
+import { MobileNavigation } from './MobileNavigation';
+import { useNavigationStore } from '../store/navigationStore';
 
 export default function TwoPane() {
-  const [showBuilder, setShowBuilder] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { activePanel, isSidebarOpen, toggleSidebar, setSidebarOpen } = useNavigationStore();
 
-  const toggleView = () => {
-    setShowBuilder(!showBuilder);
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Sync the local state with the store on component mount
+  useEffect(() => {
+    // If on desktop, default sidebar to closed
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    if (isDesktop) {
+      setSidebarOpen(false);
+    }
+  }, [setSidebarOpen]);
 
   return (
     <div className="flex relative flex-col h-full max-h-screen md:flex-row bg-gray-950">
@@ -22,32 +23,31 @@ export default function TwoPane() {
       <CollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
 
       <div className="flex flex-1 flex-col md:flex-row">
-        {/* Mobile Toggle Button - Only visible on small screens */}
-        <button
-          onClick={toggleView}
-          className="absolute top-2 right-2 z-10 p-2 text-gray-200 bg-gray-800 rounded-full md:hidden"
-          aria-label={showBuilder ? 'Show Preview' : 'Show Builder'}
-        >
-          <ArrowLeftRight className="size-5" />
-        </button>
-
+        {/* Builder Panel */}
         <div
-          className={`${
-            showBuilder ? 'block' : 'hidden'
-          } md:block w-full md:w-1/3 lg:w-2/5 p-4 border-b md:border-b-0 md:border-r border-gray-800 min-h-full overflow-y-auto`}
+          className={`
+            transition-all duration-300 ease-in-out
+            ${activePanel === 'builder' ? 'block' : 'hidden md:block'}
+            w-full md:w-1/3 lg:w-2/5 p-4 border-b md:border-b-0 md:border-r border-gray-800 min-h-full overflow-y-auto
+          `}
         >
           <RuleBuilder />
         </div>
 
-        {/* Right Pane - Rules Output */}
+        {/* Preview Panel */}
         <div
-          className={`${
-            !showBuilder ? 'block' : 'hidden'
-          } md:block w-full md:w-2/3 lg:w-3/5 p-4 min-h-full overflow-y-auto`}
+          className={`
+            transition-all duration-300 ease-in-out
+            ${activePanel === 'preview' ? 'block' : 'hidden md:block'}
+            w-full md:w-2/3 lg:w-3/5 p-4 min-h-full overflow-y-auto
+          `}
         >
           <RulePreview />
         </div>
       </div>
+
+      {/* Mobile Navigation */}
+      <MobileNavigation />
     </div>
   );
 }

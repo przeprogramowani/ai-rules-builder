@@ -60,7 +60,7 @@ export const RulePreview: React.FC = () => {
 
   return (
     <div
-      className="flex overflow-y-auto relative flex-col h-auto"
+      className="flex overflow-y-auto relative flex-col h-auto pb-16 md:pb-0"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}

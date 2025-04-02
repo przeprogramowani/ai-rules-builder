@@ -16,3 +16,4 @@ alwaysApply: false
 - Prefer useMemo for expensive calculations to avoid recomputation on every render
 - Prefer relying on Tailwind media queries instead of manual style recalculations
 - If there's a need to attach React components to Astro pages and make them browser-first (i.e. using window), use client:only directive to make the component exclusively run on the client.
+- Use Tailwind responsive variants (sm:, md:, lg:, etc.) for adaptive designs - under no circumstances calculate this manually

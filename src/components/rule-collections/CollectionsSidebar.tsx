@@ -4,6 +4,7 @@ import { transitions } from '../../styles/theme';
 import { CollectionsList } from './CollectionsList';
 import { useCollectionsStore } from '../../store/collectionsStore';
 import { useAuthStore } from '../../store/authStore';
+import { useNavigationStore } from '../../store/navigationStore';
 
 interface CollectionsSidebarProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ interface CollectionsSidebarProps {
 export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, onToggle }) => {
   const fetchCollections = useCollectionsStore((state) => state.fetchCollections);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { activePanel } = useNavigationStore();
+  const isMobileCollectionsActive = activePanel === 'collections';
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,14 +26,17 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
   return (
     <div
       data-test-id="collections-sidebar"
-      className={`h-full bg-gray-900/90 border-r border-gray-800 transition-all duration-${transitions.duration.medium} ${transitions.timing.default} relative`}
-      style={{ width: isOpen ? '320px' : '48px' }}
+      className={`bg-gray-900/90 border-r border-gray-800 transition-all duration-${transitions.duration.medium} ${transitions.timing.default} relative
+                 ${isMobileCollectionsActive ? 'md:relative absolute inset-0 z-10 h-screen' : 'hidden md:block md:h-full'}`}
+      style={{
+        width: isMobileCollectionsActive ? '100%' : isOpen ? '320px' : '48px',
+      }}
     >
       {/* Main content area */}
       <div
-        className={`h-full overflow-hidden ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-${transitions.duration.medium}`}
+        className={`h-full overflow-hidden ${isMobileCollectionsActive || isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-${transitions.duration.medium}`}
       >
-        <div className="p-4 h-full overflow-y-auto">
+        <div className="p-4 h-full overflow-y-auto pb-20 md:pb-4">
           <h2 className="text-xl font-semibold text-white mb-6">Collections</h2>
           {isAuthenticated ? (
             <CollectionsList />
@@ -47,7 +53,9 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
       </div>
 
       {/* Toggle button - positioned absolutely at the top-right */}
-      <div className={`absolute h-12 ${isOpen ? 'top-2 right-2' : 'top-0 right-0'}`}>
+      <div
+        className={`absolute h-12 ${isOpen ? 'top-2 right-2' : 'top-0 right-0'} md:block hidden`}
+      >
         <button
           data-test-id="collections-sidebar-toggle"
           onClick={onToggle}

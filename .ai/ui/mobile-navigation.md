@@ -27,6 +27,7 @@ This specification outlines the changes required to improve the mobile experienc
 - Hide the classic footer component
 - Each panel (Collections, Builder, Preview) becomes a full-width view
 - Remove the current top-right toggle button
+- Make collections panel full width and height
 
 ### Bottom Navigation
 

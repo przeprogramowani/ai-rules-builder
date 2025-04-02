@@ -78,7 +78,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
 
   return (
     <div
-      className={`flex flex-col space-y-4 h-full ${className}`}
+      className={`flex flex-col space-y-4 h-full pb-16 md:pb-0 ${className}`}
       role="application"
       aria-label="Rule Builder"
     >
