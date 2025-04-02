@@ -18,7 +18,16 @@ export default defineConfig({
   },
   projects: [
     // Setup project
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+      teardown: 'cleanup',
+    },
+    // Cleanup project
+    {
+      name: 'cleanup',
+      testMatch: /global\.teardown\.ts/,
+    },
     {
       name: 'chromium',
       use: {
