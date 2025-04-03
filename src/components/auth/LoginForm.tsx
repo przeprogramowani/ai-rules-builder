@@ -1,67 +1,37 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
 import AuthInput from './AuthInput';
+import { loginSchema } from '../../types/auth';
+import type { LoginFormData } from '../../types/auth';
+import { useAuth } from '../../hooks/useAuth';
 
 export const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string; api?: string }>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, error: apiError, isLoading } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
-
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Invalid email format';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      setIsLoading(true);
-      setErrors({});
-
-      try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (response.ok) {
-          window.location.href = '/';
-        } else {
-          const data = await response.json();
-          throw new Error(data.error || 'Login failed');
-        }
-      } catch (error) {
-        setErrors((prev) => ({
-          ...prev,
-          api: error instanceof Error ? error.message : 'An unexpected error occurred',
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await login(data);
+      window.location.href = '/';
+    } catch (error) {
+      console.error(error);
+      // Error is handled by useAuth hook
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {errors.api && (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {apiError && (
         <div className="p-3 mb-4 text-sm text-red-500 bg-red-100 rounded-md dark:bg-red-900/20">
-          {errors.api}
+          {apiError}
         </div>
       )}
 
@@ -69,31 +39,27 @@ export const LoginForm: React.FC = () => {
         id="email"
         label="Email address"
         type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Enter your email"
-        error={errors.email}
+        error={errors.email?.message}
         autoComplete="email"
         disabled={isLoading}
+        {...register('email')}
       />
 
       <AuthInput
         id="password"
         label="Password"
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Enter your password"
-        error={errors.password}
+        error={errors.password?.message}
         autoComplete="current-password"
         disabled={isLoading}
+        {...register('password')}
       />
 
       <div className="flex items-center justify-between">
         <div className="text-sm">
           <a
             href="/auth/reset-password"
-            className="text-blue-400 hover:text-blue-300 transition-colors duration-${transitions.duration.medium}"
+            className={`text-blue-400 hover:text-blue-300 transition-colors duration-${transitions.duration.medium}`}
           >
             Forgot your password?
           </a>
@@ -118,7 +84,7 @@ export const LoginForm: React.FC = () => {
         <span className="text-gray-400">Don't have an account? </span>
         <a
           href="/auth/signup"
-          className="text-blue-400 hover:text-blue-300 transition-colors duration-${transitions.duration.medium}"
+          className={`text-blue-400 hover:text-blue-300 transition-colors duration-${transitions.duration.medium}`}
         >
           Sign up
         </a>

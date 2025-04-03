@@ -24,7 +24,7 @@ if (user) {
   <div class="flex flex-col h-screen max-h-screen bg-gray-950">
     <main class="flex-grow">
       <AuthLayout title="Welcome back" subtitle="Sign in to your account to continue">
-        <LoginForm client:load />
+        <LoginForm client:only="react" />
       </AuthLayout>
     </main>
   </div>
