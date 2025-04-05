@@ -1,0 +1,15 @@
+code {
+  font-family: 'FiraCode Nerd Font Mono', 'Consolas', 'Source Code Pro', monospace;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+}
+
+pre code {
+  font-family: 'FiraCode Nerd Font Mono', 'Consolas', 'Source Code Pro', monospace;
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.vscode-body pre code {
+  font-family: 'FiraCode Nerd Font Mono', 'Consolas', 'Source Code Pro', monospace !important;
+}

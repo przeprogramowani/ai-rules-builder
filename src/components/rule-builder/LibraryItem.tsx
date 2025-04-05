@@ -2,6 +2,7 @@ import { Check } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import React from 'react';
 import { Library } from '../../data/dictionaries';
+import { getLibraryTranslation } from '../../i18n/translations';
 import type { LayerType } from '../../styles/theme';
 import { getLayerClasses } from '../../styles/theme';
 import { useAccordionContentOpen } from '../ui/Accordion';
@@ -36,10 +37,8 @@ export const LibraryItem: React.FC<LibraryItemProps> = React.memo(
         aria-checked={isSelected}
         tabIndex={isParentAccordionOpen ? 0 : -1}
       >
-        <span className="font-medium text-white">{library}</span>
-        {isSelected && (
-          <Check className={`size-4 ${getLayerClasses.text(layerType)}`} />
-        )}
+        <span className="font-medium text-white">{getLibraryTranslation(library)}</span>
+        {isSelected && <Check className={`size-4 ${getLayerClasses.text(layerType)}`} />}
       </button>
     );
   },

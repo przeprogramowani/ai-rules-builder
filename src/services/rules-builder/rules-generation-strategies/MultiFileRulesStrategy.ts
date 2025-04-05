@@ -32,7 +32,14 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
     Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
       stacks.forEach((stack) => {
         librariesByStack[stack].forEach((library) => {
-          markdowns.push(this.buildRulesContent({ layer, stack, library, libraryRules: getRulesForLibrary(library) }));
+          markdowns.push(
+            this.buildRulesContent({
+              layer,
+              stack,
+              library,
+              libraryRules: getRulesForLibrary(library),
+            }),
+          );
         });
       });
     });
@@ -72,5 +79,8 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
     stack: string;
     library: string;
   }) =>
-    `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n{{content}}\n\n`.replace('{{content}}', content);
+    `## ${layer}\n\n### Guidelines for ${stack}\n\n#### ${library}\n\n{{content}}\n\n`.replace(
+      '{{content}}',
+      content,
+    );
 }

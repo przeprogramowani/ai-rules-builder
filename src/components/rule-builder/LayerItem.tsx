@@ -7,13 +7,10 @@ import {
   getLibrariesCountByLayer,
   getStacksByLayer,
 } from '../../data/dictionaries';
+import { getLayerTranslation } from '../../i18n/translations';
 import type { LayerType } from '../../styles/theme';
 import { getLayerClasses } from '../../styles/theme';
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '../ui/Accordion';
+import { AccordionContent, AccordionItem, AccordionTrigger } from '../ui/Accordion';
 import { StackItem } from './StackItem';
 
 interface LayerItemProps {
@@ -55,11 +52,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
     searchActive,
   }) => {
     const layerType = getLayerType(layer);
-    const containerClasses = getLayerClasses.container(
-      layerType,
-      hasSelected,
-      isOpen,
-    );
+    const containerClasses = getLayerClasses.container(layerType, hasSelected, isOpen);
 
     return (
       <AccordionItem key={layer} value={layer}>
@@ -71,30 +64,21 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
           >
             <div className="flex justify-between items-center mr-2">
               <div className="flex gap-2 items-center">
-                <span className="font-medium text-white">{layer}</span>
+                <span className="font-medium text-white">{getLayerTranslation(layer)}</span>
               </div>
               <span
-                className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${getLayerClasses.badge(
-                  layerType,
-                )}`}
+                className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${getLayerClasses.badge(layerType)}`}
                 aria-label={`${selectedCount} of ${getLibrariesCountByLayer(layer)} libraries selected`}
               >
-                {selectedCount} / {getLibrariesCountByLayer(layer)}{' '}
-                <Package className="size-3" />
+                {selectedCount} / {getLibrariesCountByLayer(layer)} <Package className="size-3" />
               </span>
             </div>
           </AccordionTrigger>
 
           <AccordionContent isOpen={isOpen}>
-            <div
-              className="grid gap-2"
-              role="group"
-              aria-label={`${layer} stacks`}
-            >
+            <div className="grid gap-2" role="group" aria-label={`${layer} stacks`}>
               {getStacksByLayer(layer)
-                .filter(
-                  (stack) => !searchActive || stackContainsSearchMatch(stack),
-                )
+                .filter((stack) => !searchActive || stackContainsSearchMatch(stack))
                 .map((stack) => (
                   <StackItem
                     key={stack}
@@ -109,9 +93,7 @@ export const LayerItem: React.FC<LayerItemProps> = React.memo(
                     isNested={true}
                     filteredLibraries={
                       searchActive
-                        ? getFilteredLibrariesByStack(stack).map(
-                            (lib) => lib as unknown as Library,
-                          )
+                        ? getFilteredLibrariesByStack(stack).map((lib) => lib as unknown as Library)
                         : undefined
                     }
                   />

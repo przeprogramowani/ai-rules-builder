@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Layer,
-  Stack,
-  getStacksByLayer,
-  getLibrariesByStack,
-} from '../../data/dictionaries';
+import { Layer, Stack, getStacksByLayer, getLibrariesByStack } from '../../data/dictionaries';
 import { useTechStackStore } from '../../store/techStackStore';
 
 interface StackSelectorProps {
@@ -18,8 +13,7 @@ export const StackSelector: React.FC<StackSelectorProps> = ({
   onSelectStack,
   onBackToLayers,
 }) => {
-  const { selectStack, isStackSelected, selectedLibraries } =
-    useTechStackStore();
+  const { selectStack, selectedLibraries } = useTechStackStore();
 
   // Get stacks for the selected layer
   const stacks = getStacksByLayer(selectedLayer);

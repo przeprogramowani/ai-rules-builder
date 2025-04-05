@@ -1,8 +1,5 @@
 import type { APIRoute } from 'astro';
-import {
-  dependencyParsers,
-  mapDependenciesToLibraries,
-} from './dependencyMappers';
+import { dependencyParsers, mapDependenciesToLibraries } from './dependencyMappers';
 
 // Mark this endpoint as server-rendered, not static
 export const prerender = false;

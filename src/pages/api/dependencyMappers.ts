@@ -150,10 +150,7 @@ export const requirementsTxtParser: DependencyParser = {
 /**
  * List of available parsers
  */
-export const dependencyParsers: DependencyParser[] = [
-  packageJsonParser,
-  requirementsTxtParser,
-];
+export const dependencyParsers: DependencyParser[] = [packageJsonParser, requirementsTxtParser];
 
 /**
  * Maps dependencies to libraries

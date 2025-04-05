@@ -1,20 +1,13 @@
 import React from 'react';
-import {
-  Layer,
-  getStacksByLayer,
-  getLibrariesByStack,
-} from '../../data/dictionaries';
+import { Layer, getStacksByLayer, getLibrariesByStack } from '../../data/dictionaries';
 import { useTechStackStore } from '../../store/techStackStore';
 
 interface LayerSelectorProps {
   onSelectLayer: (layer: Layer) => void;
 }
 
-export const LayerSelector: React.FC<LayerSelectorProps> = ({
-  onSelectLayer,
-}) => {
-  const { selectedLayers, selectedLibraries, selectLayer, isLayerSelected } =
-    useTechStackStore();
+export const LayerSelector: React.FC<LayerSelectorProps> = ({ onSelectLayer }) => {
+  const { selectedLibraries, selectLayer } = useTechStackStore();
 
   // Get all available layers
   const layers = Object.values(Layer);

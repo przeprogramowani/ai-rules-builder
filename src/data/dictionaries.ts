@@ -1,5 +1,5 @@
 /**
- * Dictionaries for AI Rules Builder
+ * Dictionaries for 10xRules.ai
  *
  * This file defines the relationships between layers, stacks, and libraries
  * - Layers contain stacks
@@ -8,190 +8,191 @@
 
 // Define enums for each level
 export enum Layer {
-  CODING_PRACTICES = 'Coding practices',
-  FRONTEND = 'Frontend',
-  BACKEND = 'Backend',
-  DATABASE = 'Database',
-  DEVOPS = 'DevOps',
-  TESTING = 'Testing',
+  CODING_PRACTICES = 'CODING_PRACTICES',
+  FRONTEND = 'FRONTEND',
+  BACKEND = 'BACKEND',
+  DATABASE = 'DATABASE',
+  DEVOPS = 'DEVOPS',
+  TESTING = 'TESTING',
 }
 
 export enum Stack {
   // Frontend stacks
-  REACT = 'React',
-  VUE = 'Vue',
-  ANGULAR = 'Angular',
-  SVELTE = 'Svelte',
-  ASTRO = 'Astro',
-  STYLING = 'Styling',
+  REACT = 'REACT',
+  VUE = 'VUE',
+  ANGULAR = 'ANGULAR',
+  SVELTE = 'SVELTE',
+  ASTRO = 'ASTRO',
+  STYLING = 'STYLING',
 
   // Backend stacks
-  NODE = 'Node.js',
-  PYTHON = 'Python',
-  JAVA = 'Java',
-  DOTNET = '.NET',
-  GO = 'Go',
+  NODE = 'NODE',
+  PYTHON = 'PYTHON',
+  JAVA = 'JAVA',
+  DOTNET = 'DOTNET',
+  GO = 'GO',
 
   // Database stacks
   SQL = 'SQL',
-  NOSQL = 'NoSQL',
-  GRAPH = 'Graph',
+  NOSQL = 'NOSQL',
+  GRAPH = 'GRAPH',
 
   // DevOps stacks
-  CI_CD = 'CI/CD',
-  CONTAINERIZATION = 'Containerization',
-  CLOUD = 'Cloud',
+  CI_CD = 'CI_CD',
+  CONTAINERIZATION = 'CONTAINERIZATION',
+  CLOUD = 'CLOUD',
 
   // Testing stacks
-  UNIT = 'Unit Testing',
-  INTEGRATION = 'Integration Testing',
-  E2E = 'End-to-End Testing',
+  UNIT = 'UNIT',
+  INTEGRATION = 'INTEGRATION',
+  E2E = 'E2E',
 
   // Coding practices
-  SUPPORT_LEVEL = 'AI Support Level',
-  VERSION_CONTROL = 'Version Control',
-  DOCUMENTATION = 'Documentation',
-  ARCHITECTURE = 'Architecture',
-  STATIC_ANALYSIS = 'Static analysis',
-  ACCESSIBILITY = 'Accessibility',
+  SUPPORT_LEVEL = 'SUPPORT_LEVEL',
+  VERSION_CONTROL = 'VERSION_CONTROL',
+  DOCUMENTATION = 'DOCUMENTATION',
+  ARCHITECTURE = 'ARCHITECTURE',
+  STATIC_ANALYSIS = 'STATIC_ANALYSIS',
+  ACCESSIBILITY = 'ACCESSIBILITY',
 }
 
 export enum Library {
   // React libraries
-  REACT_CODING_STANDARDS = 'React Coding Standards',
-  NEXT_JS = 'Next.js',
-  REACT_ROUTER = 'React Router',
-  REDUX = 'Redux',
-  ZUSTAND = 'Zustand',
-  REACT_QUERY = 'React Query',
+  REACT_CODING_STANDARDS = 'REACT_CODING_STANDARDS',
+  NEXT_JS = 'NEXT_JS',
+  REACT_ROUTER = 'REACT_ROUTER',
+  REDUX = 'REDUX',
+  ZUSTAND = 'ZUSTAND',
+  REACT_QUERY = 'REACT_QUERY',
 
   // Vue libraries
-  VUE_CODING_STANDARDS = 'Vue Coding Standards',
-  NUXT = 'Nuxt',
-  VUEX = 'Vuex',
-  VUE_ROUTER = 'Vue Router',
-  PINIA = 'Pinia',
+  VUE_CODING_STANDARDS = 'VUE_CODING_STANDARDS',
+  NUXT = 'NUXT',
+  VUEX = 'VUEX',
+  VUE_ROUTER = 'VUE_ROUTER',
+  PINIA = 'PINIA',
 
   // Angular libraries
-  ANGULAR_CODING_STANDARDS = 'Angular Coding Standards',
-  NGRX = 'NgRx',
-  ANGULAR_MATERIAL = 'Angular Material',
+  ANGULAR_CODING_STANDARDS = 'ANGULAR_CODING_STANDARDS',
+  NGRX = 'NGRX',
+  ANGULAR_MATERIAL = 'ANGULAR_MATERIAL',
 
   // Svelte libraries
-  SVELTE_CODING_STANDARDS = 'Svelte Coding Standards',
-  SVELTE_KIT = 'SvelteKit',
+  SVELTE_CODING_STANDARDS = 'SVELTE_CODING_STANDARDS',
+  SVELTE_KIT = 'SVELTE_KIT',
 
   // Astro libraries
-  ASTRO_CODING_STANDARDS = 'Astro Coding Standards',
-  ASTRO_ISLANDS = 'Astro Islands',
+  ASTRO_CODING_STANDARDS = 'ASTRO_CODING_STANDARDS',
+  ASTRO_ISLANDS = 'ASTRO_ISLANDS',
 
   // Styling libraries
-  TAILWIND = 'Tailwind',
-  STYLED_COMPONENTS = 'Styled Components',
-  SCSS = 'SASS / SCSS',
+  TAILWIND = 'TAILWIND',
+  STYLED_COMPONENTS = 'STYLED_COMPONENTS',
+  SCSS = 'SCSS',
 
   // Node.js libraries
-  EXPRESS = 'Express',
-  NEST = 'NestJS',
-  FASTIFY = 'Fastify',
+  EXPRESS = 'EXPRESS',
+  NEST = 'NEST',
+  FASTIFY = 'FASTIFY',
 
   // Python libraries
-  DJANGO = 'Django',
-  FLASK = 'Flask',
-  FASTAPI = 'FastAPI',
+  DJANGO = 'DJANGO',
+  FLASK = 'FLASK',
+  FASTAPI = 'FASTAPI',
 
   // Java libraries
-  SPRING = 'Spring',
-  HIBERNATE = 'Hibernate',
+  SPRING_BOOT = 'SPRING_BOOT',
+  SPRING_DATA_JPA = 'SPRING_DATA_JPA',
+  LOMBOK = 'LOMBOK',
 
   // .NET libraries
-  ENTITY_FRAMEWORK = 'Entity Framework',
-  ASP_NET = 'ASP.NET',
+  ENTITY_FRAMEWORK = 'ENTITY_FRAMEWORK',
+  ASP_NET = 'ASP_NET',
 
   // Go libraries
-  GIN = 'Gin',
-  ECHO = 'Echo',
+  GIN = 'GIN',
+  ECHO = 'ECHO',
 
   // SQL libraries
-  POSTGRES = 'PostgreSQL',
-  MYSQL = 'MySQL',
-  SQLSERVER = 'SQL Server',
+  POSTGRES = 'POSTGRES',
+  MYSQL = 'MYSQL',
+  SQLSERVER = 'SQLSERVER',
 
   // NoSQL libraries
-  MONGODB = 'MongoDB',
-  DYNAMODB = 'DynamoDB',
-  FIREBASE = 'Firebase',
+  MONGODB = 'MONGODB',
+  DYNAMODB = 'DYNAMODB',
+  FIREBASE = 'FIREBASE',
 
   // Graph libraries
-  NEO4J = 'Neo4j',
-  DGRAPH = 'Dgraph',
+  NEO4J = 'NEO4J',
+  DGRAPH = 'DGRAPH',
 
   // CI/CD libraries
-  GITHUB_ACTIONS = 'GitHub Actions',
-  JENKINS = 'Jenkins',
-  GITLAB_CI = 'GitLab CI',
+  GITHUB_ACTIONS = 'GITHUB_ACTIONS',
+  JENKINS = 'JENKINS',
+  GITLAB_CI = 'GITLAB_CI',
 
   // Containerization libraries
-  DOCKER = 'Docker',
-  KUBERNETES = 'Kubernetes',
+  DOCKER = 'DOCKER',
+  KUBERNETES = 'KUBERNETES',
 
   // Cloud libraries
   AWS = 'AWS',
-  AZURE = 'Azure',
-  GCP = 'Google Cloud',
+  AZURE = 'AZURE',
+  GCP = 'GCP',
 
   // Unit testing libraries
-  JEST = 'Jest',
-  VITEST = 'Vitest',
-  MOCHA = 'Mocha',
-  PYTEST = 'PyTest',
+  JEST = 'JEST',
+  VITEST = 'VITEST',
+  MOCHA = 'MOCHA',
+  PYTEST = 'PYTEST',
 
   // Integration testing libraries
-  SUPERTEST = 'SuperTest',
+  SUPERTEST = 'SUPERTEST',
 
   // E2E testing libraries
-  CYPRESS = 'Cypress',
-  PLAYWRIGHT = 'Playwright',
-  SELENIUM = 'Selenium',
+  CYPRESS = 'CYPRESS',
+  PLAYWRIGHT = 'PLAYWRIGHT',
+  SELENIUM = 'SELENIUM',
 
   // AI Support
-  SUPPORT_BEGINNER = 'I am a beginner',
-  SUPPORT_EXPERT = 'I am an expert',
+  SUPPORT_BEGINNER = 'SUPPORT_BEGINNER',
+  SUPPORT_EXPERT = 'SUPPORT_EXPERT',
 
   // Code Quality libraries
-  ESLINT = 'ESLint',
-  PRETTIER = 'Prettier',
-  SONARQUBE = 'SonarQube',
-  CODECOV = 'Codecov',
+  ESLINT = 'ESLINT',
+  PRETTIER = 'PRETTIER',
+  SONARQUBE = 'SONARQUBE',
+  CODECOV = 'CODECOV',
 
   // Documentation libraries
-  DOC_UPDATES = 'AI Decision Log',
-  STORYBOOK = 'Storybook',
-  SWAGGER = 'Swagger/OpenAPI',
-  TYPEDOC = 'TypeDoc',
-  JSDOC = 'JSDoc',
+  DOC_UPDATES = 'DOC_UPDATES',
+  STORYBOOK = 'STORYBOOK',
+  SWAGGER = 'SWAGGER',
+  TYPEDOC = 'TYPEDOC',
+  JSDOC = 'JSDOC',
 
   // Version Control libraries
-  GIT = 'Git',
-  GITHUB = 'GitHub',
-  GITLAB = 'GitLab',
-  CONVENTIONAL_COMMITS = 'Conventional Commits',
+  GIT = 'GIT',
+  GITHUB = 'GITHUB',
+  GITLAB = 'GITLAB',
+  CONVENTIONAL_COMMITS = 'CONVENTIONAL_COMMITS',
 
   // Architecture libraries
-  ADR = 'Architecture Decision Records',
-  CLEAN_ARCHITECTURE = 'Clean Architecture',
-  DDD = 'Domain-Driven Design',
-  MICROSERVICES = 'Microservices',
-  MONOREPO = 'Monorepo',
+  ADR = 'ADR',
+  CLEAN_ARCHITECTURE = 'CLEAN_ARCHITECTURE',
+  DDD = 'DDD',
+  MICROSERVICES = 'MICROSERVICES',
+  MONOREPO = 'MONOREPO',
 
   // Accessibility libraries
-  WCAG_PERCEIVABLE = 'WCAG - Perceivable',
-  WCAG_OPERABLE = 'WCAG - Operable',
-  WCAG_UNDERSTANDABLE = 'WCAG - Understandable',
-  WCAG_ROBUST = 'WCAG - Robust',
-  ARIA = 'ARIA Best Practices',
-  ACCESSIBILITY_TESTING = 'Accessibility Testing',
-  MOBILE_ACCESSIBILITY = 'Mobile Accessibility',
+  WCAG_PERCEIVABLE = 'WCAG_PERCEIVABLE',
+  WCAG_OPERABLE = 'WCAG_OPERABLE',
+  WCAG_UNDERSTANDABLE = 'WCAG_UNDERSTANDABLE',
+  WCAG_ROBUST = 'WCAG_ROBUST',
+  ARIA = 'ARIA',
+  ACCESSIBILITY_TESTING = 'ACCESSIBILITY_TESTING',
+  MOBILE_ACCESSIBILITY = 'MOBILE_ACCESSIBILITY',
 }
 
 // Define relationships between layers, stacks, and libraries
@@ -221,13 +222,7 @@ export const layerToStackMap: LayerToStackMap = {
     Stack.STYLING,
     Stack.ACCESSIBILITY,
   ],
-  [Layer.BACKEND]: [
-    Stack.NODE,
-    Stack.PYTHON,
-    Stack.JAVA,
-    Stack.DOTNET,
-    Stack.GO,
-  ],
+  [Layer.BACKEND]: [Stack.NODE, Stack.PYTHON, Stack.JAVA, Stack.DOTNET, Stack.GO],
   [Layer.DATABASE]: [Stack.SQL, Stack.NOSQL, Stack.GRAPH],
   [Layer.DEVOPS]: [Stack.CI_CD, Stack.CONTAINERIZATION, Stack.CLOUD],
   [Layer.TESTING]: [Stack.UNIT, Stack.INTEGRATION, Stack.E2E],
@@ -250,17 +245,13 @@ export const stackToLibraryMap: StackToLibraryMap = {
     Library.VUE_ROUTER,
     Library.PINIA,
   ],
-  [Stack.ANGULAR]: [
-    Library.ANGULAR_CODING_STANDARDS,
-    Library.NGRX,
-    Library.ANGULAR_MATERIAL,
-  ],
+  [Stack.ANGULAR]: [Library.ANGULAR_CODING_STANDARDS, Library.NGRX, Library.ANGULAR_MATERIAL],
   [Stack.SVELTE]: [Library.SVELTE_CODING_STANDARDS, Library.SVELTE_KIT],
   [Stack.ASTRO]: [Library.ASTRO_CODING_STANDARDS, Library.ASTRO_ISLANDS],
   [Stack.STYLING]: [Library.TAILWIND, Library.STYLED_COMPONENTS, Library.SCSS],
   [Stack.NODE]: [Library.EXPRESS, Library.NEST, Library.FASTIFY],
   [Stack.PYTHON]: [Library.DJANGO, Library.FLASK, Library.FASTAPI],
-  [Stack.JAVA]: [Library.SPRING, Library.HIBERNATE],
+  [Stack.JAVA]: [Library.SPRING_BOOT, Library.SPRING_DATA_JPA, Library.LOMBOK],
   [Stack.DOTNET]: [Library.ENTITY_FRAMEWORK, Library.ASP_NET],
   [Stack.GO]: [Library.GIN, Library.ECHO],
   [Stack.SQL]: [Library.POSTGRES, Library.MYSQL, Library.SQLSERVER],
@@ -273,12 +264,7 @@ export const stackToLibraryMap: StackToLibraryMap = {
   [Stack.INTEGRATION]: [Library.SUPERTEST],
   [Stack.E2E]: [Library.CYPRESS, Library.PLAYWRIGHT, Library.SELENIUM],
   [Stack.SUPPORT_LEVEL]: [Library.SUPPORT_BEGINNER, Library.SUPPORT_EXPERT],
-  [Stack.STATIC_ANALYSIS]: [
-    Library.ESLINT,
-    Library.PRETTIER,
-    Library.SONARQUBE,
-    Library.CODECOV,
-  ],
+  [Stack.STATIC_ANALYSIS]: [Library.ESLINT, Library.PRETTIER, Library.SONARQUBE, Library.CODECOV],
   [Stack.DOCUMENTATION]: [
     Library.DOC_UPDATES,
     Library.JSDOC,

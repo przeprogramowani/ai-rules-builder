@@ -46,10 +46,11 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const tooltipTimerRef = useRef<number | null>(null);
+  const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Calculate if we need to show "no results" message
-  const hasNoSearchResults = isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
+  const hasNoSearchResults =
+    isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
 
   // Show keyboard help tooltip briefly on first load
   useEffect(() => {
@@ -76,25 +77,29 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   }, []);
 
   return (
-    <div className={`flex flex-col space-y-4 h-full ${className}`} role="application" aria-label="Rule Builder">
+    <div
+      className={`flex flex-col space-y-4 h-full pb-16 md:pb-0 ${className}`}
+      role="application"
+      aria-label="Rule Builder"
+    >
       <div
         ref={containerRef}
-        className="p-6 space-y-5 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
+        className="p-4 space-y-4 rounded-lg shadow-lg bg-gray-900/90 flex flex-col min-h-[400px] h-full"
         data-component-name="RuleBuilder"
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Rule Builder</h2>
 
-          <button
-            onClick={handleClearAll}
-            className={`flex gap-2 items-center px-3 py-1.5 text-sm bg-gray-800/50 rounded-md transition-colors hover:bg-gray-700/50 text-gray-400 cursor-pointer hover:shadow-sm ${
-              selectedLibraries.length > 0 ? 'opacity-100' : 'opacity-0'
-            }`}
-            title="Clear all selections"
-          >
-            <Trash2 className="size-4" />
-            <span>Clear all</span>
-          </button>
+          {selectedLibraries.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="flex gap-2 items-center px-3 py-1.5 text-sm bg-gray-800/50 rounded-md transition-colors hover:bg-gray-700/50 text-gray-400 cursor-pointer hover:shadow-sm"
+              title="Clear all selections"
+            >
+              <Trash2 className="size-4" />
+              <span>Clear all</span>
+            </button>
+          )}
         </div>
 
         <div ref={searchContainerRef} className="w-full">

@@ -1,0 +1,31 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AuthLayout from '../../components/auth/AuthLayout';
+import SignupForm from '../../components/auth/SignupForm';
+import { createSupabaseServerInstance } from '../../db/supabase.client';
+
+// Check if user is already logged in
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+// If user is already logged in, redirect to home page
+if (user) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout>
+  <div class="flex flex-col h-screen max-h-screen bg-gray-950">
+    <main class="flex-grow">
+      <AuthLayout title="Create an account" subtitle="Sign up to start building AI rules">
+        <SignupForm client:only="react" />
+      </AuthLayout>
+    </main>
+  </div>
+</Layout>

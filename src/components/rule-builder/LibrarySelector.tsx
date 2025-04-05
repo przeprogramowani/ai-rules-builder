@@ -11,8 +11,7 @@ export const LibrarySelector: React.FC<LibrarySelectorProps> = ({
   selectedStack,
   onBackToStacks,
 }) => {
-  const { selectLibrary, unselectLibrary, isLibrarySelected } =
-    useTechStackStore();
+  const { selectLibrary, unselectLibrary, isLibrarySelected } = useTechStackStore();
 
   // Get libraries for the selected stack
   const libraries = getLibrariesByStack(selectedStack);
@@ -53,9 +52,7 @@ export const LibrarySelector: React.FC<LibrarySelectorProps> = ({
           <div
             key={library}
             className={`p-4 rounded-lg transition-colors ${
-              isLibrarySelected(library)
-                ? 'bg-indigo-700 text-white'
-                : 'bg-gray-800 text-gray-300'
+              isLibrarySelected(library) ? 'bg-indigo-700 text-white' : 'bg-gray-800 text-gray-300'
             }`}
           >
             <div className="flex items-center justify-between">

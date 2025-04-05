@@ -3,7 +3,7 @@
   "trailingComma": "all",
   "astroAllowShorthand": false,
   "astroSkipFrontmatter": false,
-  "printWidth": 120,
+  "printWidth": 100,
   "plugins": ["prettier-plugin-astro"],
   "overrides": [
     {
