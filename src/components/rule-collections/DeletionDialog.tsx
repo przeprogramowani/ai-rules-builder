@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { ConfirmDialog, ConfirmDialogHeader, ConfirmDialogContent, ConfirmDialogActions } from '../ui/ConfirmDialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogHeader,
+  ConfirmDialogContent,
+  ConfirmDialogActions,
+} from '../ui/ConfirmDialog';
 
 interface DeletionDialogProps {
   isOpen: boolean;

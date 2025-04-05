@@ -14,7 +14,9 @@ export const DependencyUpload: React.FC<{ uploadStatus: UploadStatus; isDragging
     <Fragment>
       <div className="flex absolute inset-0 z-10 flex-col justify-center items-center bg-gray-800 bg-opacity-80 rounded-lg border-2 border-blue-400 border-dashed">
         <FileUp className="mb-4 text-blue-400 size-12" />
-        <p className="text-lg font-medium text-blue-400">Drop dependency file to identify libraries</p>
+        <p className="text-lg font-medium text-blue-400">
+          Drop dependency file to identify libraries
+        </p>
         <p className="mt-2 text-sm text-gray-400">Supported: package.json, requirements.txt</p>
       </div>
       {/* Upload status message */}

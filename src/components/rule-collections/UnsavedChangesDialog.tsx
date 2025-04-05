@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { ConfirmDialog, ConfirmDialogHeader, ConfirmDialogContent, ConfirmDialogActions } from '../ui/ConfirmDialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogHeader,
+  ConfirmDialogContent,
+  ConfirmDialogActions,
+} from '../ui/ConfirmDialog';
 
 interface UnsavedChangesDialogProps {
   isOpen: boolean;
@@ -33,7 +38,8 @@ export const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
     <ConfirmDialog isOpen={isOpen} onClose={onClose}>
       <ConfirmDialogHeader>Unsaved Changes</ConfirmDialogHeader>
       <ConfirmDialogContent>
-        You have unsaved changes in "{collectionName}". Would you like to save them before proceeding?
+        You have unsaved changes in "{collectionName}". Would you like to save them before
+        proceeding?
       </ConfirmDialogContent>
       <ConfirmDialogActions>
         <button

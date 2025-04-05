@@ -1,6 +1,12 @@
 import { Package } from 'lucide-react';
 import React from 'react';
-import { Layer, Library, Stack, getLibrariesCountByLayer, getStacksByLayer } from '../../data/dictionaries';
+import {
+  Layer,
+  Library,
+  Stack,
+  getLibrariesCountByLayer,
+  getStacksByLayer,
+} from '../../data/dictionaries';
 import { getLayerTranslation } from '../../i18n/translations';
 import type { LayerType } from '../../styles/theme';
 import { getLayerClasses } from '../../styles/theme';

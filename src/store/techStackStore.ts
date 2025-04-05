@@ -1,5 +1,11 @@
 import { create } from 'zustand';
-import { Layer, Stack, Library, getLayersByLibrary, getStacksByLibrary } from '../data/dictionaries';
+import {
+  Layer,
+  Stack,
+  Library,
+  getLayersByLibrary,
+  getStacksByLibrary,
+} from '../data/dictionaries';
 
 interface TechStackState {
   // Selected items
@@ -46,7 +52,9 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
   // Layer actions
   selectLayer: (layer: Layer) =>
     set((state) => ({
-      selectedLayers: state.selectedLayers.includes(layer) ? state.selectedLayers : [...state.selectedLayers, layer],
+      selectedLayers: state.selectedLayers.includes(layer)
+        ? state.selectedLayers
+        : [...state.selectedLayers, layer],
     })),
 
   unselectLayer: (layer: Layer) =>
@@ -57,7 +65,9 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
   // Stack actions
   selectStack: (stack: Stack) =>
     set((state) => ({
-      selectedStacks: state.selectedStacks.includes(stack) ? state.selectedStacks : [...state.selectedStacks, stack],
+      selectedStacks: state.selectedStacks.includes(stack)
+        ? state.selectedStacks
+        : [...state.selectedStacks, stack],
     })),
 
   unselectStack: (stack: Stack) =>
@@ -108,7 +118,9 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
     const hasAllOriginal = originalLibraries.every((lib) => selectedLibraries.includes(lib));
 
     // Check if all selected libraries were in original
-    const allSelectedWereOriginal = selectedLibraries.every((lib) => originalLibraries.includes(lib));
+    const allSelectedWereOriginal = selectedLibraries.every((lib) =>
+      originalLibraries.includes(lib),
+    );
 
     return !hasAllOriginal || !allSelectedWereOriginal;
   },

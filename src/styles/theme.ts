@@ -45,11 +45,7 @@ export const transitions = {
 
 // Ultra-simplified layer class generator
 export const getLayerClasses = {
-  container: (
-    layerType: LayerType,
-    isSelected: boolean,
-    isExpanded: boolean = false,
-  ): string => {
+  container: (layerType: LayerType, isSelected: boolean, isExpanded: boolean = false): string => {
     return isSelected
       ? `bg-gray-800/70 border-${layerColors[layerType]}-400 border shadow-md ${
           !isExpanded ? 'hover:bg-gray-700/70' : ''
@@ -63,11 +59,7 @@ export const getLayerClasses = {
     return `bg-${layerColors[layerType]}-400/20 text-white`;
   },
 
-  stackContainer: (
-    layerType: LayerType,
-    isSelected: boolean,
-    isExpanded = false,
-  ): string => {
+  stackContainer: (layerType: LayerType, isSelected: boolean, isExpanded = false): string => {
     return isSelected
       ? `bg-gray-700/40 border-${layerColors[layerType]}-300 border shadow-md ${
           !isExpanded ? 'hover:bg-gray-600/60' : ''
@@ -88,12 +80,8 @@ export const getLayerClasses = {
     isSelected: boolean,
   ): { borderColor: string; backgroundColor: string } => {
     return {
-      borderColor: isSelected
-        ? `var(--tw-${layerColors[layerType]}-400)`
-        : 'transparent',
-      backgroundColor: isSelected
-        ? `var(--tw-${layerColors[layerType]}-100)`
-        : '#374151',
+      borderColor: isSelected ? `var(--tw-${layerColors[layerType]}-400)` : 'transparent',
+      backgroundColor: isSelected ? `var(--tw-${layerColors[layerType]}-100)` : '#374151',
     };
   },
 
@@ -102,9 +90,7 @@ export const getLayerClasses = {
     isSelected: boolean,
   ): { backgroundColor: string; transform: string } => {
     return {
-      backgroundColor: isSelected
-        ? `var(--tw-${layerColors[layerType]}-400)`
-        : '#D1D5DB',
+      backgroundColor: isSelected ? `var(--tw-${layerColors[layerType]}-400)` : '#D1D5DB',
       transform: isSelected ? 'translateX(16px)' : 'translateX(0)',
     };
   },

@@ -13,10 +13,7 @@ interface SelectedRulesProps {
 
 export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
   ({ selectedLibraries, unselectLibrary, getLibraryLayerType }) => {
-    const handleKeyDown = (
-      e: KeyboardEvent<HTMLButtonElement>,
-      library: Library,
-    ) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>, library: Library) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         unselectLibrary(library);
@@ -32,11 +29,7 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
         <h2 className="mb-2 text-lg font-semibold text-white">
           Selected Rules ({selectedLibraries.length})
         </h2>
-        <div
-          className="flex flex-wrap gap-2"
-          role="list"
-          aria-label="Selected rules list"
-        >
+        <div className="flex flex-wrap gap-2" role="list" aria-label="Selected rules list">
           {selectedLibraries.map((library) => {
             const layerType = getLibraryLayerType(library);
             return (

@@ -178,7 +178,9 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
 
       // Update collections list and selected collection
       set((state) => ({
-        collections: state.collections.map((c) => (c.id === savedCollection.id ? savedCollection : c)),
+        collections: state.collections.map((c) =>
+          c.id === savedCollection.id ? savedCollection : c,
+        ),
         selectedCollection: savedCollection,
         isLoading: false,
       }));
@@ -213,9 +215,13 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
 
       // Update collections list and selected collection
       set((state) => ({
-        collections: state.collections.map((c) => (c.id === savedCollection.id ? savedCollection : c)),
+        collections: state.collections.map((c) =>
+          c.id === savedCollection.id ? savedCollection : c,
+        ),
         selectedCollection:
-          state.selectedCollection?.id === savedCollection.id ? savedCollection : state.selectedCollection,
+          state.selectedCollection?.id === savedCollection.id
+            ? savedCollection
+            : state.selectedCollection,
         isLoading: false,
       }));
     } catch (error) {

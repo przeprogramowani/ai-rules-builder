@@ -23,13 +23,15 @@ interface AccordionProps {
   isNested?: boolean;
 }
 
-export const Accordion: React.FC<AccordionProps> = React.memo(({ children, className = '', isNested = false }) => {
-  return (
-    <div className={`space-y-2 ${className}`} role="region">
-      <AccordionRootContext.Provider value={!isNested}>{children}</AccordionRootContext.Provider>
-    </div>
-  );
-});
+export const Accordion: React.FC<AccordionProps> = React.memo(
+  ({ children, className = '', isNested = false }) => {
+    return (
+      <div className={`space-y-2 ${className}`} role="region">
+        <AccordionRootContext.Provider value={!isNested}>{children}</AccordionRootContext.Provider>
+      </div>
+    );
+  },
+);
 Accordion.displayName = 'Accordion';
 
 interface AccordionItemProps {
@@ -125,7 +127,9 @@ export const AccordionContent: React.FC<AccordionContentProps> = React.memo(
               transitionDelay: isOpen ? transitions.delay.medium : transitions.delay.none,
             }}
           >
-            <AccordionContentContext.Provider value={effectiveIsOpen}>{children}</AccordionContentContext.Provider>
+            <AccordionContentContext.Provider value={effectiveIsOpen}>
+              {children}
+            </AccordionContentContext.Provider>
           </div>
         </div>
       </div>

@@ -4,7 +4,9 @@ import RulesPreviewCopyDownloadActions from './RulesPreviewCopyDownloadActions.t
 import { processRulesContentMarkdown } from '../../utils/markdownStyling.tsx';
 
 // Component for rendering markdown content
-export const MarkdownContentRenderer: React.FC<{ markdownContent: RulesContent[] }> = ({ markdownContent }) => {
+export const MarkdownContentRenderer: React.FC<{ markdownContent: RulesContent[] }> = ({
+  markdownContent,
+}) => {
   return (
     <div>
       {markdownContent.map((rule, index) => (

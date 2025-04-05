@@ -8,7 +8,9 @@ interface RulesPreviewCopyDownloadActionsProps {
   rulesContent: RulesContent[];
 }
 
-export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadActionsProps> = ({ rulesContent }) => {
+export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadActionsProps> = ({
+  rulesContent,
+}) => {
   const { selectedEnvironment, isMultiFileEnvironment } = useProjectStore();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const singleRuleContent = rulesContent.length <= 1;
@@ -68,11 +70,15 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
         ? (rulesContent[0]?.markdown ?? '')
         : zipSync(
             rulesContent.reduce((zippable, ruleContent) => {
-              zippable[ruleContent.fileName] = new Uint8Array([...new TextEncoder().encode(ruleContent.markdown)]);
+              zippable[ruleContent.fileName] = new Uint8Array([
+                ...new TextEncoder().encode(ruleContent.markdown),
+              ]);
               return zippable;
             }, {} as Zippable),
           );
-      blob = new Blob([content], { type: singleRuleContent ? 'text/markdown;charset=utf-8' : 'application/zip' });
+      blob = new Blob([content], {
+        type: singleRuleContent ? 'text/markdown;charset=utf-8' : 'application/zip',
+      });
       download = singleRuleContent
         ? (rulesContent[0]?.fileName ?? `${selectedEnvironment}-rules.md`)
         : `${selectedEnvironment}-rules.zip`;
@@ -91,11 +97,18 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
       <button
         onClick={handleCopy}
         className={`px-3 py-1 ${
-          showCopiedMessage ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+          showCopiedMessage
+            ? 'bg-green-700 text-white'
+            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
         } rounded-md flex items-center transition-colors duration-200 text-sm opacity-40 hover:opacity-100 cursor-pointer`}
         aria-label="Copy"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
           {showCopiedMessage ? (
             <path
               fillRule="evenodd"
@@ -115,7 +128,12 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
         className="px-3 py-1 bg-indigo-700 text-white rounded-md hover:bg-indigo-600 flex items-center text-sm opacity-40 hover:opacity-100 cursor-pointer"
         aria-label="Download"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
           <path
             fillRule="evenodd"
             d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"

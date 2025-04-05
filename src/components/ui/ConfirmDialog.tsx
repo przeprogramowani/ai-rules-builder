@@ -69,7 +69,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ isOpen, onClose, c
         className="bg-gray-900 rounded-lg shadow-lg max-w-md w-full mx-4 p-4 focus:outline-none animate-fade-in"
         tabIndex={-1}
       >
-        <ConfirmDialogContext.Provider value={{ isOpen, onClose }}>{children}</ConfirmDialogContext.Provider>
+        <ConfirmDialogContext.Provider value={{ isOpen, onClose }}>
+          {children}
+        </ConfirmDialogContext.Provider>
       </div>
     </div>
   );
@@ -85,7 +87,11 @@ export const ConfirmDialogHeader: React.FC<ConfirmDialogHeaderProps> = ({ childr
   return (
     <div className="flex justify-between items-center mb-4">
       <h3 className="text-lg font-medium text-white">{children}</h3>
-      <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors" aria-label="Close">
+      <button
+        onClick={onClose}
+        className="text-gray-400 hover:text-white transition-colors"
+        aria-label="Close"
+      >
         <X className="size-5" />
       </button>
     </div>

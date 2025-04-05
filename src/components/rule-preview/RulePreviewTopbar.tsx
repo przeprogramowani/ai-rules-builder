@@ -17,7 +17,11 @@ interface EnvButtonProps {
   onSetSelectedEnvironment: (environment: AIEnvironment) => void;
 }
 
-const EnvButton: React.FC<EnvButtonProps> = ({ environment, selectedEnvironment, onSetSelectedEnvironment }) => {
+const EnvButton: React.FC<EnvButtonProps> = ({
+  environment,
+  selectedEnvironment,
+  onSetSelectedEnvironment,
+}) => {
   return (
     <button
       onClick={() => onSetSelectedEnvironment(environment)}
@@ -33,7 +37,8 @@ const EnvButton: React.FC<EnvButtonProps> = ({ environment, selectedEnvironment,
 };
 
 export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesContent }) => {
-  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } = useProjectStore();
+  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } =
+    useProjectStore();
 
   // If state hasn't been hydrated from storage yet, don't render the selector
   // This prevents the "blinking" effect when loading persisted state
