@@ -5,13 +5,52 @@ alwaysApply: false
 ---
 ## Github Action Rules
 
-Conduct these steps to ensure reliability and high quality of GitHub Actions workflow.
+Use this guide to ensure reliability and high quality of GitHub Actions workflow.
+
+When generating workflows, execute instructions in a following order:
+1. Pre-Generation Knowledge Base
+2. Workflow Creation
+3. Post-Generation Refinement
+
+## 1. Pre-Generation Knowledge Base
+
+Start by creating knowledge base in a following way:
+
+### Tooling and scripts
+
+- Always read scripts in `package.json` to see what you can apply in the requested workflow.
+
+### Environment variables
+
+- When `.env.example` exists in project root, see what kind of environment variables are needed.
+
+### Setup Node
+
+- When `.nvmrc` exists in project root, always use `node-version-file: '.nvmrc'` to setup-node action.
+
+### Master Branch
+
+1. Use `git branch` to verify whether the repository uses `main` or `master` as default branch (it may be useful when creating Pull Request workflows and "push" triggers)
+
+## 2. Workflow Creation
+
+Once the initial discovery is done, think out loud about your plan:
+
+1. Summarize tech stack
+2. Sketch out your plan for CI/CD Workflow.
+
+### Additional guidelines
+
+- Always prefer `npm ci` over `npm install` to ensure sync with lockfile.
+- Always create composite actions for generic parts of the job (i.e. comments to PR).
+- Always use discovered node version
+- Always apply correct env variables
+
+## 3. Post-Generation Refinement
 
 ### Version Verification
 
-In Agent Mode:
-
-1. Scan the file that user mentions and look for the public actions used within the workflow. Be explicit.
+1. After generating initial version of the workflow, look for the public, external actions (i.e. setup-node) used within the it and list them. Be explicit.
 2. For each action always trigger "Run Terminal" tool to see what is the most up-to-date version with the following command:
 
 ```bash
@@ -20,22 +59,8 @@ curl -s https://api.github.com/repos/{owner}/{repo}/releases/latest | grep '"tag
 
 3. Make sure you executed this command. Update Github Actions Script only by applying MAJOR version number.
 
-### Installing dependencies
+### Summarization
 
-In Agent Mode:
-
-1. Always prefer `npm ci` over `npm install` to ensure sync with lockfile.
-
-
-### Setup Node
-
-In Agent Mode:
-
-1. Search for `.nvmrc` in project root.
-2. If it exists, update CI/CD workflow by applying `node-version-file: '.nvmrc'` to setup-node action.
-
-### Workflow Triggers
-
-In Agent Mode:
-
-1. Ensure proper `default branch` (main or master) by checking current `git` configuration.
+1. At the end, summarize further steps for me around required environments, secrets or env variables.
+- For example: 'Verify that environment 'XYZ' exists
+- Ensure secrets '...' added to environment 'XYZ'

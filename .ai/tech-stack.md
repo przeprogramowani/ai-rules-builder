@@ -34,8 +34,9 @@ Testing:
 
   - Symulacja pełnych ścieżek użytkownika z lepszą wieloprzeglądarkowością
   - Testowanie kluczowych funkcjonalności: kreator reguł, generowanie reguł na podstawie plików, zarządzanie kolekcjami
-  - Automatyczne uruchamianie testów w ramach pipeline CI/CD
+  - Automatyczne uruchamianie testów w ramach pipeline CI/CD GitHub Actions
 
-- Inne narzędzia testowe:
-  - Codecov do śledzenia pokrycia kodu testami
-  - Storybook do izolowanego rozwoju i testowania komponentów UI
+- Formatowanie i lintowanie kodu
+
+  - ESLint dla lintowania kodu
+  - Prettier dla formatowania kodu
