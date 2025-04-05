@@ -68,7 +68,8 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.37.0",
-    "@tailwindcss/oxide-linux-x64-gnu": "4.0.14"
+    "@tailwindcss/oxide-linux-x64-gnu": "4.0.14",
+    "lightningcss-linux-x64-gnu": "1.29.2"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,astro}": [
