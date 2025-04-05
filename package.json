@@ -39,6 +39,9 @@
     "prettier": "3.5.3",
     "prettier-plugin-astro": "0.14.1"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.37.0"
+  },
   "lint-staged": {
     "*.{ts,tsx,astro}": [
       "eslint --fix",
