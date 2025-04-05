@@ -52,6 +52,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const hasNoSearchResults =
     isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
 
+
   // Show keyboard help tooltip briefly on first load
   useEffect(() => {
     if (tooltipRef.current) {
