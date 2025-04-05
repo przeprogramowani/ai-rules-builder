@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened]
+
+# Zapobieganie równoległemu uruchamianiu workflow dla tego samego PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint_format_typecheck:
+    name: Lint, Format & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm exec astro check
+
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test
+
+  e2e_tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    env:
+      ENV_NAME: test
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
+      SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY_TEST }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY_TEST }}
+      E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+  report_status:
+    name: Report Status
+    needs: [lint_format_typecheck, unit_tests, e2e_tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Report status and create comment
+        uses: ./.github/actions/status-report
+        with:
+          status-lint: ${{ needs.lint_format_typecheck.result }}
+          status-unit: ${{ needs.unit_tests.result }}
+          status-e2e: ${{ needs.e2e_tests.result }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          create-comment: 'true'
+          check-status: 'true'
