@@ -95,6 +95,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     if: always()
+    permissions:
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
