@@ -20,6 +20,13 @@ curl -s https://api.github.com/repos/{owner}/{repo}/releases/latest | grep '"tag
 
 3. Make sure you executed this command. Update Github Actions Script only by applying MAJOR version number.
 
+### Installing dependencies
+
+In Agent Mode:
+
+1. Always prefer `npm ci` over `npm install` to ensure sync with lockfile.
+
+
 ### Setup Node
 
 In Agent Mode:
