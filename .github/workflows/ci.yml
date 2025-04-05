@@ -14,6 +14,7 @@ jobs:
   lint_format_typecheck:
     name: Lint, Format & Type Check
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,6 +40,7 @@ jobs:
   unit_tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,11 +60,12 @@ jobs:
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-latest
+    environment: development
     env:
       ENV_NAME: test
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL_TEST }}
-      SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY_TEST }}
-      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY_TEST }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
       E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
       E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
@@ -90,6 +93,7 @@ jobs:
     name: Report Status
     needs: [lint_format_typecheck, unit_tests, e2e_tests]
     runs-on: ubuntu-latest
+    environment: development
     if: always()
     steps:
       - name: Checkout
