@@ -1,0 +1,80 @@
+name: 'Status Report Action'
+description: 'Generuje raport statusu i/lub dodaje komentarz do PR'
+
+inputs:
+  status-lint:
+    description: 'Status zadania lint_format_typecheck'
+    required: false
+    default: ''
+  status-unit:
+    description: 'Status zadania unit_tests'
+    required: false
+    default: ''
+  status-e2e:
+    description: 'Status zadania e2e_tests'
+    required: false
+    default: ''
+  github-token:
+    description: 'Token GitHub do tworzenia komentarzy'
+    required: false
+    default: ''
+  create-comment:
+    description: 'Czy utworzyć komentarz w PR'
+    required: false
+    default: 'false'
+  check-status:
+    description: 'Czy sprawdzić status i zwrócić błąd przy niepowodzeniu'
+    required: false
+    default: 'false'
+
+outputs:
+  status:
+    description: 'Status końcowy (success/failure)'
+    value: ${{ steps.status.outputs.status }}
+  message:
+    description: 'Wiadomość statusu'
+    value: ${{ steps.status.outputs.message }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate status report
+      id: status
+      shell: bash
+      run: |
+        if [ "${{ inputs.status-lint }}" == "success" ] && \
+           [ "${{ inputs.status-unit }}" == "success" ] && \
+           [ "${{ inputs.status-e2e }}" == "success" ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "message=✅ Wszystkie testy CI przeszły pomyślnie!" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "message=❌ Niektóre testy CI nie przeszły:" >> $GITHUB_OUTPUT
+          [ "${{ inputs.status-lint }}" != "success" ] && echo "- Lint/Format/TypeCheck: ${{ inputs.status-lint }}" >> $GITHUB_OUTPUT
+          [ "${{ inputs.status-unit }}" != "success" ] && echo "- Testy jednostkowe: ${{ inputs.status-unit }}" >> $GITHUB_OUTPUT
+          [ "${{ inputs.status-e2e }}" != "success" ] && echo "- Testy E2E: ${{ inputs.status-e2e }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create comment
+      if: inputs.create-comment == 'true' && inputs.github-token != ''
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const message = `## Status CI
+
+          ${{ steps.status.outputs.message }}
+
+          ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: message
+          });
+
+    - name: Check final status
+      if: inputs.check-status == 'true' && steps.status.outputs.status == 'failure'
+      shell: bash
+      run: exit 1
