@@ -1,4 +1,10 @@
-import { Layer, Library, Stack, getLayerByStack, getStacksByLibrary } from '../../data/dictionaries.ts';
+import {
+  Layer,
+  Library,
+  Stack,
+  getLayerByStack,
+  getStacksByLibrary,
+} from '../../data/dictionaries.ts';
 import type { RulesContent } from './RulesBuilderTypes.ts';
 import type { RulesGenerationStrategy } from './RulesGenerationStrategy.ts';
 import { MultiFileRulesStrategy } from './rules-generation-strategies/MultiFileRulesStrategy.ts';
@@ -27,9 +33,17 @@ export class RulesBuilderService {
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
     const stacksByLayer = this.groupStacksByLayer(Object.keys(librariesByStack) as Stack[]);
 
-    const strategy: RulesGenerationStrategy = multiFile ? new MultiFileRulesStrategy() : new SingleFileRulesStrategy();
+    const strategy: RulesGenerationStrategy = multiFile
+      ? new MultiFileRulesStrategy()
+      : new SingleFileRulesStrategy();
 
-    return strategy.generateRules(projectName, projectDescription, selectedLibraries, stacksByLayer, librariesByStack);
+    return strategy.generateRules(
+      projectName,
+      projectDescription,
+      selectedLibraries,
+      stacksByLayer,
+      librariesByStack,
+    );
   }
 
   /**

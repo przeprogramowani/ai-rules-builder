@@ -7,10 +7,7 @@ import { type LibraryRulesMap } from './types';
  * @param library The library to get rules for
  * @returns Array of rules for the library
  */
-export const getRulesForLibrary = (
-  rulesMap: LibraryRulesMap,
-  library: Library,
-): string[] => {
+export const getRulesForLibrary = (rulesMap: LibraryRulesMap, library: Library): string[] => {
   return rulesMap[library] || [];
 };
 

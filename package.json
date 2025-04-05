@@ -8,9 +8,10 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "eslint --fix",
-    "format": "prettier ./src/**/*.{astro,ts,tsx,css} --write",
-    "format:check": "prettier ./src/**/*.{astro,ts,tsx,css} --check",
+    "lint": "eslint \"src/**/*.{ts,tsx,astro}\" --fix",
+    "lint:check": "eslint \"src/**/*.{ts,tsx,astro}\"",
+    "format": "prettier \"src/**/*.{astro,ts,tsx,css}\" --write",
+    "format:check": "prettier \"src/**/*.{astro,ts,tsx,css}\" --check",
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -68,11 +69,11 @@
     "@rollup/rollup-linux-x64-gnu": "4.37.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,astro}": [
+    "src/**/*.{ts,tsx,astro}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,css,md}": [
+    "src/**/*.{json,css,md}": [
       "prettier --write"
     ]
   }

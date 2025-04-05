@@ -26,12 +26,8 @@ export const useRuleBuilder = () => {
   const [openStacks, setOpenStacks] = useState<Set<string>>(new Set());
 
   // Save the state before search for restoration when search is cleared
-  const [preSearchOpenLayers, setPreSearchOpenLayers] = useState<Set<string>>(
-    new Set(),
-  );
-  const [preSearchOpenStacks, setPreSearchOpenStacks] = useState<Set<string>>(
-    new Set(),
-  );
+  const [preSearchOpenLayers, setPreSearchOpenLayers] = useState<Set<string>>(new Set());
+  const [preSearchOpenStacks, setPreSearchOpenStacks] = useState<Set<string>>(new Set());
 
   // Search state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -51,10 +47,7 @@ export const useRuleBuilder = () => {
   // Detect search query change for saving pre-search state
   useEffect(() => {
     // Only save pre-search state when transitioning from no search to search
-    if (
-      (!lastSearchQuery || lastSearchQuery.length < 2) &&
-      searchQuery.length >= 2
-    ) {
+    if ((!lastSearchQuery || lastSearchQuery.length < 2) && searchQuery.length >= 2) {
       // Clone the sets to ensure we have independent copies
       setPreSearchOpenLayers(new Set([...openLayers]));
       setPreSearchOpenStacks(new Set([...openStacks]));
@@ -82,15 +75,9 @@ export const useRuleBuilder = () => {
   );
 
   // Helper functions for accordion state
-  const isLayerOpen = useCallback(
-    (layer: Layer) => openLayers.has(layer),
-    [openLayers],
-  );
+  const isLayerOpen = useCallback((layer: Layer) => openLayers.has(layer), [openLayers]);
 
-  const isStackOpen = useCallback(
-    (stack: Stack) => openStacks.has(stack),
-    [openStacks],
-  );
+  const isStackOpen = useCallback((stack: Stack) => openStacks.has(stack), [openStacks]);
 
   // Toggle functions for accordions
   const toggleLayer = useCallback(
@@ -128,13 +115,10 @@ export const useRuleBuilder = () => {
   // Filtering libraries based on search query
   const filterLibraries = useCallback(
     (libraries: Library[]): Library[] => {
-      if (!debouncedSearchQuery || debouncedSearchQuery.length < 2)
-        return libraries;
+      if (!debouncedSearchQuery || debouncedSearchQuery.length < 2) return libraries;
 
       const normalizedQuery = debouncedSearchQuery.toLowerCase();
-      return libraries.filter((library) =>
-        library.toLowerCase().includes(normalizedQuery),
-      );
+      return libraries.filter((library) => library.toLowerCase().includes(normalizedQuery));
     },
     [debouncedSearchQuery],
   );
@@ -223,8 +207,7 @@ export const useRuleBuilder = () => {
   const getSelectedLibrariesCount = useCallback(
     (stack: Stack): number => {
       const libraries = getLibrariesByStack(stack);
-      return libraries.filter((library) => selectedLibraries.includes(library))
-        .length;
+      return libraries.filter((library) => selectedLibraries.includes(library)).length;
     },
     [selectedLibraries],
   );
