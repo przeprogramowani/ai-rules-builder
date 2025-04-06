@@ -12,7 +12,7 @@
 
 👉 [10xRules.ai](https://10xrules.ai)
 
-This is a web application that enables developers to quickly create so called "rules for AI" used by tools such as GitHub Copilot, Cursor and Windsurf, through an interactive, visual interface.
+Create so called "rules for AI" written in Markdown, used by tools such as GitHub Copilot, Cursor and Windsurf, through an interactive, visual interface.
 
 ## Features
 
