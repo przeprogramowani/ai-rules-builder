@@ -28,7 +28,7 @@ export const codingRules: LibraryRulesMap = {
 
   // Code Quality libraries
   [Library.ESLINT]: [
-    'Configure project-specific rules in .eslintrc to enforce consistent coding standards',
+    'Configure project-specific rules in eslint.config.js to enforce consistent coding standards',
     'Use shareable configs like eslint-config-airbnb or eslint-config-standard as a foundation',
     'Implement custom rules for {{project_specific_patterns}} to maintain codebase consistency',
     'Configure integration with Prettier to avoid rule conflicts for code formatting',
