@@ -1,4 +1,4 @@
-# 10xRules.ai by 10xDevs
+# 10xRules.ai by 10xDevs.pl
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
