@@ -34,9 +34,11 @@ const featureFlags: FeatureConfig = {
 
 /**
  * Gets the current environment from import.meta.env.ENV_NAME
- * Defaults to 'local' if not set
+ * Returns null if not set, which disables features
  */
-const currentEnv: Env = (import.meta.env.ENV_NAME as Env) || 'local';
+function getCurrentEnv(): Env | null {
+  return (import.meta.env.ENV_NAME as Env) || null;
+}
 
 /**
  * Checks if a given feature is enabled for the current environment
@@ -45,9 +47,11 @@ const currentEnv: Env = (import.meta.env.ENV_NAME as Env) || 'local';
  * @returns boolean indicating if the feature is enabled
  */
 export function isFeatureEnabled(feature: FeatureFlag): boolean {
-  const isEnabled = featureFlags[feature][currentEnv];
-  console.log(`isFeatureEnabled('${feature}') called in env '${currentEnv}': ${isEnabled}`);
-  return isEnabled;
+  const env = getCurrentEnv();
+  if (!env) {
+    return false;
+  }
+  return featureFlags[feature][env];
 }
 
 /**
