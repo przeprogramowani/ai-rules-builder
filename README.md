@@ -48,6 +48,16 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 - Zustand
 - Lucide React
 
+### Feature Flags
+
+The project uses a feature flags system to separate deployments from releases. Feature flags can be used to control functionality availability based on the environment (`local`, `integration`, `prod`). The system supports flags for:
+
+- API endpoints
+- Astro pages
+- UI components visibility
+
+For detailed documentation about feature flags implementation, see `.ai/feature-flags.md`.
+
 ### Testing
 
 This project uses a comprehensive testing stack including unit tests and end-to-end tests.
