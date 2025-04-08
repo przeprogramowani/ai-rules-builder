@@ -76,6 +76,7 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         env:
+          ENV_NAME: ${{ secrets.ENV_NAME }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
