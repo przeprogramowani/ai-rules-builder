@@ -1,10 +1,23 @@
 import type { APIRoute } from 'astro';
 import { type Collection } from '../../../types/collection.types';
+import { isFeatureEnabled } from '../../../features/featureFlags';
 
 export const prerender = false;
 
 export const PUT: APIRoute = (async ({ params, request, locals }) => {
-  if (!locals.user) {
+  // Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(JSON.stringify({ error: 'Collections feature is currently disabled' }), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Check if auth is enabled and user is authenticated
+  if (isFeatureEnabled('auth') && !locals.user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -30,7 +43,7 @@ export const PUT: APIRoute = (async ({ params, request, locals }) => {
     .from('collections')
     .select('*')
     .eq('id', collectionId)
-    .eq('user_id', locals.user.id)
+    .eq('user_id', locals.user?.id || '')
     .single();
 
   if (findError) {
@@ -70,7 +83,7 @@ export const PUT: APIRoute = (async ({ params, request, locals }) => {
         libraries: updatedCollection.libraries,
       })
       .eq('id', collectionId)
-      .eq('user_id', locals.user.id)
+      .eq('user_id', locals.user?.id || '')
       .select();
 
     if (error) {
@@ -103,7 +116,19 @@ export const PUT: APIRoute = (async ({ params, request, locals }) => {
 }) satisfies APIRoute;
 
 export const DELETE: APIRoute = (async ({ params, locals }) => {
-  if (!locals.user) {
+  // Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(JSON.stringify({ error: 'Collections feature is currently disabled' }), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Check if auth is enabled and user is authenticated
+  if (isFeatureEnabled('auth') && !locals.user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -129,7 +154,7 @@ export const DELETE: APIRoute = (async ({ params, locals }) => {
     .from('collections')
     .select('*')
     .eq('id', collectionId)
-    .eq('user_id', locals.user.id)
+    .eq('user_id', locals.user?.id || '')
     .single();
 
   if (findError) {
@@ -147,7 +172,7 @@ export const DELETE: APIRoute = (async ({ params, locals }) => {
     .from('collections')
     .delete()
     .eq('id', collectionId)
-    .eq('user_id', locals.user.id);
+    .eq('user_id', locals.user?.id || '');
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {

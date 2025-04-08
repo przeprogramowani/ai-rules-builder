@@ -2,6 +2,7 @@ import { WandSparkles, LogIn, LogOut } from 'lucide-react';
 import DependencyUploader from './rule-parser/DependencyUploader';
 import { useAuthStore } from '../store/authStore';
 import { useEffect } from 'react';
+import { isFeatureEnabled } from '../features/featureFlags';
 
 interface TopbarProps {
   title?: string;
@@ -45,30 +46,31 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
           <div className="w-auto">
             <DependencyUploader />
           </div>
-          {user ? (
-            <div className="flex flex-row items-center space-x-4">
-              <span className="hidden md:block text-gray-400 text-sm truncate max-w-full">
-                {user.email}
-              </span>
-              <button
-                onClick={handleLogout}
+          {isFeatureEnabled('auth') &&
+            (user ? (
+              <div className="flex flex-row items-center space-x-4">
+                <span className="hidden md:block text-gray-400 text-sm truncate max-w-full">
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-200"
+                  aria-label="Logout"
+                >
+                  <LogOut className="size-4" />
+                  <span className="hidden md:inline">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <a
+                href="/auth/login"
                 className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-200"
-                aria-label="Logout"
+                aria-label="Login"
               >
-                <LogOut className="size-4" />
-                <span className="hidden md:inline">Logout</span>
-              </button>
-            </div>
-          ) : (
-            <a
-              href="/auth/login"
-              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors duration-200"
-              aria-label="Login"
-            >
-              <LogIn className="size-4" />
-              <span className="hidden md:inline">Login</span>
-            </a>
-          )}
+                <LogIn className="size-4" />
+                <span className="hidden md:inline">Login</span>
+              </a>
+            ))}
         </div>
       </div>
     </header>

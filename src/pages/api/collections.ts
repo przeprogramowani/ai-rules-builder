@@ -1,10 +1,23 @@
 import type { APIRoute } from 'astro';
 import { type Collection, collectionMapper } from '../../types/collection.types';
+import { isFeatureEnabled } from '../../features/featureFlags';
 
 export const prerender = false;
 
 export const GET: APIRoute = (async ({ locals }) => {
-  if (!locals.user) {
+  // Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(JSON.stringify({ error: 'Collections feature is currently disabled' }), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Check if auth is enabled and user is authenticated
+  if (isFeatureEnabled('auth') && !locals.user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -17,7 +30,7 @@ export const GET: APIRoute = (async ({ locals }) => {
   const { data, error } = await locals.supabase
     .from('collections')
     .select('*')
-    .eq('user_id', locals.user.id);
+    .eq('user_id', locals.user?.id || '');
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
@@ -45,7 +58,19 @@ export const GET: APIRoute = (async ({ locals }) => {
 }) satisfies APIRoute;
 
 export const POST = (async ({ request, locals }) => {
-  if (!locals.user) {
+  // Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(JSON.stringify({ error: 'Collections feature is currently disabled' }), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
+
+  // Check if auth is enabled and user is authenticated
+  if (isFeatureEnabled('auth') && !locals.user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: {
@@ -76,7 +101,7 @@ export const POST = (async ({ request, locals }) => {
         name: collection.name,
         description: collection.description,
         libraries: collection.libraries,
-        user_id: locals.user.id,
+        user_id: locals.user?.id || '',
       })
       .select();
 

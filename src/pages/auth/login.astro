@@ -3,6 +3,12 @@ import Layout from '../../layouts/Layout.astro';
 import AuthLayout from '../../components/auth/AuthLayout';
 import LoginForm from '../../components/auth/LoginForm';
 import { createSupabaseServerInstance } from '../../db/supabase.client';
+import { isFeatureEnabled } from '../../features/featureFlags';
+
+// Check if auth feature is enabled
+if (!isFeatureEnabled('auth')) {
+  return Astro.redirect('/');
+}
 
 // Check if user is already logged in
 const supabase = createSupabaseServerInstance({

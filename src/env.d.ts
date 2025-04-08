@@ -2,6 +2,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './db/database.types.ts';
+import type { Env } from './features/featureFlags';
 
 declare global {
   namespace App {
@@ -16,7 +17,7 @@ declare global {
 }
 
 interface ImportMetaEnv {
-  readonly ENV_NAME: string;
+  readonly ENV_NAME: Env;
   readonly SUPABASE_URL: string;
   readonly SUPABASE_PUBLIC_KEY: string;
   readonly SUPABASE_SECRET_KEY: string;

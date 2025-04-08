@@ -4,9 +4,11 @@ import { RulePreview } from './rule-preview';
 import CollectionsSidebar from './rule-collections/CollectionsSidebar';
 import { MobileNavigation } from './MobileNavigation';
 import { useNavigationStore } from '../store/navigationStore';
+import { isFeatureEnabled } from '../features/featureFlags';
 
 export default function TwoPane() {
   const { activePanel, isSidebarOpen, toggleSidebar, setSidebarOpen } = useNavigationStore();
+  const isCollectionsEnabled = isFeatureEnabled('collections');
 
   // Sync the local state with the store on component mount
   useEffect(() => {
@@ -19,8 +21,10 @@ export default function TwoPane() {
 
   return (
     <div className="flex relative flex-col h-full max-h-screen md:flex-row bg-gray-950">
-      {/* Collections Sidebar */}
-      <CollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+      {/* Collections Sidebar - Only render if collections are enabled */}
+      {isCollectionsEnabled && (
+        <CollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+      )}
 
       <div className="flex flex-1 flex-col md:flex-row">
         {/* Builder Panel */}

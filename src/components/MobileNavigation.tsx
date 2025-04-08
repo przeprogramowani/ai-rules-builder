@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Album, Blocks, Eye } from 'lucide-react';
 import { useNavigationStore } from '../store/navigationStore';
-import type { Panel } from '../store/navigationStore';
+import { isFeatureEnabled } from '../features/featureFlags';
 
 interface NavigationItemProps {
   icon: React.ReactNode;
@@ -10,7 +10,7 @@ interface NavigationItemProps {
   onClick: () => void;
 }
 
-const NavigationItem: React.FC<NavigationItemProps> = ({ icon, label, isActive, onClick }) => {
+const NavigationItem = React.memo<NavigationItemProps>(({ icon, label, isActive, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -23,14 +23,53 @@ const NavigationItem: React.FC<NavigationItemProps> = ({ icon, label, isActive, 
       <span className="text-xs mt-1">{label}</span>
     </button>
   );
-};
+});
+
+NavigationItem.displayName = 'NavigationItem';
 
 export const MobileNavigation: React.FC = () => {
   const { activePanel, setActivePanel } = useNavigationStore();
+  const isCollectionsEnabled = isFeatureEnabled('collections');
 
-  const handlePanelChange = (panel: Panel) => {
-    setActivePanel(panel);
-  };
+  // Memoize panel change handlers to prevent unnecessary re-renders
+  const handleCollectionsClick = useCallback(() => setActivePanel('collections'), [setActivePanel]);
+  const handleBuilderClick = useCallback(() => setActivePanel('builder'), [setActivePanel]);
+  const handlePreviewClick = useCallback(() => setActivePanel('preview'), [setActivePanel]);
+
+  // Memoize navigation items configuration
+  const navigationItems = useMemo<NavigationItemProps[]>(() => {
+    const items: NavigationItemProps[] = [
+      {
+        icon: <Blocks />,
+        label: 'Builder',
+        isActive: activePanel === 'builder',
+        onClick: handleBuilderClick,
+      },
+      {
+        icon: <Eye />,
+        label: 'Preview',
+        isActive: activePanel === 'preview',
+        onClick: handlePreviewClick,
+      },
+    ];
+
+    if (isCollectionsEnabled) {
+      items.unshift({
+        icon: <Album />,
+        label: 'Collections',
+        isActive: activePanel === 'collections',
+        onClick: handleCollectionsClick,
+      });
+    }
+
+    return items;
+  }, [
+    isCollectionsEnabled,
+    activePanel,
+    handleCollectionsClick,
+    handleBuilderClick,
+    handlePreviewClick,
+  ]);
 
   return (
     <nav
@@ -38,25 +77,16 @@ export const MobileNavigation: React.FC = () => {
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="flex justify-between items-center h-16">
-        <NavigationItem
-          icon={<Album />}
-          label="Collections"
-          isActive={activePanel === 'collections'}
-          onClick={() => handlePanelChange('collections')}
-        />
-        <NavigationItem
-          icon={<Blocks />}
-          label="Builder"
-          isActive={activePanel === 'builder'}
-          onClick={() => handlePanelChange('builder')}
-        />
-        <NavigationItem
-          icon={<Eye />}
-          label="Preview"
-          isActive={activePanel === 'preview'}
-          onClick={() => handlePanelChange('preview')}
-        />
+      <div className={`grid grid-cols-${navigationItems.length} h-16`}>
+        {navigationItems.map((item) => (
+          <NavigationItem
+            key={item.label}
+            icon={item.icon}
+            label={item.label}
+            isActive={item.isActive}
+            onClick={item.onClick}
+          />
+        ))}
       </div>
     </nav>
   );

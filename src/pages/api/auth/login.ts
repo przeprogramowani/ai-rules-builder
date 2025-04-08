@@ -1,7 +1,15 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerInstance } from '../../../db/supabase.client';
+import { isFeatureEnabled } from '../../../features/featureFlags';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  // Check if auth feature is enabled
+  if (!isFeatureEnabled('auth')) {
+    return new Response(JSON.stringify({ error: 'Authentication is currently disabled' }), {
+      status: 403,
+    });
+  }
+
   try {
     const { email, password } = await request.json();
 
