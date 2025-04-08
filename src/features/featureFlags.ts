@@ -12,23 +12,24 @@ export type Env = 'local' | 'integration' | 'prod';
  * Available feature flags in the application
  */
 export type FeatureFlag = 'auth' | 'collections';
-
 type FeatureConfig = {
-  [K in FeatureFlag]: {
-    [E in Env]: boolean;
+  [E in Env]: {
+    [K in FeatureFlag]: boolean;
   };
 };
 
 const featureFlags: FeatureConfig = {
-  auth: {
-    local: true,
-    integration: true,
-    prod: false,
+  local: {
+    auth: false,
+    collections: false,
   },
-  collections: {
-    local: true,
-    integration: true,
-    prod: false,
+  integration: {
+    auth: true,
+    collections: true,
+  },
+  prod: {
+    auth: false,
+    collections: false,
   },
 };
 
@@ -52,7 +53,7 @@ export function isFeatureEnabled(feature: FeatureFlag): boolean {
   if (!env) {
     return false;
   }
-  return featureFlags[feature][env];
+  return featureFlags[env][feature];
 }
 
 /**

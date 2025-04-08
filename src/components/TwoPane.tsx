@@ -21,13 +21,11 @@ export default function TwoPane() {
 
   return (
     <div className="flex relative flex-col h-full max-h-screen md:flex-row bg-gray-950">
-      {/* Collections Sidebar - Only render if collections are enabled */}
       {isCollectionsEnabled && (
         <CollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
       )}
 
       <div className="flex flex-1 flex-col md:flex-row">
-        {/* Builder Panel */}
         <div
           className={`
             transition-all duration-300 ease-in-out
@@ -38,7 +36,6 @@ export default function TwoPane() {
           <RuleBuilder />
         </div>
 
-        {/* Preview Panel */}
         <div
           className={`
             transition-all duration-300 ease-in-out
@@ -50,7 +47,6 @@ export default function TwoPane() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       <MobileNavigation />
     </div>
   );
