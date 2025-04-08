@@ -1,2 +1,4 @@
 .env
 .env.test
+.env.local
+.env.integration

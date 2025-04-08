@@ -75,13 +75,13 @@ jobs:
 
       - name: Create .env.test file
         run: |
-          echo "ENV_NAME=${{ secrets.ENV_NAME }}" > .env.test
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.test
-          echo "SUPABASE_PUBLIC_KEY=${{ secrets.SUPABASE_PUBLIC_KEY }}" >> .env.test
-          echo "SUPABASE_SECRET_KEY=${{ secrets.SUPABASE_SECRET_KEY }}" >> .env.test
-          echo "E2E_USERNAME_ID=${{ secrets.E2E_USERNAME_ID }}" >> .env.test
-          echo "E2E_USERNAME=${{ secrets.E2E_USERNAME }}" >> .env.test
-          echo "E2E_PASSWORD=${{ secrets.E2E_PASSWORD }}" >> .env.test
+          echo "PUBLIC_ENV_NAME=${{ secrets.ENV_NAME }}" > .env.integration
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.integration
+          echo "SUPABASE_PUBLIC_KEY=${{ secrets.SUPABASE_PUBLIC_KEY }}" >> .env.integration
+          echo "SUPABASE_SECRET_KEY=${{ secrets.SUPABASE_SECRET_KEY }}" >> .env.integration
+          echo "E2E_USERNAME_ID=${{ secrets.E2E_USERNAME_ID }}" >> .env.integration
+          echo "E2E_USERNAME=${{ secrets.E2E_USERNAME }}" >> .env.integration
+          echo "E2E_PASSWORD=${{ secrets.E2E_PASSWORD }}" >> .env.integration
 
       - name: Run E2E tests
         run: npm run test:e2e

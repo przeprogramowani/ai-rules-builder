@@ -33,11 +33,11 @@ const featureFlags: FeatureConfig = {
 };
 
 /**
- * Gets the current environment from import.meta.env.ENV_NAME
+ * Gets the current environment from import.meta.env.PUBLIC_ENV_NAME
  * Returns null if not set, which disables features
  */
 function getCurrentEnv(): Env | null {
-  return (import.meta.env.ENV_NAME as Env) || null;
+  return (import.meta.env.PUBLIC_ENV_NAME as Env) || null;
 }
 
 /**
@@ -48,6 +48,7 @@ function getCurrentEnv(): Env | null {
  */
 export function isFeatureEnabled(feature: FeatureFlag): boolean {
   const env = getCurrentEnv();
+  console.log(`isFeatureEnabled('${feature}') called in env '${env}'`);
   if (!env) {
     return false;
   }

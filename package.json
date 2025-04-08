@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "dev:e2e": "npm run astro dev -- --mode test",
+    "dev:e2e": "npm run astro dev -- --mode integration",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
