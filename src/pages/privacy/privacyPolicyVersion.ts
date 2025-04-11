@@ -1,0 +1,1 @@
+export const PRIVACY_POLICY_VERSION = '13.04.2024';

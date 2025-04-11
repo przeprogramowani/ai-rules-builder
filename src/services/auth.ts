@@ -29,11 +29,11 @@ export const authService = {
   },
 
   signup: async (formData: SignupFormData) => {
-    const { email, password } = formData;
+    const { email, password, privacyPolicyConsent } = formData;
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, privacyPolicyConsent }),
     });
     return handleResponse(response);
   },
