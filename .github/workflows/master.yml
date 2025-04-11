@@ -68,11 +68,10 @@ jobs:
 
       - name: Build Astro site
         env:
-          # Environment variables needed for the build process
-          # These should be configured as secrets in the 'production' environment on GitHub
           PUBLIC_ENV_NAME: ${{ secrets.PUBLIC_ENV_NAME }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run build
 
       - name: Deploy to Cloudflare Pages

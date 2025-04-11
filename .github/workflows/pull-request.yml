@@ -78,6 +78,7 @@ jobs:
           echo "PUBLIC_ENV_NAME=${{ secrets.PUBLIC_ENV_NAME }}" > .env.integration
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.integration
           echo "SUPABASE_PUBLIC_KEY=${{ secrets.SUPABASE_PUBLIC_KEY }}" >> .env.integration
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.integration
           echo "E2E_USERNAME_ID=${{ secrets.E2E_USERNAME_ID }}" >> .env.integration
           echo "E2E_USERNAME=${{ secrets.E2E_USERNAME }}" >> .env.integration
           echo "E2E_PASSWORD=${{ secrets.E2E_PASSWORD }}" >> .env.integration
