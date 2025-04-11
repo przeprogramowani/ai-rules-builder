@@ -83,6 +83,36 @@ export const SignupForm: React.FC = () => {
         {...register('confirmPassword')}
       />
 
+      <div className="space-y-2">
+        <div className="flex items-start">
+          <div className="flex items-center h-5">
+            <input
+              id="privacy-policy"
+              type="checkbox"
+              className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600"
+              {...register('privacyPolicyConsent')}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="ml-3 text-sm">
+            <label htmlFor="privacy-policy" className="font-medium text-gray-300">
+              I agree to the{' '}
+              <a
+                href="/privacy/en"
+                className="text-blue-400 hover:text-blue-300"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+            </label>
+            {errors.privacyPolicyConsent && (
+              <p className="mt-1 text-sm text-red-500">{errors.privacyPolicyConsent.message}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       <button
         type="submit"
         disabled={isLoading}

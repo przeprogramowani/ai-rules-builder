@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseServerInstance } from '../../../db/supabase.client';
+import { createSupabaseAdminInstance } from '../../../db/supabase.client';
 import { isFeatureEnabled } from '../../../features/featureFlags';
+import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVersion';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled
@@ -11,17 +12,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   try {
-    const { email, password } = await request.json();
+    const { email, password, privacyPolicyConsent } = await request.json();
 
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Email and password are required' }), {
-        status: 400,
-      });
+    if (!email || !password || !privacyPolicyConsent) {
+      return new Response(
+        JSON.stringify({ error: 'Email, password, and privacy policy consent are required' }),
+        { status: 400 },
+      );
     }
 
-    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -29,11 +31,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       },
     });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    if (authError) {
+      return new Response(JSON.stringify({ error: authError.message }), { status: 400 });
     }
 
-    return new Response(JSON.stringify({ user: data.user }), { status: 200 });
+    const { error: consentError } = await supabase.from('user_consents').insert({
+      user_id: authData.user?.id,
+      privacy_policy_version: PRIVACY_POLICY_VERSION,
+    });
+
+    if (consentError) {
+      console.error('Error storing consent:', consentError);
+    }
+
+    return new Response(JSON.stringify({ user: authData.user }), { status: 200 });
   } catch (err) {
     console.error('Signup error:', err);
     return new Response(JSON.stringify({ error: 'An unexpected error occurred' }), { status: 500 });

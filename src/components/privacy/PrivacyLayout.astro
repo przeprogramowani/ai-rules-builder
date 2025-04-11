@@ -1,0 +1,29 @@
+---
+interface Props {
+  title: string;
+  lang: 'en' | 'pl';
+}
+
+const { title, lang } = Astro.props;
+const otherLang = lang === 'en' ? 'pl' : 'en';
+const otherLangPath = `/privacy/${otherLang}`;
+---
+
+<div class="min-h-full bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-white">{title}</h1>
+      <a
+        href={otherLangPath}
+        class="text-blue-400 hover:text-blue-300 transition-colors duration-200 rounded-lg px-4 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      >
+        {lang === 'en' ? 'Polski' : 'English'}
+      </a>
+    </div>
+    <div class="rounded-lg bg-gray-900/90 shadow-lg border border-gray-800">
+      <article class="prose prose-invert max-w-none px-6 py-8">
+        <slot />
+      </article>
+    </div>
+  </div>
+</div>

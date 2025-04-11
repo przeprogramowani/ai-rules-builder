@@ -1,0 +1,17 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PrivacyLayout from '../../../components/privacy/PrivacyLayout.astro';
+
+const privacyContent = await import('../../../assets/privacy-policy/pp-13-04-2025-pl.md');
+const Content = privacyContent.Content;
+---
+
+<Layout>
+  <div class="flex flex-col h-screen max-h-screen bg-gray-950">
+    <main class="flex-grow">
+      <PrivacyLayout title="Polityka Prywatności" lang="pl">
+        <Content />
+      </PrivacyLayout>
+    </main>
+  </div>
+</Layout>
