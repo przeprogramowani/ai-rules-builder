@@ -16,7 +16,6 @@ export default defineConfig({
       SUPABASE_URL: envField.string({ context: 'server', access: 'secret' }),
       SUPABASE_PUBLIC_KEY: envField.string({ context: 'server', access: 'secret' }),
       SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: 'server', access: 'secret' }),
-      PUBLIC_ENV_NAME: envField.string({ context: 'client', access: 'public' }),
     },
   },
   vite: {
