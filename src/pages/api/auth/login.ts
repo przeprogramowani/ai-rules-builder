@@ -27,21 +27,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2),
     );
 
-    // Create a minimal Headers object, passing only essential headers like Cookie
-    const minimalHeaders = new Headers();
-    const cookieHeader = request.headers.get('cookie');
-    if (cookieHeader) {
-      console.log('🚀 ~ constPOST:APIRoute= ~ cookieHeader:', cookieHeader);
-      minimalHeaders.set('cookie', cookieHeader);
-    }
-    // Optionally add User-Agent if needed, but start minimal
-    // const userAgentHeader = request.headers.get('user-agent');
-    // if (userAgentHeader) {
-    //   minimalHeaders.set('user-agent', userAgentHeader);
-    // }
-
-    // Pass only minimal headers to Supabase client
-    const supabase = createSupabaseServerInstance({ cookies, headers: minimalHeaders });
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
