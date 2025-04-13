@@ -32,7 +32,7 @@ const featureFlags: FeatureConfig = {
   prod: {
     auth: true,
     collections: true,
-    authOnUI: false,
+    authOnUI: true,
   },
 };
 
