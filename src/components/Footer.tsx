@@ -1,4 +1,4 @@
-import { X, GitBranch, Rocket } from 'lucide-react';
+import { GitBranch, Rocket, FileText, Videotape } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -16,18 +16,25 @@ export default function Footer() {
             className="text-gray-400 hover:text-indigo-400 transition-colors duration-200 ease-in-out flex items-center"
           >
             <Rocket className="size-4 mr-1" />
-            10xDevs
+            10xDevs.pl
           </a>
           <a
-            href={`https://x.com/share?text=${encodeURIComponent(
-              'Rules for AI - generate rules for @cursor_ai, @windsurf_ai and Copilot based on your tech stack.\n\n',
-            )}&url=${encodeURIComponent('https://10xrules.ai')}`}
+            href="https://github.com/przeprogramowani/10x-test-planner"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-indigo-400 transition-colors duration-200 ease-in-out flex items-center"
           >
-            <X className="size-4 mr-1" />
-            Share on X
+            <Videotape className="size-4 mr-1" />
+            10xTestPlanner
+          </a>
+          <a
+            href="https://github.com/przeprogramowani/10x-magic-docs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-indigo-400 transition-colors duration-200 ease-in-out flex items-center"
+          >
+            <FileText className="size-4 mr-1" />
+            10xMagicDocs
           </a>
           <a
             href="https://github.com/przeprogramowani/ai-rules-builder"
