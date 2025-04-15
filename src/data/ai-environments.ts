@@ -5,6 +5,7 @@ export enum AIEnvironmentName {
   Aider = 'aider',
   Cline = 'cline',
   Junie = 'junie',
+  RooCode = 'roocode',
 }
 
 // Define the AI environment types for easier maintenance
@@ -42,5 +43,10 @@ export const aiEnvironmentConfig: AIEnvironmentConfig = {
   junie: {
     filePath: '.junie/guidelines.md',
     docsUrl: 'https://www.jetbrains.com/guide/ai/article/junie/intellij-idea/',
+  },
+  roocode: {
+    filePath: '.roo/rules/{rule}.md',
+    docsUrl:
+      'https://docs.roocode.com/features/custom-instructions?_highlight=rules#rules-about-rules-files',
   },
 };
