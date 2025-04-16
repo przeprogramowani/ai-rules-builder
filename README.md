@@ -1,9 +1,7 @@
 # 10xRules.ai by 10xDevs
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
-
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml)
@@ -150,6 +148,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/pawel-twardziak"><img src="https://avatars.githubusercontent.com/u/180847852?v=4?s=100" width="100px;" alt="pawel-twardziak"/><br /><sub><b>pawel-twardziak</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=pawel-twardziak" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/dudziakm"><img src="https://avatars.githubusercontent.com/u/10773170?v=4?s=100" width="100px;" alt="Michal Dudziak"/><br /><sub><b>Michal Dudziak</b></sub></a><br /><a href="#maintenance-dudziakm" title="Maintenance">🚧</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/artur-laskowski94"><img src="https://avatars.githubusercontent.com/u/92392161?v=4?s=100" width="100px;" alt="Artur Laskowski"/><br /><sub><b>Artur Laskowski</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=arturlaskowski" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Michaelzag"><img src="https://avatars.githubusercontent.com/u/4809030?v=4?s=100" width="100px;" alt="Michaelzag"/><br /><sub><b>Michaelzag</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=Michaelzag" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
