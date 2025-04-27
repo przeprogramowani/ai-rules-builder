@@ -165,9 +165,9 @@ jobs:
             });
 
   deploy:
-          name: Deploy MCP Server
-          uses: ./.github/workflows/deploy-mcp-server.yml
-          # Pass secrets explicitly to the called workflow's 'secrets' input
-          secrets:
-            CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-            CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    name: Deploy MCP Server
+    uses: ./.github/workflows/deploy-mcp-server.yml
+    # Pass secrets explicitly to the called workflow's 'secrets' input
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
