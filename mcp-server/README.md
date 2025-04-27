@@ -6,7 +6,66 @@ This is an auth-less Model Context Protocol (MCP) server designed to run on Clou
 
 This server acts as a backend component, enabling integrations that require dynamic access to specific coding guidelines or standards.
 
-## 2. Project Scope & Functionality
+## 2. Available MCP Tools
+
+This server exposes the following tools according to the Model Context Protocol (MCP). These tools allow AI assistants or clients to discover and retrieve AI coding rules.
+
+### 2.1 `listAvailableRules`
+
+*   **Description**: Lists all available rule sets (libraries) that can be fetched. It returns the unique `identifier` for each rule set, its `name`, and its categorical `stack`.
+*   **Input**: None.
+*   **Output Schema**: The tool returns a JSON object structured like this:
+    ```json
+    {
+      "availableLibraries": [
+        {
+          "identifier": "string", // e.g., "ASP_NET"
+          "name": "string",       // e.g., "ASP.NET"
+          "stack": ["string"]   // e.g., ["Backend", ".NET"]
+        },
+        {
+          "identifier": "SPRING_BOOT",
+          "name": "Spring Boot",
+          "stack": ["Backend", "Java"]
+        }
+        // ... other libraries
+      ],
+      "reminder": "string" // e.g., "Use the 'getRuleContent' tool..."
+    }
+    ```
+*   **Example Interaction**: An AI assistant calls this tool. The response provides the structured list. The assistant might then present this list to the user, potentially using the `stack` for grouping (e.g., showing Backend > .NET > ASP_NET).
+
+### 2.2 `getRuleContent`
+
+*   **Description**: Retrieves the specific set of AI coding rules for a given library identifier.
+*   **Input Schema**:
+    ```json
+    {
+      "libraryIdentifier": "string" // e.g., "VUE_CODING_STANDARDS"
+    }
+    ```
+*   **Output Schema (Success)**: The tool returns a JSON object containing an array of rule strings:
+    ```json
+    {
+      "rules": [
+        "string", // e.g., "Use the Composition API..."
+        "string"  // e.g., "Implement <script setup>..."
+        // ... more rule strings
+       ]
+    }
+    ```
+*   **Output Schema (Error)**:
+    ```json
+    {
+      "error": "string" // Description of the error
+    }
+    ```
+*   **Example Interaction**: An AI assistant is asked for rules using an identifier (e.g., `VUE_CODING_STANDARDS`).
+    1.  Assistant calls the tool with input: `{"libraryIdentifier": "VUE_CODING_STANDARDS"}`.
+    2.  Tool responds with: `{"rules": ["Use the Composition API...", "Implement <script setup>..."]}`.
+    3.  Assistant presents the rules from the `rules` array to the user, potentially formatting them as requested (e.g., as a Markdown list).
+
+## 3. Project Scope & Functionality
 
 -   **MCP Implementation**: Adheres to the Model Context Protocol standard.
 -   **Cloudflare Worker**: Designed to be deployed and run efficiently on the Cloudflare edge network.
@@ -17,7 +76,7 @@ This server acts as a backend component, enabling integrations that require dyna
     -   `getRuleContent`: Takes a library identifier and returns the specific set of rules associated with it. Reads data from `preparedRules.json` via `src/data/rulesProvider.ts`.
 -   **(Potential) Tool Customization**: The original template README mentioned customizing tools in `src/index.ts`. Refer to that file for details on adding or modifying tools.
 
-## 3. Using the MCP Server
+## 4. Using the MCP Server
 
 ### Production Usage (Recommended)
 
@@ -65,7 +124,7 @@ After configuring, restart your editor. The `listAvailableRules` and `getRuleCon
 
 This setup is useful for developing or modifying the MCP server itself.
 
-**Endpoint:** `http://localhost:8787/sse` (available after running `npm run dev` in the `mcp-server` directory, see Section 5).
+**Endpoint:** `http://localhost:8787/sse` (available after running `npm run dev` in the `mcp-server` directory, see Section 7).
 
 **Connecting Clients:**
 
@@ -75,7 +134,7 @@ This setup is useful for developing or modifying the MCP server itself.
 
 Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`) to debug tool calls during development.
 
-## 4. Tech Stack
+## 5. Tech Stack
 
 - **Runtime**: Cloudflare Workers
 - **Language**: TypeScript
@@ -88,7 +147,7 @@ Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`)
 - **Linting & Formatting**:
     - `biome`: Used for code formatting and linting.
 
-## 5. Getting Started Locally
+## 6. Getting Started Locally
 
 ### Prerequisites
 
@@ -121,7 +180,7 @@ Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`)
     ```
     The server will typically be available at `http://localhost:8787`. The MCP endpoint is usually `/sse` (e.g., `http://localhost:8787/sse`).
 
-## 6. Available Scripts
+## 7. Available Scripts
 
 The following scripts are available via `npm run <script_name>`:
 
@@ -132,7 +191,7 @@ The following scripts are available via `npm run <script_name>`:
 -   `lint:fix`: Lints the code using Biome and attempts to automatically fix issues.
 -   `cf-typegen`: Generates TypeScript types for Cloudflare environment bindings (like KV namespaces, Durable Objects, etc., if configured).
 
-## 7. Deployment
+## 8. Deployment
 
 This project uses GitHub Actions for Continuous Integration and Continuous Deployment (CI/CD).
 
@@ -151,18 +210,18 @@ For the deployment to succeed, the following secrets must be configured in the G
 -   `CLOUDFLARE_WORKER_TOKEN`: An API token with permissions to deploy Cloudflare Workers.
 -   `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID.
 
-## 8. Planned Features
+## 9. Planned Features
 
 The following features are planned for future development:
 
 -   **Create Cursor Rule Tool:** An MCP tool that allows creating or modifying a Cursor AI rule file directly within the user's host workspace.
 -   **Propose Rule via PR Tool:** An MCP tool enabling users to select a rule or modification from their host environment and automatically create a Pull Request in the main repository to propose adding/updating it.
 
-## 9. Project Status
+## 10. Project Status
 
 -   **Version**: `0.0.1` (as per `package.json`)
 -   **Status**: Initial development.
 
-## 10. License
+## 11. License
 
 AGPL
