@@ -99,7 +99,7 @@ export const getRuleContentTool = {
     if (rules) {
       result = { rules };
     } else {
-      result = { error: `Rules not found for library identifier: ${input.libraryIdentifier}` };
+      result = { error: `Rules not found for library identifier: ${input.libraryIdentifier}. Please check the identifier and try again. You can use the 'listAvailableRules' tool to get a list of available libraries. Identifier format is: 'LIBRARY_NAME_RULE_NAME'` };
     }
     // Validate output before returning
     const validation = getRuleContentOutputSchema.safeParse(result);

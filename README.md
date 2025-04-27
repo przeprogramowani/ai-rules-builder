@@ -17,6 +17,7 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 - **Build AI Rules:** Create customized rule sets for different editors (Copilot, Cursor, Windsurf)
 - **Export Options:** Easily copy to clipboard or download as markdown files
 - **Smart Import:** Automatically generate rules by dropping package.json or requirements.txt files
+- **Editor Integration:** Provides programmatic access to rules via an [MCP Server](./mcp-server/README.md) for integration with AI assistants in editors like Cursor.
 
 ## Getting Started
 
@@ -45,6 +46,13 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 - Tailwind 4
 - Zustand
 - Lucide React
+
+## Project Components
+
+This repository contains multiple key components:
+
+-   **AI Rules Builder UI (Root):** The main Astro/React application providing the web interface for creating and managing AI rules.
+-   **MCP Server (`./mcp-server`):** A Cloudflare Worker implementing the Model Context Protocol (MCP). This server allows AI assistants (like Cursor, Claude, etc.) to programmatically access the defined AI rules via specific tools (`listAvailableRules`, `getRuleContent`). This enables integration with editors for fetching context-aware coding guidelines. For detailed setup, usage, and planned features, see the [MCP Server README](./mcp-server/README.md).
 
 ### Feature Flags
 

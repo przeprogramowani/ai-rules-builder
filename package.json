@@ -6,7 +6,7 @@
     "generate-rules": "tsx ./scripts/generate-rules-json.mts",
     "dev": "astro dev -- --mode local",
     "dev:e2e": "npm run astro dev -- --mode integration",
-    "build": "npm run generate-rules && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint \"src/**/*.{ts,tsx,astro}\" --fix",
