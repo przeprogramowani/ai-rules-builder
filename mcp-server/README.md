@@ -46,7 +46,7 @@ How you connect depends on your specific editor or AI assistant client:
         ```json
         {
           "mcpServers": {
-            "10x-rules": { // Descriptive name
+            "10x-rules": {
               "command": "npx",
               "args": [
                 "mcp-remote",
