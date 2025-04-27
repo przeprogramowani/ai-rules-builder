@@ -63,8 +63,11 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
+
+      - name: Generate preparedRules.json
+        run: npm run generate-rules # Assuming direct execution works
 
       - name: Build Astro site
         env:
@@ -72,7 +75,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npm run build
+        run: npm run build # This should create the dist/ directory
 
       - name: Deploy to Cloudflare Pages
         id: deployment
@@ -82,3 +85,16 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # Secret needed for Cloudflare Account ID
           command: pages deploy dist --project-name='ai-rules-builder' # Use the command input
           gitHubToken: ${{ secrets.GITHUB_TOKEN }} # Optional: Adds commit details to deployments
+
+  deploy-worker:
+    name: Deploy Worker
+    needs: deploy # Run after successful pages deployment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Needed to checkout the repository
+    steps:
+      - name: Call Deploy Worker Workflow
+        uses: ./.github/workflows/deploy-mcp-server.yml
+        with:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
