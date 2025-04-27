@@ -191,5 +191,5 @@ jobs:
       - name: Deploy Worker (mcp-server)
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
           workingDirectory: "./mcp-server"
