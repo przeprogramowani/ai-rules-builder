@@ -93,6 +93,9 @@ jobs:
     permissions:
       contents: read # Needed to checkout the repository
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Call Deploy Worker Workflow
         uses: ./.github/workflows/deploy-mcp-server.yml
         with:
