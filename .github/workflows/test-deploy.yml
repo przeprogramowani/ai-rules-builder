@@ -1,0 +1,102 @@
+name: Master Deployment
+
+on:
+  push:
+    branches:
+      - mcp-server
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint:check
+
+  unit-test:
+    name: Unit Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test # Using npm run test as requested
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: [lint, unit-test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write # Needed for cloudflare/wrangler-action
+    environment:
+      name: production # Assuming a 'production' environment for secrets
+      url: ${{ steps.deployment.outputs.url }} # Output the deployment URL
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Generate preparedRules.json
+        run: npm run generate-rules # Assuming direct execution works
+
+      - name: Build Astro site
+        env:
+          PUBLIC_ENV_NAME: ${{ secrets.PUBLIC_ENV_NAME }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run build # This should create the dist/ directory
+
+      - name: Copy preparedRules.json to worker directory
+        run: cp src/data/preparedRules.json mcp-server/src/preparedRules.json # Adjust target path if needed
+
+      - name: Install worker dependencies
+        run: cd mcp-server && npm ci
+
+      - name: Deploy Worker (mcp-server)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: cd mcp-server && npx wrangler deploy # Assumes wrangler.jsonc is configured
+
+      - name: Deploy to Cloudflare Pages
+        id: deployment
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} # Secret needed for Cloudflare API
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} # Secret needed for Cloudflare Account ID
+          command: pages deploy dist --project-name='ai-rules-builder' # Use the command input
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }} # Optional: Adds commit details to deployments
