@@ -1,0 +1,12 @@
+name: Deploy MCP Server (Production)
+
+on:
+  push:
+    branches:
+      - master # Trigger only on pushes to the master branch
+
+jobs:
+  deploy:
+    name: Deploy MCP Server
+    uses: ./.github/workflows/deploy-mcp-server.yml
+    secrets: inherit # Pass down secrets like CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
