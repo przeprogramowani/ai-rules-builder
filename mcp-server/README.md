@@ -94,7 +94,7 @@ How you connect depends on your specific editor or AI assistant client:
             }
           }
         }
-        ```
+  ```
 
 -   **Editors Requiring a Proxy (e.g., Claude Desktop):** Other editors, like Claude Desktop, may not handle SSE directly and require a proxy like `mcp-remote`. For these:
     1.  Install the proxy: `npm install -g mcp-remote`.
