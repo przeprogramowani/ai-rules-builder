@@ -1,5 +1,4 @@
 # 10x Rules MCP Server
-# 10x Rules MCP Server
 
 ## 1. Project Description
 
