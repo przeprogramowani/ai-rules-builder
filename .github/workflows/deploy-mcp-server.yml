@@ -34,9 +34,7 @@ jobs:
         run: cd mcp-server && npm ci
 
       - name: Deploy Worker (mcp-server)
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          echo "Attempting deployment..."
-          cd mcp-server && npx wrangler deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: "./mcp-server"
