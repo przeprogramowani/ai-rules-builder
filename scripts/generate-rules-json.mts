@@ -5,7 +5,8 @@ import { fileURLToPath } from 'url';
 // Assuming these paths are correct relative to the script location
 const dataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../src/data');
 const i18nDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../src/i18n');
-const outputFilePath = path.join(dataDir, 'preparedRules.json');
+const mcpServerSourceDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../mcp-server/src');
+const outputFilePath = path.join(mcpServerSourceDir, 'preparedRules.json');
 
 interface TranslationObject {
   [key: string]: string;
