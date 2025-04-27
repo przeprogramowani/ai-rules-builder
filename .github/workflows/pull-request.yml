@@ -187,11 +187,3 @@ jobs:
 
       - name: Install worker dependencies
         run: cd mcp-server && npm ci
-
-      - name: Deploy Worker (mcp-server)
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: "./mcp-server"
-          command: deploy
