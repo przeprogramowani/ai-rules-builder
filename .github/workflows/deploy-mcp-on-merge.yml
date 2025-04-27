@@ -9,6 +9,7 @@ jobs:
   deploy-mcp-worker:
     name: Deploy Worker (mcp-server)
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,5 +34,7 @@ jobs:
       - name: Deploy Worker (mcp-server)
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: "./mcp-server"
+          command: deploy
