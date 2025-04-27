@@ -1,4 +1,4 @@
-# remote-mcp-server-authless
+# 10x Rules MCP Server
 
 ## 1. Project Description
 
