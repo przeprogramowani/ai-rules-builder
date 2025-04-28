@@ -65,7 +65,7 @@ function findLibraries(nodes: HierarchyNode[], currentStack: string[] = []): Lib
 // Updated listAvailableRulesTool
 export const listAvailableRulesTool = {
   name: 'listAvailableRules',
-  description: 'Lists available AI library identifiers and their stacks, with instructions on how to get rules.',
+  description: 'Lists available 10xRules library identifiers and their technology stacks. 10xRules are AI guidelines created via the 10xRules.ai interface, used by AI assistants like Cursor to access context-aware coding standards. Use this tool to discover rule sets, then use \'getRuleContent\' to fetch specific rules.',
   inputSchema: z.object({}).optional(),
   outputSchema: listAvailableRulesOutputSchema, // Use the new output schema
   async execute(): Promise<z.infer<typeof listAvailableRulesOutputSchema>> {
@@ -90,7 +90,7 @@ export const listAvailableRulesTool = {
 
 export const getRuleContentTool = {
   name: 'getRuleContent',
-  description: 'Gets the AI rules for a specific library identifier.',
+  description: 'Gets the specific rule content (AI guidelines) for a given 10xRules library identifier discovered via \'listAvailableRules\'. These rules are defined in 10xRules.ai and provide context-aware coding standards.',
   inputSchema: getRuleContentInputSchema,
   outputSchema: getRuleContentOutputSchema,
   async execute(input: z.infer<typeof getRuleContentInputSchema>): Promise<z.infer<typeof getRuleContentOutputSchema>> {
