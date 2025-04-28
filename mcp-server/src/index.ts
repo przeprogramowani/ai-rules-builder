@@ -1,7 +1,5 @@
 import { McpAgent } from "agents/mcp";
-// Only import McpServer if helper types are not available/exported
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-// Import the rules tools
 import { listAvailableRulesTool, getRuleContentTool } from "./tools/rulesTools";
 import { z } from 'zod';
 
@@ -17,32 +15,25 @@ export class MyMCP extends McpAgent {
 		this.server.tool(
 			listAvailableRulesTool.name,
             listAvailableRulesTool.description,
-            // Callback function - use 'any' for extra due to type export issues
-            async (/* extra: any */) => { // extra is likely unused here
+            async () => {
                 const result = await listAvailableRulesTool.execute();
-                // Attempt to return as text JSON, based on error messages hinting available types
                 return { content: [{ type: 'text', text: JSON.stringify(result) }] };
             }
 		);
 
-		// Register getRuleContentTool
-        const inputSchemaShape = getRuleContentTool.inputSchema instanceof z.ZodObject
-            ? getRuleContentTool.inputSchema.shape
-            : {};
+    const inputSchemaShape = getRuleContentTool.inputSchema instanceof z.ZodObject
+        ? getRuleContentTool.inputSchema.shape
+        : {};
 
 		this.server.tool(
 			getRuleContentTool.name,
             inputSchemaShape,
-            // Callback function - use 'any' for args and extra due to type issues
-            async (args: unknown /*, extra: any */) => { // extra is likely unused
-                // Manual validation inside if args type is 'any'
+            async (args: unknown) => {
                 const parsedArgs = getRuleContentTool.inputSchema.safeParse(args);
                 if (!parsedArgs.success) {
-                    // Handle invalid input from SDK side
                     return { content: [{ type: 'text', text: `Invalid input: ${parsedArgs.error.message}`}], isError: true };
                 }
                 const result = await getRuleContentTool.execute(parsedArgs.data);
-                // Return as text JSON
                 return { content: [{ type: 'text', text: JSON.stringify(result) }] };
             }
 		);
@@ -53,7 +44,6 @@ export class MyMCP extends McpAgent {
 // Example for Cloudflare Workers:
 // interface Env { /* ... bindings ... */ }
 // interface ExecutionContext { waitUntil(promise: Promise<any>): void; passThroughOnException(): void; }
-
 export default {
 	fetch(request: Request, env: Env, ctx: ExecutionContext) {
 		const url = new URL(request.url);
