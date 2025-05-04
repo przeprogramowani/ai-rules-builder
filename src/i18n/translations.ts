@@ -97,6 +97,7 @@ export const libraryTranslations: Record<Library, string> = {
   SPRING_BOOT: 'Spring',
   SPRING_DATA_JPA: 'Spring Data JPA',
   LOMBOK: 'Lombok',
+  QUARKUS: 'Quarkus',
 
   // .NET libraries
   ENTITY_FRAMEWORK: 'Entity Framework',
