@@ -104,6 +104,7 @@ export enum Library {
   SPRING_BOOT = 'SPRING_BOOT',
   SPRING_DATA_JPA = 'SPRING_DATA_JPA',
   LOMBOK = 'LOMBOK',
+  QUARKUS = 'QUARKUS',
 
   // .NET libraries
   ENTITY_FRAMEWORK = 'ENTITY_FRAMEWORK',
@@ -251,7 +252,7 @@ export const stackToLibraryMap: StackToLibraryMap = {
   [Stack.STYLING]: [Library.TAILWIND, Library.STYLED_COMPONENTS, Library.SCSS],
   [Stack.NODE]: [Library.EXPRESS, Library.NEST, Library.FASTIFY],
   [Stack.PYTHON]: [Library.DJANGO, Library.FLASK, Library.FASTAPI],
-  [Stack.JAVA]: [Library.SPRING_BOOT, Library.SPRING_DATA_JPA, Library.LOMBOK],
+  [Stack.JAVA]: [Library.SPRING_BOOT, Library.SPRING_DATA_JPA, Library.LOMBOK, Library.QUARKUS],
   [Stack.DOTNET]: [Library.ENTITY_FRAMEWORK, Library.ASP_NET],
   [Stack.GO]: [Library.GIN, Library.ECHO],
   [Stack.SQL]: [Library.POSTGRES, Library.MYSQL, Library.SQLSERVER],

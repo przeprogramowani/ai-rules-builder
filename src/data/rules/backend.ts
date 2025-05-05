@@ -75,6 +75,16 @@ export const backendRules: LibraryRulesMap = {
     'Use `Optional` to avoid `NullPointerException`',
   ],
 
+  [Library.QUARKUS]: [
+    'Use CDI annotations (`@Inject`, `@ApplicationScoped`, etc.) for dependency injection following Jakarta EE standards',
+    'Leverage Quarkus extensions and optimizations for GraalVM native builds to reduce startup time and memory usage',
+    'Implement reactive programming with Mutiny or Vert.x for non-blocking I/O operations for {{high_load_endpoints}}',
+    'Use MicroProfile Config (`@ConfigProperty`) for type-safe configuration injection from application.properties',
+    'Implement health checks and metrics with MicroProfile Health and Metrics for {{critical_services}}',
+    'Structure your application with clear separation of resources, services, and repositories following RESTful conventions',
+    'Use Quarkus Dev Mode with live reload for faster development cycles and debugging',
+  ],
+
   [Library.SPRING_DATA_JPA]: [
     'Define repositories as interfaces extending `JpaRepository` or `CrudRepository`',
     'Never expose JPA entities in API responses – always map them to DTOs',
