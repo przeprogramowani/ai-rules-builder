@@ -18,7 +18,7 @@ export default defineConfig({
       SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: 'server', access: 'secret' }),
       CF_CAPTCHA_SITE_KEY: envField.string({
         context: 'server',
-        access: 'public',
+        access: 'secret',
         default: '1x00000000000000000000AA',
       }),
       CF_CAPTCHA_SECRET_KEY: envField.string({ context: 'server', access: 'secret' }),
