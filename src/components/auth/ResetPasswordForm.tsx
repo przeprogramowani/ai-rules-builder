@@ -7,7 +7,11 @@ import { resetPasswordSchema } from '../../types/auth';
 import type { ResetPasswordFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 
-export const ResetPasswordForm: React.FC = () => {
+interface ResetPasswordFormProps {
+  cfCaptchaSiteKey: string;
+}
+
+export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaSiteKey }) => {
   const { resetPassword, error: apiError, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const {
@@ -77,6 +81,10 @@ export const ResetPasswordForm: React.FC = () => {
         disabled={isLoading}
         {...register('email')}
       />
+
+      <div className="flex flex-row justify-center">
+        <div className="cf-turnstile" data-sitekey={cfCaptchaSiteKey} data-size="normal"></div>
+      </div>
 
       <button
         type="submit"

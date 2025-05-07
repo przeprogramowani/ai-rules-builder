@@ -16,6 +16,12 @@ export default defineConfig({
       SUPABASE_URL: envField.string({ context: 'server', access: 'secret' }),
       SUPABASE_PUBLIC_KEY: envField.string({ context: 'server', access: 'secret' }),
       SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: 'server', access: 'secret' }),
+      CF_CAPTCHA_SITE_KEY: envField.string({
+        context: 'server',
+        access: 'public',
+        default: '1x00000000000000000000AA',
+      }),
+      CF_CAPTCHA_SECRET_KEY: envField.string({ context: 'server', access: 'secret' }),
     },
   },
   vite: {

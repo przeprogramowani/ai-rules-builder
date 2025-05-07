@@ -21,6 +21,8 @@ interface ImportMetaEnv {
   readonly SUPABASE_URL: string;
   readonly SUPABASE_PUBLIC_KEY: string;
   readonly SUPABASE_SERVICE_ROLE_KEY: string;
+  readonly CF_CAPTCHA_SITE_KEY: string;
+  readonly CF_CAPTCHA_SECRET_KEY: string;
 }
 
 interface ImportMeta {

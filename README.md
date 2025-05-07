@@ -37,6 +37,36 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
    ```bash
    npm run build
    ```
+## Local Supabase Setup
+
+1. Install Supabase CLI
+
+   ```bash
+   brew install supabase
+   ```
+
+2. Start Supabase (requires local Docker)
+
+   ```bash
+   supabase start
+   ```
+
+3. Verify Supabase is running
+
+   ```bash
+   supabase status
+   ```
+
+## Dotenv
+
+Create `.env.local` file and add the following variables:
+
+```bash
+PUBLIC_ENV_NAME=local
+SUPABASE_URL=http://localhost:54321
+SUPABASE_PUBLIC_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
 
 ## Tech Stack
 

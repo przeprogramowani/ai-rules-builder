@@ -7,7 +7,11 @@ import { loginSchema } from '../../types/auth';
 import type { LoginFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 
-export const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  cfCaptchaSiteKey: string;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
   const { login, error: apiError, isLoading } = useAuth();
   const {
     register,
@@ -54,6 +58,10 @@ export const LoginForm: React.FC = () => {
         disabled={isLoading}
         {...register('password')}
       />
+
+      <div className="flex flex-row justify-center">
+        <div className="cf-turnstile" data-sitekey={cfCaptchaSiteKey} data-size="normal"></div>
+      </div>
 
       <div className="flex items-center justify-between">
         <div className="text-sm">

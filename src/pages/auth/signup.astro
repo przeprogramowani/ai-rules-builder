@@ -5,6 +5,8 @@ import SignupForm from '../../components/auth/SignupForm';
 import { createSupabaseServerInstance } from '../../db/supabase.client';
 import { isFeatureEnabled } from '../../features/featureFlags';
 
+import { CF_CAPTCHA_SITE_KEY } from 'astro:env/server';
+
 // Check if auth feature is enabled
 if (!isFeatureEnabled('auth')) {
   return Astro.redirect('/');
@@ -30,8 +32,9 @@ if (user) {
   <div class="flex flex-col h-screen max-h-screen bg-gray-950">
     <main class="flex-grow">
       <AuthLayout title="Create an account" subtitle="Sign up to start building AI rules">
-        <SignupForm client:only="react" />
+        <SignupForm client:only="react" cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY} />
       </AuthLayout>
     </main>
   </div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 </Layout>
