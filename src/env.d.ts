@@ -5,6 +5,9 @@ import type { Database } from './db/database.types.ts';
 import type { Env } from './features/featureFlags';
 
 declare global {
+  interface Window {
+    onloadTurnstileCallback: () => void;
+  }
   namespace App {
     interface Locals {
       supabase: SupabaseClient<Database>;

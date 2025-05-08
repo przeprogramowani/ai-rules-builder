@@ -7,6 +7,7 @@ import { updatePasswordSchema } from '../../types/auth';
 import type { UpdatePasswordFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 import { useTokenHashVerification } from '../../hooks/useTokenHashVerification';
+import { useCaptcha } from '../../hooks/useCaptcha';
 
 interface UpdatePasswordResetFormProps {
   cfCaptchaSiteKey: string;
@@ -15,8 +16,9 @@ interface UpdatePasswordResetFormProps {
 export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = ({
   cfCaptchaSiteKey,
 }) => {
-  const { updatePassword, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
+  const { updatePassword, error: apiError, isLoading } = useAuth();
   const { verificationError, isVerified } = useTokenHashVerification();
+  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
 
   const {
     register,
@@ -28,6 +30,9 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
 
   const onSubmit = async (data: UpdatePasswordFormData) => {
     try {
+      if (!isCaptchaVerified) {
+        throw new Error('Captcha verification failed');
+      }
       await updatePassword(data);
       window.location.href = '/auth/login?message=password-updated';
     } catch (error) {

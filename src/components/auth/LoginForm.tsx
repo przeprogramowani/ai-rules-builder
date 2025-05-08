@@ -6,13 +6,16 @@ import AuthInput from './AuthInput';
 import { loginSchema } from '../../types/auth';
 import type { LoginFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
+import { useCaptcha } from '../../hooks/useCaptcha';
 
 interface LoginFormProps {
   cfCaptchaSiteKey: string;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
-  const { login, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
+  const { login, error: apiError, isLoading } = useAuth();
+  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+
   const {
     register,
     handleSubmit,
@@ -23,6 +26,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
+      if (!isCaptchaVerified) {
+        throw new Error('Captcha verification failed');
+      }
       await login(data);
       window.location.href = '/';
     } catch (error) {
@@ -57,10 +63,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
         disabled={isLoading}
         {...register('password')}
       />
-
-      <div className="flex flex-row justify-center">
-        <div className="cf-turnstile" data-sitekey={cfCaptchaSiteKey} data-size="normal"></div>
-      </div>
 
       <div className="flex items-center justify-between">
         <div className="text-sm">

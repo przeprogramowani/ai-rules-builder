@@ -1,5 +1,4 @@
 import React from 'react';
-
 interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
@@ -16,8 +15,10 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
         </div>
         <div className="mt-8 bg-gray-900/90 py-8 px-4 shadow-lg rounded-lg border border-gray-800">
           {children}
+          <div id="cf-captcha-container" className="hidden"></div>
         </div>
       </div>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback"></script>
     </div>
   );
 };

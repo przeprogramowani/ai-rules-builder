@@ -6,13 +6,15 @@ import AuthInput from './AuthInput';
 import { resetPasswordSchema } from '../../types/auth';
 import type { ResetPasswordFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
+import { useCaptcha } from '../../hooks/useCaptcha';
 
 interface ResetPasswordFormProps {
   cfCaptchaSiteKey: string;
 }
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaSiteKey }) => {
-  const { resetPassword, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
+  const { resetPassword, error: apiError, isLoading } = useAuth();
+  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
   const [error, setError] = useState<string | null>(null);
   const {
     register,
@@ -33,6 +35,9 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
+      if (!isCaptchaVerified) {
+        throw new Error('Captcha verification failed');
+      }
       await resetPassword(data);
     } catch (error) {
       console.error(error);
@@ -79,10 +84,6 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
         disabled={isLoading}
         {...register('email')}
       />
-
-      <div className="flex flex-row justify-center">
-        <div className="cf-turnstile" data-sitekey={cfCaptchaSiteKey} data-size="normal"></div>
-      </div>
 
       <button
         type="submit"
