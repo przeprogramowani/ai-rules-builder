@@ -1,5 +1,41 @@
 import { createSupabaseServerInstance } from '@/db/supabase.client';
-import { defineMiddleware } from 'astro:middleware';
+import { sequence, defineMiddleware } from 'astro:middleware';
+import { checkRateLimit, setRateLimitCookie } from '../services/rateLimiter';
+
+// Define rate limit configurations: path -> seconds
+const RATE_LIMIT_CONFIG: { [path: string]: number } = {
+  '/api/auth': 10, // Default existing behavior: 10 seconds for /api/auth and its sub-routes
+  // Add other specific path configurations here, e.g.:
+  // '/api/heavy-operation': 60,
+};
+
+const rateLimiter = defineMiddleware(async ({ cookies, url }, next) => {
+  const currentPath = url.pathname;
+  let matchedPath: string | undefined;
+  let matchedLimit: number | undefined;
+
+  // Find if the current path matches any configured rate-limited paths
+  for (const pathPrefix in RATE_LIMIT_CONFIG) {
+    if (currentPath.startsWith(pathPrefix)) {
+      matchedPath = pathPrefix; // Use the configured prefix as the key for rate limiting
+      matchedLimit = RATE_LIMIT_CONFIG[pathPrefix];
+      break;
+    }
+  }
+
+  if (matchedPath && matchedLimit !== undefined) {
+    if (checkRateLimit(cookies, matchedPath, matchedLimit)) {
+      setRateLimitCookie(cookies, matchedPath, matchedLimit);
+      return next();
+    }
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  return next();
+});
 
 // Public paths that don't require authentication
 const PUBLIC_PATHS = [
@@ -17,7 +53,7 @@ const PUBLIC_PATHS = [
   '/privacy/en',
 ];
 
-export const onRequest = defineMiddleware(
+const validateRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
     try {
       const supabase = createSupabaseServerInstance({
@@ -70,3 +106,5 @@ export const onRequest = defineMiddleware(
     }
   },
 );
+
+export const onRequest = sequence(rateLimiter, validateRequest);
