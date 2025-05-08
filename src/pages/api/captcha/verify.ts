@@ -7,6 +7,8 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
   const { captchaToken } = (await request.json()) as { captchaToken: string };
   try {
+    console.log('CF_CAPTCHA_SECRET_KEY', CF_CAPTCHA_SECRET_KEY);
+    console.log('captchaToken', captchaToken);
     const captchaVerificationResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken);
 
     if (captchaVerificationResult.success) {
