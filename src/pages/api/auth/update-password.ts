@@ -2,7 +2,10 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const { password, confirmPassword } = await request.json();
+    const { password, confirmPassword } = (await request.json()) as {
+      password: string;
+      confirmPassword: string;
+    };
 
     if (!password || !confirmPassword || password !== confirmPassword) {
       return new Response(JSON.stringify({ error: 'Password and confirm password must match' }), {

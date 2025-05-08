@@ -12,7 +12,7 @@ interface SignupFormProps {
 }
 
 export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey }) => {
-  const { signup, error: apiError, isLoading } = useAuth();
+  const { signup, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
   const {
     register,
     handleSubmit,
@@ -26,7 +26,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey }) => {
       await signup(data);
     } catch (error) {
       console.error(error);
-      // Error is handled by useAuth hook
     }
   };
 

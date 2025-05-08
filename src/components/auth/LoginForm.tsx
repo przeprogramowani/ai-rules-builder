@@ -12,7 +12,7 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
-  const { login, error: apiError, isLoading } = useAuth();
+  const { login, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
   const {
     register,
     handleSubmit,
@@ -27,7 +27,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
       window.location.href = '/';
     } catch (error) {
       console.error(error);
-      // Error is handled by useAuth hook
     }
   };
 

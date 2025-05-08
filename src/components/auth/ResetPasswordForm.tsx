@@ -12,7 +12,7 @@ interface ResetPasswordFormProps {
 }
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaSiteKey }) => {
-  const { resetPassword, error: apiError, isLoading } = useAuth();
+  const { resetPassword, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
   const [error, setError] = useState<string | null>(null);
   const {
     register,
@@ -23,7 +23,6 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
   });
 
   useEffect(() => {
-    // Check for error query parameter on component initialization
     const params = new URLSearchParams(window.location.search);
     const errorParam = params.get('error');
 
@@ -37,7 +36,6 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
       await resetPassword(data);
     } catch (error) {
       console.error(error);
-      // Error is handled by useAuth hook
     }
   };
 

@@ -3,7 +3,7 @@ import { createSupabaseAdminInstance } from '@/db/supabase.client';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const { token_hash } = await request.json();
+    const { token_hash } = (await request.json()) as { token_hash: string };
 
     if (!token_hash) {
       return new Response(JSON.stringify({ error: 'Token hash is required' }), {

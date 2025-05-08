@@ -12,6 +12,7 @@ const PUBLIC_PATHS = [
   '/api/auth/signup',
   '/api/auth/reset-password',
   '/api/auth/verify-reset-token',
+  '/api/captcha/verify',
   '/privacy/pl',
   '/privacy/en',
 ];

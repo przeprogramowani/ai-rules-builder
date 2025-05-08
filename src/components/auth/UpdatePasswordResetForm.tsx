@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -6,11 +6,17 @@ import AuthInput from './AuthInput';
 import { updatePasswordSchema } from '../../types/auth';
 import type { UpdatePasswordFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
+import { useTokenHashVerification } from '../../hooks/useTokenHashVerification';
 
-export const VerifyPasswordResetForm: React.FC = () => {
-  const { updatePassword, error: apiError, isLoading } = useAuth();
-  const [verificationError, setVerificationError] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
+interface UpdatePasswordResetFormProps {
+  cfCaptchaSiteKey: string;
+}
+
+export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = ({
+  cfCaptchaSiteKey,
+}) => {
+  const { updatePassword, error: apiError, isLoading } = useAuth(cfCaptchaSiteKey);
+  const { verificationError, isVerified } = useTokenHashVerification();
 
   const {
     register,
@@ -20,43 +26,12 @@ export const VerifyPasswordResetForm: React.FC = () => {
     resolver: zodResolver(updatePasswordSchema),
   });
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      const tokenHash = new URLSearchParams(window.location.search).get('token_hash');
-      if (!tokenHash) {
-        setVerificationError('No reset token found');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth/verify-reset-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token_hash: tokenHash }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to verify token');
-        }
-
-        setIsVerified(true);
-      } catch (error) {
-        setVerificationError(error instanceof Error ? error.message : 'Failed to verify token');
-        console.error('Token verification error:', error);
-      }
-    };
-
-    verifyToken();
-  }, []);
-
   const onSubmit = async (data: UpdatePasswordFormData) => {
     try {
       await updatePassword(data);
       window.location.href = '/auth/login?message=password-updated';
     } catch (error) {
       console.error(error);
-      // Error is handled by useAuth hook
     }
   };
 
@@ -147,4 +122,4 @@ export const VerifyPasswordResetForm: React.FC = () => {
   );
 };
 
-export default VerifyPasswordResetForm;
+export default UpdatePasswordResetForm;

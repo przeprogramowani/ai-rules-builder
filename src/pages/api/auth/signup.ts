@@ -12,7 +12,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   try {
-    const { email, password, privacyPolicyConsent } = await request.json();
+    const { email, password, privacyPolicyConsent } = (await request.json()) as {
+      email: string;
+      password: string;
+      privacyPolicyConsent: boolean;
+    };
 
     if (!email || !password || !privacyPolicyConsent) {
       return new Response(

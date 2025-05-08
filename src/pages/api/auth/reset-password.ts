@@ -3,7 +3,7 @@ import { createSupabaseAdminInstance } from '@/db/supabase.client';
 
 export const POST: APIRoute = async ({ request, url, cookies }) => {
   try {
-    const { email } = await request.json();
+    const { email } = (await request.json()) as { email: string };
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email is required' }), {
