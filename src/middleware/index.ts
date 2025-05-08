@@ -4,9 +4,11 @@ import { checkRateLimit, setRateLimitCookie } from '../services/rateLimiter';
 
 // Define rate limit configurations: path -> seconds
 const RATE_LIMIT_CONFIG: { [path: string]: number } = {
-  '/api/auth': 10, // Default existing behavior: 10 seconds for /api/auth and its sub-routes
-  // Add other specific path configurations here, e.g.:
-  // '/api/heavy-operation': 60,
+  '/api/auth/login': 10,
+  '/api/auth/logout': 10,
+  '/api/auth/signup': 60,
+  '/api/auth/reset-password': 60,
+  '/api/auth/update-password': 60,
 };
 
 const rateLimiter = defineMiddleware(async ({ cookies, url }, next) => {
