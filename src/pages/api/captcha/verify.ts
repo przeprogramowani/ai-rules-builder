@@ -9,7 +9,14 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     console.log('CF_CAPTCHA_SECRET_KEY', CF_CAPTCHA_SECRET_KEY);
     console.log('captchaToken', captchaToken);
-    const captchaVerificationResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken);
+
+    const requestorIp = request.headers.get('CF-Connecting-IP');
+
+    const captchaVerificationResult = await verifyCaptcha(
+      CF_CAPTCHA_SECRET_KEY,
+      captchaToken,
+      requestorIp || '',
+    );
 
     if (captchaVerificationResult.success) {
       return new Response(
