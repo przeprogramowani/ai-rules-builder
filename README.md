@@ -41,8 +41,10 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 
 1. Install Supabase CLI
 
+  Check [Supabase docs](https://supabase.com/docs/guides/local-development?queryGroups=package-manager&package-manager=brew#quickstart) for local setup reference.
+
    ```bash
-   brew install supabase
+   brew install supabase/tap/supabase
    ```
 
 2. Start Supabase (requires local Docker)
