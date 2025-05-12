@@ -8,6 +8,7 @@ import { DependencyUpload } from './DependencyUpload.tsx';
 import { MarkdownContentRenderer } from './MarkdownContentRenderer.tsx';
 import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
 import { JsonContentRenderer } from '../settings-preview/SettingsPreview.tsx';
+import { AIEnvironmentName } from '@/data/ai-environments.ts';
 
 export const RulePreview: React.FC = () => {
   const { selectedLibraries } = useTechStackStore();
@@ -21,12 +22,17 @@ export const RulePreview: React.FC = () => {
   useEffect(() => {
     const shouldDisplaySettings =
       adaptableFileEnvironments.has(selectedEnvironment) && isMultiFileEnvironment;
+
+    const extension =
+      AIEnvironmentName.GitHub && isMultiFileEnvironment ? 'instructions.md' : 'mdc';
+
     const settings = RulesBuilderService.generateSettingsContent(selectedLibraries);
     const markdowns = RulesBuilderService.generateRulesContent(
       projectName,
       projectDescription,
       selectedLibraries,
       isMultiFileEnvironment,
+      extension,
     );
     setMarkdownContent(markdowns);
     setSettingsContent(shouldDisplaySettings ? settings : []);

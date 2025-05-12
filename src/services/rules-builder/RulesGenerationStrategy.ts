@@ -11,5 +11,6 @@ export interface RulesGenerationStrategy {
     selectedLibraries: Library[],
     stacksByLayer: Record<Layer, Stack[]>,
     librariesByStack: Record<Stack, Library[]>,
+    extension?: string,
   ): RulesContent[];
 }
