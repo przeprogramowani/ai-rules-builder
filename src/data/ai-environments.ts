@@ -14,6 +14,7 @@ export type AIEnvironment = `${AIEnvironmentName}`;
 type AIEnvironmentConfig = {
   [key in AIEnvironmentName]: {
     filePath: string;
+    alternativeFilePath?: string;
     docsUrl: string;
   };
 };
@@ -21,6 +22,7 @@ type AIEnvironmentConfig = {
 export const aiEnvironmentConfig: AIEnvironmentConfig = {
   github: {
     filePath: '.github/copilot-instructions.md',
+    alternativeFilePath: '.github/{rule}.instructions.md',
     docsUrl:
       'https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot',
   },

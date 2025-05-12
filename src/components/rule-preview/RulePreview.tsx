@@ -1,21 +1,27 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RulesBuilderService } from '../../services/rules-builder/RulesBuilderService.ts';
-import { useProjectStore } from '../../store/projectStore';
+import { useProjectStore, adaptableFileEnvironments } from '../../store/projectStore';
 import { useTechStackStore } from '../../store/techStackStore';
 import { useDependencyUpload } from '../rule-parser/useDependencyUpload';
 import { RulePreviewTopbar } from './RulePreviewTopbar';
 import { DependencyUpload } from './DependencyUpload.tsx';
 import { MarkdownContentRenderer } from './MarkdownContentRenderer.tsx';
 import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
+import { JsonContentRenderer } from '../settings-preview/SettingsPreview.tsx';
 
 export const RulePreview: React.FC = () => {
   const { selectedLibraries } = useTechStackStore();
-  const { projectName, projectDescription, isMultiFileEnvironment } = useProjectStore();
+  const { projectName, projectDescription, isMultiFileEnvironment, selectedEnvironment } =
+    useProjectStore();
   const [markdownContent, setMarkdownContent] = useState<RulesContent[]>([]);
+  const [settingsContent, setSettingsContent] = useState<RulesContent[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const { uploadStatus, uploadDependencyFile } = useDependencyUpload();
 
   useEffect(() => {
+    const shouldDisplaySettings =
+      adaptableFileEnvironments.has(selectedEnvironment) && isMultiFileEnvironment;
+    const settings = RulesBuilderService.generateSettingsContent(selectedLibraries);
     const markdowns = RulesBuilderService.generateRulesContent(
       projectName,
       projectDescription,
@@ -23,7 +29,14 @@ export const RulePreview: React.FC = () => {
       isMultiFileEnvironment,
     );
     setMarkdownContent(markdowns);
-  }, [selectedLibraries, projectName, projectDescription, isMultiFileEnvironment]);
+    setSettingsContent(shouldDisplaySettings ? settings : []);
+  }, [
+    selectedLibraries,
+    projectName,
+    projectDescription,
+    isMultiFileEnvironment,
+    selectedEnvironment,
+  ]);
 
   // Handle drag events
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -68,6 +81,8 @@ export const RulePreview: React.FC = () => {
       <RulePreviewTopbar rulesContent={markdownContent} />
       {/* Dropzone overlay */}
       <DependencyUpload isDragging={isDragging} uploadStatus={uploadStatus} />
+      {/* Settings content */}
+      <JsonContentRenderer jsonContent={settingsContent} />
       {/* Markdown content */}
       <MarkdownContentRenderer markdownContent={markdownContent} />
     </div>

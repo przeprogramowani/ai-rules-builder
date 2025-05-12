@@ -5,7 +5,7 @@ import {
   getLayerByStack,
   getStacksByLibrary,
 } from '../../data/dictionaries.ts';
-import type { RulesContent } from './RulesBuilderTypes.ts';
+import type { RulesContent, SettingsContent } from './RulesBuilderTypes.ts';
 import type { RulesGenerationStrategy } from './RulesGenerationStrategy.ts';
 import { MultiFileRulesStrategy } from './rules-generation-strategies/MultiFileRulesStrategy.ts';
 import { SingleFileRulesStrategy } from './rules-generation-strategies/SingleFileRulesStrategy.ts';
@@ -44,6 +44,24 @@ export class RulesBuilderService {
       stacksByLayer,
       librariesByStack,
     );
+  }
+
+  static generateSettingsContent(selectedLibraries: Library[]): SettingsContent[] {
+    return [
+      {
+        markdown: JSON.stringify([
+          {
+            'github.copilot.chat.codeGeneration.instructions': [
+              selectedLibraries.map((library) => ({
+                path: `.github/${library.toLowerCase()}.instructions.md`,
+              })),
+            ],
+          },
+        ]),
+        label: 'Settings',
+        fileName: 'settings.json',
+      },
+    ];
   }
 
   /**
