@@ -70,7 +70,7 @@ export class RulesBuilderService {
                 });
 
                 return {
-                  path: `.github/${fileName}`,
+                  file: `.github/${fileName}`,
                 };
               }),
             ],
