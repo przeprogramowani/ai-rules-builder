@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
 import {
   Layer,
   Stack,
@@ -6,6 +6,8 @@ import {
   getLayersByLibrary,
   getStacksByLibrary,
 } from '../data/dictionaries';
+import { devtools, persist, type PersistOptions } from 'zustand/middleware';
+import { createUrlStorage, doesUrlContainState } from './storage/urlStorage';
 
 interface TechStackState {
   // Selected items
@@ -23,6 +25,7 @@ interface TechStackState {
   unselectStack: (stack: Stack) => void;
   selectLibrary: (library: Library) => void;
   unselectLibrary: (library: Library) => void;
+  anyLibrariesToLoad: (url: URL) => boolean;
 
   // Reset actions
   resetLayers: () => void;
@@ -42,7 +45,17 @@ interface TechStackState {
   getSelectedStacksByLibrary: (library: Library) => Stack[];
 }
 
-export const useTechStackStore = create<TechStackState>((set, get) => ({
+type PersistedState = Pick<TechStackState, 'selectedLibraries'>;
+
+const persistOptions: PersistOptions<TechStackState, PersistedState> = {
+  name: 'rules',
+  storage: createUrlStorage<PersistedState>(),
+  partialize: (state: TechStackState) => ({
+    selectedLibraries: state.selectedLibraries,
+  }),
+};
+
+const techStackState: StateCreator<TechStackState> = (set, get) => ({
   // Initial state
   selectedLayers: [],
   selectedStacks: [],
@@ -87,6 +100,8 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
     set((state) => ({
       selectedLibraries: state.selectedLibraries.filter((l) => l !== library),
     })),
+
+  anyLibrariesToLoad: (url: URL) => doesUrlContainState(url, persistOptions.name),
 
   // Reset actions
   resetLayers: () => set({ selectedLayers: [] }),
@@ -135,4 +150,10 @@ export const useTechStackStore = create<TechStackState>((set, get) => ({
     const allStacksForLibrary = getStacksByLibrary(library);
     return allStacksForLibrary.filter((stack) => get().selectedStacks.includes(stack));
   },
-}));
+});
+
+export const useTechStackStore = create<TechStackState>()(
+  devtools(persist(techStackState, persistOptions), {
+    enabled: process.env.NODE_ENV !== 'production',
+  }),
+);

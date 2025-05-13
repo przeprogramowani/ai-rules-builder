@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { RuleBuilder } from './rule-builder';
 import { RulePreview } from './rule-preview';
 import CollectionsSidebar from './rule-collections/CollectionsSidebar';
 import { MobileNavigation } from './MobileNavigation';
 import { useNavigationStore } from '../store/navigationStore';
 import { isFeatureEnabled } from '../features/featureFlags';
+import { useTechStackStore } from '../store/techStackStore';
 
-export default function TwoPane() {
+function RulesPane() {
   const { activePanel, isSidebarOpen, toggleSidebar, setSidebarOpen } = useNavigationStore();
   const isCollectionsEnabled = isFeatureEnabled('authOnUI');
 
@@ -50,4 +51,25 @@ export default function TwoPane() {
       <MobileNavigation />
     </div>
   );
+}
+
+type TwoPaneProps = {
+  initialUrl: URL;
+};
+
+export default function TwoPane({ initialUrl }: TwoPaneProps) {
+  const { anyLibrariesToLoad } = useTechStackStore();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const shouldWaitForHydration = anyLibrariesToLoad(initialUrl) && !isHydrated;
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (shouldWaitForHydration) {
+    return <div>Loading...</div>;
+  }
+
+  return <RulesPane />;
 }
