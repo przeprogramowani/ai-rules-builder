@@ -2,6 +2,12 @@
 
 Please include a summary of the changes and the related issue. Please also include relevant motivation and context.
 
+## Roadmap alignment
+
+To maintain project quality and avoid wasted effort, all major changes must start with a GitHub issue discussion. Please create an issue describing your proposed changes, wait for maintainer feedback and approval, and only then proceed with coding. This helps us ensure alignment with project goals before you invest time in implementation.
+
+- [ ] I have opened an issue first and received approval before working on this PR.
+
 ## Type of change
 
 Please delete options that are not relevant.
@@ -15,6 +21,7 @@ Please delete options that are not relevant.
 
 Please describe the tests that you ran to verify your changes.
 
+- [ ] Manual Tests
 - [ ] Unit Tests
 - [ ] E2E Tests
 
