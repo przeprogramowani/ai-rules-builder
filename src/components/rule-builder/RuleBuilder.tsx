@@ -189,7 +189,6 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
         getLibraryLayerType={getLibraryLayerType}
       />
 
-      {/* Render MCPDialog */}
       <MCPDialog isOpen={isMCPDialogOpen} onClose={hideMCPInstructions} />
     </div>
   );
