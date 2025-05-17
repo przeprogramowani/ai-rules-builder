@@ -1,16 +1,19 @@
 ---
-const siteUrl = 'https://10xrules.ai'; // Add your actual domain here
+const siteUrl = 'https://10xrules.ai';
+const siteDescription =
+  'Create and manage rules for best-in-class AI tools like GitHub Copilot, Cursor & Windsurf. Make AI Agents aware of your preferences and coding style.';
+const siteTitle = '10xRules.ai';
 ---
 
 <!-- Primary Meta Tags -->
-<meta name="title" content="10xRules.ai" />
-<meta name="description" content="Create and manage rules for Cursor, Copilot & Windsurf" />
+<meta name="title" content={siteTitle} />
+<meta name="description" content={siteDescription} />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={siteUrl} />
-<meta property="og:title" content="10xRules.ai" />
-<meta property="og:description" content="Create and manage rules for Cursor, Copilot & Windsurf" />
+<meta property="og:title" content={siteTitle} />
+<meta property="og:description" content={siteDescription} />
 <meta property="og:image" content="https://10xrules.ai/demo.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -18,12 +21,12 @@ const siteUrl = 'https://10xrules.ai'; // Add your actual domain here
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:url" content={siteUrl} />
-<meta name="twitter:title" content="10xRules.ai" />
-<meta name="twitter:description" content="Create and manage rules for Cursor, Copilot & Windsurf" />
+<meta name="twitter:title" content={siteTitle} />
+<meta name="twitter:description" content={siteDescription} />
 <meta name="twitter:image" content="https://10xrules.ai/demo.png" />
 
 <!-- LinkedIn -->
-<meta property="og:site_name" content="10xRules.ai" />
+<meta property="og:site_name" content={siteTitle} />
 
 <!-- Additional Pinterest Meta -->
 <meta name="pinterest:image" content="https://10xrules.ai/demo.png" />
