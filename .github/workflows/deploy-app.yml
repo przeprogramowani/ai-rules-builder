@@ -1,4 +1,4 @@
-name: Master Deployment
+name: Deploy 10xRules (Production)
 
 on:
   workflow_dispatch:
@@ -115,5 +115,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: "./mcp-server"
+          workingDirectory: './mcp-server'
           command: deploy
