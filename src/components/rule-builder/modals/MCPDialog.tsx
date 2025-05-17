@@ -16,7 +16,7 @@ export const MCPDialog: React.FC<MCPDialogProps> = ({ isOpen, onClose }) => {
     <ConfirmDialog isOpen={isOpen} onClose={onClose}>
       <ConfirmDialogHeader>MCP Instructions</ConfirmDialogHeader>
       <ConfirmDialogContent>
-        <div className="space-y-4 text-sm text-gray-300">
+        <div className="space-y-4 text-sm text-gray-300 max-h-[70vh] overflow-y-auto p-1">
           <div className="mb-4 p-3 bg-gray-800/50 rounded-md">
             <h3 className="text-md font-semibold text-gray-100 mb-1">Why use MCP Integration?</h3>
             <p>
