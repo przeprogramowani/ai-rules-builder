@@ -3,6 +3,7 @@ import '../styles/global.css';
 import SEO from './partials/SEO.astro';
 import Fonts from './partials/Fonts.astro';
 import GTMContainer from './partials/GTMContainer.astro';
+import CookieBanner from '../components/cookie-banner/CookieBanner.tsx';
 ---
 
 <!doctype html>
@@ -23,5 +24,6 @@ import GTMContainer from './partials/GTMContainer.astro';
   </head>
   <body class="bg-gray-950">
     <slot />
+    <CookieBanner client:only="react" />
   </body>
 </html>

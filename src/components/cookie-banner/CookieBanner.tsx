@@ -18,7 +18,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
     return null;
   }
 
-  const bannerBaseClasses = 'z-50 bottom-0 w-full p-2';
+  const bannerBaseClasses = 'z-50 bottom-0 w-full p-2 pb-16';
   const bannerVisibilityClasses = isConsentGiven === false ? 'fixed' : 'hidden';
 
   return (
@@ -27,7 +27,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
         <p className="text-sm text-white text-center md:text-left">{message}</p>
         <div className="flex items-center gap-3 mt-2 md:mt-0">
           <button
-            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/80 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/80 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={() => setConsent(true)}
           >
             {acceptLabel}
