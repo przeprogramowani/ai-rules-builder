@@ -1,9 +1,11 @@
-import { Trash2 } from 'lucide-react';
+import { Trash2, Unplug } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
 import { transitions } from '../../styles/theme';
 import { Accordion } from '../ui/Accordion';
 import { useRuleBuilder } from './hooks/useRuleBuilder';
+import { useMCPDialog } from './hooks/useMCPDialog';
 import { LayerItem } from './LayerItem';
+import { MCPDialog } from './modals/MCPDialog';
 import { SearchInput } from './SearchInput';
 import { SelectedRules } from './SelectedRules';
 
@@ -48,6 +50,9 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Use the custom hook for MCPDialog state
+  const { isMCPDialogOpen, showMCPInstructions, hideMCPInstructions } = useMCPDialog();
+
   // Calculate if we need to show "no results" message
   const hasNoSearchResults =
     isSearchActive && layers.every((layer) => !layerContainsSearchMatch(layer));
@@ -90,16 +95,26 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Rule Builder</h2>
 
-          {selectedLibraries.length > 0 && (
+          <div className="flex flex-row gap-2">
             <button
-              onClick={handleClearAll}
+              onClick={showMCPInstructions}
               className="flex gap-2 items-center px-3 py-1.5 text-sm bg-gray-800/50 rounded-md transition-colors hover:bg-gray-700/50 text-gray-400 cursor-pointer hover:shadow-sm"
               title="Clear all selections"
             >
-              <Trash2 className="size-4" />
-              <span>Clear all</span>
+              <Unplug className="size-4" />
+              <span>Use MCP</span>
             </button>
-          )}
+            {selectedLibraries.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="flex gap-2 items-center px-3 py-1.5 text-sm bg-orange-800/50 rounded-md transition-colors hover:bg-orange-700/50 text-orange-400 cursor-pointer hover:shadow-sm"
+                title="Clear all selections"
+              >
+                <Trash2 className="size-4" />
+                <span>Clear all</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div ref={searchContainerRef} className="w-full">
@@ -173,6 +188,9 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
         unselectLibrary={unselectLibrary}
         getLibraryLayerType={getLibraryLayerType}
       />
+
+      {/* Render MCPDialog */}
+      <MCPDialog isOpen={isMCPDialogOpen} onClose={hideMCPInstructions} />
     </div>
   );
 };
