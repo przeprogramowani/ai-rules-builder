@@ -1,5 +1,7 @@
 ---
-const isProd = import.meta.env.PROD;
+import { PUBLIC_ENV_NAME } from 'astro:env/server';
+
+const isProd = PUBLIC_ENV_NAME === 'prod';
 const {tagId} = Astro.props;
 ---
 {isProd &&
