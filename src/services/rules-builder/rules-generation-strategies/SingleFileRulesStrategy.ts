@@ -13,11 +13,12 @@ export class SingleFileRulesStrategy implements RulesGenerationStrategy {
     selectedLibraries: Library[],
     stacksByLayer: Record<Layer, Stack[]>,
     librariesByStack: Record<Stack, Library[]>,
+    extension = 'mdc',
   ): RulesContent[] {
     const projectMarkdown = `# AI Rules for ${projectName}\n\n${projectDescription}\n\n`;
     const noSelectedLibrariesMarkdown = `---\n\n👈 Use the Rule Builder on the left or drop dependency file here`;
     const projectLabel = 'Project',
-      projectFileName = 'project.mdc';
+      projectFileName = `project.${extension}`;
 
     let markdown = projectMarkdown;
 
@@ -27,7 +28,7 @@ export class SingleFileRulesStrategy implements RulesGenerationStrategy {
     }
 
     markdown += this.generateLibraryMarkdown(stacksByLayer, librariesByStack);
-    return [{ markdown, label: 'All Rules', fileName: 'rules.mdc' }];
+    return [{ markdown, label: 'All Rules', fileName: `rules.${extension}` }];
   }
 
   private generateLibraryMarkdown(
