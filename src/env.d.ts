@@ -7,6 +7,9 @@ import type { Env } from './features/featureFlags';
 declare global {
   interface Window {
     onloadTurnstileCallback: () => void;
+    dataLayer: unknown[];
+    gtag: (...args: unknown[]) => void;
+    clarity: (event: string, enabled?: boolean) => void;
   }
   namespace App {
     interface Locals {

@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
-import SEO from './SEO.astro';
-import Fonts from './Fonts.astro';
+import SEO from './partials/SEO.astro';
+import Fonts from './partials/Fonts.astro';
+import GTMContainer from './partials/GTMContainer.astro';
 ---
 
 <!doctype html>
@@ -18,6 +19,7 @@ import Fonts from './Fonts.astro';
     <SEO />
     <Fonts />
     <title>10xRules.ai</title>
+    <GTMContainer tagId="G-EDN9PG92HQ" />
   </head>
   <body class="bg-gray-950">
     <slot />
