@@ -3,7 +3,9 @@ name: Deploy MCP Server (Production)
 on:
   push:
     branches:
-      - master # Trigger only on pushes to the master branch
+      - master
+    paths:
+      - 'mcp-server/**'
 
 jobs:
   deploy-mcp-worker:
@@ -36,5 +38,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: "./mcp-server"
+          workingDirectory: './mcp-server'
           command: deploy
