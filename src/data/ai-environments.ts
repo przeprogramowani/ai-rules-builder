@@ -6,6 +6,7 @@ export enum AIEnvironmentName {
   Cline = 'cline',
   Junie = 'junie',
   RooCode = 'roocode',
+  Zed = 'zed',
 }
 
 // Define the AI environment types for easier maintenance
@@ -48,5 +49,9 @@ export const aiEnvironmentConfig: AIEnvironmentConfig = {
     filePath: '.roo/rules/{rule}.md',
     docsUrl:
       'https://docs.roocode.com/features/custom-instructions?_highlight=rules#rules-about-rules-files',
+  },
+  zed: {
+    filePath: '.rules',
+    docsUrl: 'https://zed.dev/docs/ai/rules',
   },
 };
