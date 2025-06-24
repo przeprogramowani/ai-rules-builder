@@ -69,6 +69,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Pawel-Gnat",
+      "name": "Paweł Gnat",
+      "avatar_url": "https://avatars.githubusercontent.com/u/104066590?v=4",
+      "profile": "https://www.pawelgnat.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
