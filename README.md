@@ -1,7 +1,7 @@
 # 10xRules.ai by 10xDevs
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml)
@@ -197,6 +197,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.pawelgnat.com/"><img src="https://avatars.githubusercontent.com/u/104066590?v=4?s=100" width="100px;" alt="Paweł Gnat"/><br /><sub><b>Paweł Gnat</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=Pawel-Gnat" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kacperklosowski"><img src="https://avatars.githubusercontent.com/u/77013552?v=4?s=100" width="100px;" alt="Kacper Kłosowski"/><br /><sub><b>Kacper Kłosowski</b></sub></a><br /><a href="https://github.com/przeprogramowani/ai-rules-builder/commits?author=kacperklosowski" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
