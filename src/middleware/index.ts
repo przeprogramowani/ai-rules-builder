@@ -9,6 +9,7 @@ const RATE_LIMIT_CONFIG: { [path: string]: number } = {
   '/api/auth/signup': 60,
   '/api/auth/reset-password': 60,
   '/api/auth/update-password': 60,
+  '/api/upload-dependencies': 5,
 };
 
 const rateLimiter = defineMiddleware(async ({ cookies, url }, next) => {
@@ -51,6 +52,7 @@ const PUBLIC_PATHS = [
   '/api/auth/reset-password',
   '/api/auth/verify-reset-token',
   '/api/captcha/verify',
+  '/api/upload-dependencies',
   '/privacy/pl',
   '/privacy/en',
 ];
