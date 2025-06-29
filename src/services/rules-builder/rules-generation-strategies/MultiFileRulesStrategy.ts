@@ -14,11 +14,12 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
     selectedLibraries: Library[],
     stacksByLayer: Record<Layer, Stack[]>,
     librariesByStack: Record<Stack, Library[]>,
+    extension = 'mdc',
   ): RulesContent[] {
     const projectMarkdown = `# AI Rules for ${projectName}\n\n${projectDescription}\n\n`;
     const noSelectedLibrariesMarkdown = `---\n\n👈 Use the Rule Builder on the left or drop dependency file here`;
     const projectLabel = 'Project',
-      projectFileName = 'project.mdc';
+      projectFileName = `project.${extension}`;
 
     const markdowns: RulesContent[] = [];
 
@@ -38,6 +39,7 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
               stack,
               library,
               libraryRules: getRulesForLibrary(library),
+              extension,
             }),
           );
         });
@@ -47,19 +49,26 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
     return markdowns;
   }
 
+  createFileName = ({ label, extension = 'mdc' }: { label: string; extension?: string }) => {
+    const fileName: RulesContent['fileName'] = `${slugify(label)}.${extension}`;
+    return fileName;
+  };
+
   private buildRulesContent({
     libraryRules,
     layer,
     stack,
     library,
+    extension = 'mdc',
   }: {
     libraryRules: string[];
     layer: string;
     stack: string;
     library: string;
+    extension?: string;
   }): RulesContent {
     const label = `${layer} - ${stack} - ${library}`;
-    const fileName: RulesContent['fileName'] = `${slugify(`${layer}-${stack}-${library}`)}.mdc`;
+    const fileName = this.createFileName({ label, extension });
     const content =
       libraryRules.length > 0
         ? `${libraryRules.map((rule) => `- ${rule}`).join('\n')}`

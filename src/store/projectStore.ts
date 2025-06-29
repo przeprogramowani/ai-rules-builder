@@ -17,12 +17,18 @@ interface ProjectState {
   setProjectDescription: (description: string) => void;
   setSelectedEnvironment: (environment: AIEnvironment) => void;
   setHydrated: () => void;
+  setMultiFileEnvironment: (isMultiFile: boolean) => void;
 }
 
 export const multiFileEnvironments: ReadonlySet<AIEnvironment> = new Set<AIEnvironment>([
   AIEnvironmentName.Cline,
   AIEnvironmentName.Cursor,
 ]);
+
+export const adaptableFileEnvironments: ReadonlySet<AIEnvironment> = new Set<AIEnvironment>([
+  AIEnvironmentName.GitHub,
+]);
+
 export const initialEnvironment: Readonly<AIEnvironment> = AIEnvironmentName.Cursor;
 
 // Create a store with persistence
@@ -39,12 +45,15 @@ export const useProjectStore = create<ProjectState>()(
       // Actions
       setProjectName: (name: string) => set({ projectName: name }),
       setProjectDescription: (description: string) => set({ projectDescription: description }),
-      setSelectedEnvironment: (environment: AIEnvironment) =>
-        set({
+      setSelectedEnvironment: (environment: AIEnvironment) => {
+        return set({
           selectedEnvironment: environment,
           isMultiFileEnvironment: multiFileEnvironments.has(environment),
-        }),
+        });
+      },
       setHydrated: () => set({ isHydrated: true }),
+      setMultiFileEnvironment: (isMultiFile: boolean) =>
+        set({ isMultiFileEnvironment: isMultiFile }),
     }),
     {
       name: 'ai-rules-project-storage',
@@ -57,6 +66,7 @@ export const useProjectStore = create<ProjectState>()(
       // Set hydration flag when storage is hydrated
       onRehydrateStorage: () => (state) => {
         if (state) {
+          state.setMultiFileEnvironment(multiFileEnvironments.has(state.selectedEnvironment));
           state.setHydrated();
         }
       },

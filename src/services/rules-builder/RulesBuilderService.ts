@@ -5,7 +5,7 @@ import {
   getLayerByStack,
   getStacksByLibrary,
 } from '../../data/dictionaries.ts';
-import type { RulesContent } from './RulesBuilderTypes.ts';
+import type { RulesContent, SettingsContent } from './RulesBuilderTypes.ts';
 import type { RulesGenerationStrategy } from './RulesGenerationStrategy.ts';
 import { MultiFileRulesStrategy } from './rules-generation-strategies/MultiFileRulesStrategy.ts';
 import { SingleFileRulesStrategy } from './rules-generation-strategies/SingleFileRulesStrategy.ts';
@@ -28,6 +28,7 @@ export class RulesBuilderService {
     projectDescription: string,
     selectedLibraries: Library[],
     multiFile?: boolean,
+    extension?: string,
   ): RulesContent[] {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
@@ -43,7 +44,42 @@ export class RulesBuilderService {
       selectedLibraries,
       stacksByLayer,
       librariesByStack,
+      extension,
     );
+  }
+
+  static generateSettingsContent(selectedLibraries: Library[]): SettingsContent[] {
+    const strategy = new MultiFileRulesStrategy();
+    const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
+
+    return [
+      {
+        markdown: JSON.stringify([
+          {
+            'github.copilot.chat.codeGeneration.instructions': [
+              selectedLibraries.map((library) => {
+                const stackKey = Object.keys(librariesByStack).find((key) =>
+                  librariesByStack[key as Stack].includes(library),
+                ) as Stack | undefined;
+
+                const layer = stackKey ? getLayerByStack(stackKey) : '';
+
+                const fileName = strategy.createFileName({
+                  label: `${layer} - ${stackKey} - ${library}`,
+                  extension: 'instructions.md',
+                });
+
+                return {
+                  file: `.github/${fileName}`,
+                };
+              }),
+            ],
+          },
+        ]),
+        label: 'Settings',
+        fileName: 'settings.json',
+      },
+    ];
   }
 
   /**

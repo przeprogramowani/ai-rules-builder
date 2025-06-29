@@ -1,5 +1,5 @@
 import React from 'react';
-import { useProjectStore } from '../../store/projectStore';
+import { useProjectStore, adaptableFileEnvironments } from '../../store/projectStore';
 import { RulesPath } from './RulesPath';
 import { RulesPreviewActions } from './RulesPreviewActions';
 import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
@@ -37,8 +37,13 @@ const EnvButton: React.FC<EnvButtonProps> = ({
 };
 
 export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesContent }) => {
-  const { selectedEnvironment, setSelectedEnvironment, isMultiFileEnvironment, isHydrated } =
-    useProjectStore();
+  const {
+    selectedEnvironment,
+    setSelectedEnvironment,
+    isMultiFileEnvironment,
+    isHydrated,
+    setMultiFileEnvironment,
+  } = useProjectStore();
 
   // If state hasn't been hydrated from storage yet, don't render the selector
   // This prevents the "blinking" effect when loading persisted state
@@ -85,6 +90,36 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesConte
 
           {/* Path display */}
           <RulesPath />
+
+          {adaptableFileEnvironments.has(selectedEnvironment) && (
+            <div
+              className="flex items-center space-x-2"
+              role="group"
+              aria-labelledby="multi-file-label"
+            >
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  id="multiFileToggle"
+                  name="multiFileToggle"
+                  checked={isMultiFileEnvironment}
+                  onChange={(e) => setMultiFileEnvironment(e.target.checked)}
+                  aria-describedby="multi-file-description"
+                  className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-offset-gray-800"
+                />
+                <label
+                  id="multi-file-label"
+                  htmlFor="multiFileToggle"
+                  className="ml-2 text-sm text-gray-300 select-none cursor-pointer"
+                >
+                  Split instructions into domain files
+                </label>
+              </div>
+              <span id="multi-file-description" className="sr-only">
+                When enabled, instructions will be split into separate domain-specific files
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Right side: Action buttons */}

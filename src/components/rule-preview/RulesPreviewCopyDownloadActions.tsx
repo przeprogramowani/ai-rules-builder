@@ -7,10 +7,12 @@ import { Tooltip } from '../ui/Tooltip.tsx';
 
 interface RulesPreviewCopyDownloadActionsProps {
   rulesContent: RulesContent[];
+  filePath?: string;
 }
 
 export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadActionsProps> = ({
   rulesContent,
+  filePath,
 }) => {
   const { selectedEnvironment, isMultiFileEnvironment } = useProjectStore();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
@@ -86,7 +88,7 @@ export const RulesPreviewCopyDownloadActions: React.FC<RulesPreviewCopyDownloadA
     } else {
       content = rulesContent[0].markdown;
       blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-      download = getFilePath().split('/').pop() || `${selectedEnvironment}-rules.md`;
+      download = filePath || getFilePath().split('/').pop() || `${selectedEnvironment}-rules.md`;
     }
 
     const url = URL.createObjectURL(blob);
