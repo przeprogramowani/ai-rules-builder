@@ -4,7 +4,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/master.yml)
+[![Build and Deploy](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/deploy-app.yml/badge.svg)](https://github.com/przeprogramowani/ai-rules-builder/actions/workflows/deploy-app.yml)
 
 ![](./public/demo.png)
 
