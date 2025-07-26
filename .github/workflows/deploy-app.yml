@@ -75,6 +75,8 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_PUBLIC_KEY: ${{ secrets.SUPABASE_PUBLIC_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CF_CAPTCHA_SITE_KEY: ${{ secrets.CF_CAPTCHA_SITE_KEY }}
+          CF_CAPTCHA_SECRET_KEY: ${{ secrets.CF_CAPTCHA_SECRET_KEY }}
         run: npm run build # This should create the dist/ directory
 
       - name: Deploy to Cloudflare Pages

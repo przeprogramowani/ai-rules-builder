@@ -82,6 +82,8 @@ jobs:
           echo "E2E_USERNAME_ID=${{ secrets.E2E_USERNAME_ID }}" >> .env.integration
           echo "E2E_USERNAME=${{ secrets.E2E_USERNAME }}" >> .env.integration
           echo "E2E_PASSWORD=${{ secrets.E2E_PASSWORD }}" >> .env.integration
+          echo "CF_CAPTCHA_SITE_KEY=${{ secrets.CF_CAPTCHA_SITE_KEY }}" >> .env.integration
+          echo "CF_CAPTCHA_SECRET_KEY=${{ secrets.CF_CAPTCHA_SECRET_KEY }}" >> .env.integration
 
       - name: Run E2E tests
         run: npm run test:e2e
