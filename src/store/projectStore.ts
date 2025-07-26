@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { type AIEnvironment, AIEnvironmentName } from '../data/ai-environments.ts';
+import {
+  type AIEnvironment,
+  AIEnvironmentName,
+  multiFileEnvironments,
+  initialEnvironment,
+} from '../data/ai-environments.ts';
 
 interface ProjectState {
   // Project metadata
@@ -18,12 +23,6 @@ interface ProjectState {
   setSelectedEnvironment: (environment: AIEnvironment) => void;
   setHydrated: () => void;
 }
-
-export const multiFileEnvironments: ReadonlySet<AIEnvironment> = new Set<AIEnvironment>([
-  AIEnvironmentName.Cline,
-  AIEnvironmentName.Cursor,
-]);
-export const initialEnvironment: Readonly<AIEnvironment> = AIEnvironmentName.Cursor;
 
 // Create a store with persistence
 export const useProjectStore = create<ProjectState>()(
@@ -57,6 +56,14 @@ export const useProjectStore = create<ProjectState>()(
       // Set hydration flag when storage is hydrated
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // Ensure selectedEnvironment is valid, fallback to cursor if not
+          if (
+            !Object.values(AIEnvironmentName).includes(
+              state.selectedEnvironment as AIEnvironmentName,
+            )
+          ) {
+            state.selectedEnvironment = AIEnvironmentName.GitHubCopilot;
+          }
           state.setHydrated();
         }
       },
