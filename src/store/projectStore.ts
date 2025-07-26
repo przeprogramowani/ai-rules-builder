@@ -64,6 +64,8 @@ export const useProjectStore = create<ProjectState>()(
           ) {
             state.selectedEnvironment = AIEnvironmentName.GitHubCopilot;
           }
+          // Recalculate isMultiFileEnvironment based on the restored selectedEnvironment
+          state.isMultiFileEnvironment = multiFileEnvironments.has(state.selectedEnvironment);
           state.setHydrated();
         }
       },
