@@ -6,8 +6,9 @@ import { MobileNavigation } from './MobileNavigation';
 import { useNavigationStore } from '../store/navigationStore';
 import { isFeatureEnabled } from '../features/featureFlags';
 import { useTechStackStore } from '../store/techStackStore';
+import type { LibraryRulesMap } from '../data/rules/types';
 
-function RulesPane() {
+function RulesPane({ libraryRules }: { libraryRules: LibraryRulesMap }) {
   const { activePanel, isSidebarOpen, toggleSidebar, setSidebarOpen } = useNavigationStore();
   const isCollectionsEnabled = isFeatureEnabled('authOnUI');
 
@@ -34,7 +35,7 @@ function RulesPane() {
             w-full md:w-1/3 lg:w-2/5 md:p-4 border-b md:border-b-0 md:border-r border-gray-800 min-h-full overflow-y-auto
           `}
         >
-          <RuleBuilder />
+          <RuleBuilder libraryRules={libraryRules} />
         </div>
 
         <div
@@ -44,7 +45,7 @@ function RulesPane() {
             w-full md:w-2/3 lg:w-3/5 p-4 min-h-full overflow-y-auto
           `}
         >
-          <RulePreview />
+          <RulePreview libraryRules={libraryRules} />
         </div>
       </div>
 
@@ -55,9 +56,10 @@ function RulesPane() {
 
 type TwoPaneProps = {
   initialUrl: URL;
+  libraryRules: LibraryRulesMap;
 };
 
-export default function TwoPane({ initialUrl }: TwoPaneProps) {
+export default function TwoPane({ initialUrl, libraryRules }: TwoPaneProps) {
   const { anyLibrariesToLoad } = useTechStackStore();
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -71,5 +73,5 @@ export default function TwoPane({ initialUrl }: TwoPaneProps) {
     return <div>Loading...</div>;
   }
 
-  return <RulesPane />;
+  return <RulesPane libraryRules={libraryRules} />;
 }

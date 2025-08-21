@@ -3,16 +3,74 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar';
 import TwoPane from '../components/TwoPane';
 import Footer from '../components/Footer';
+import { createSupabaseServerInstance } from '../db/supabase.client';
+import type { LibraryRulesMap } from '../data/rules/types';
+import type { Library } from '../data/dictionaries';
 
 const user = Astro.locals.user;
 const initialUrl = Astro.url;
+
+// Fetch rules from Supabase at request time
+let libraryRules: LibraryRulesMap = {};
+
+const USE_DATABASE_RULES = import.meta.env.USE_DATABASE_RULES !== 'false';
+
+if (USE_DATABASE_RULES) {
+  try {
+    const supabase = createSupabaseServerInstance({
+      headers: Astro.request.headers,
+      cookies: Astro.cookies,
+    });
+
+    const { data: rulesData, error } = await supabase
+      .from('rules')
+      .select('library_id, rule_content, sort_order')
+      .eq('is_active', true)
+      .order('library_id', { ascending: true })
+      .order('sort_order', { ascending: true });
+
+    if (!error && rulesData) {
+      // Transform flat array to LibraryRulesMap structure
+      rulesData.forEach((rule: { library_id: Library; rule_content: string }) => {
+        const libraryId = rule.library_id;
+        if (!libraryRules[libraryId]) {
+          libraryRules[libraryId] = [];
+        }
+        libraryRules[libraryId]?.push(rule.rule_content);
+      });
+      console.log(`✅ Loaded ${rulesData.length} rules from database`);
+    } else if (error) {
+      console.warn('⚠️ Failed to load rules from database, using fallback:', error.message);
+    }
+  } catch (err) {
+    console.warn('⚠️ Error loading rules from database, using fallback:', err);
+  }
+}
+
+// Fallback to file-based rules if database failed or disabled
+if (Object.keys(libraryRules).length === 0) {
+  try {
+    const { libraryRules: fileRules } = await import('../data/rules');
+    libraryRules = fileRules;
+    console.log(`📁 Using file-based rules (${Object.keys(libraryRules).length} libraries)`);
+  } catch (err) {
+    console.error('❌ Failed to load fallback rules:', err);
+    libraryRules = {};
+  }
+}
+
+// Add caching headers for edge performance
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400',
+);
 ---
 
 <Layout>
   <div class="flex flex-col h-screen max-h-screen bg-gray-950 overflow-hidden">
     <Topbar client:load initialUser={user} />
     <main class="flex-grow overflow-auto">
-      <TwoPane client:load initialUrl={initialUrl} />
+      <TwoPane client:load initialUrl={initialUrl} libraryRules={libraryRules} />
     </main>
     <Footer client:load />
   </div>
