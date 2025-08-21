@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 - `npm run test` - Run unit tests with Vitest
-- `npm run test:watch` - Run tests in watch mode
+- `npm run test:watch` - Run tests in watch mode  
 - `npm run test:ui` - Run tests with UI interface
 - `npm run test:coverage` - Generate test coverage report
 - `npm run test:e2e` - Run end-to-end tests with Playwright
@@ -28,17 +28,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run test:e2e:codegen` - Generate test code with Playwright
 
 ### Special Scripts
-- `npm run generate-rules` - Generate rules JSON from TypeScript definitions
+- `npm run generate-rules` - Generate rules JSON from TypeScript definitions (required before running MCP server locally)
 
 ## Architecture Overview
 
 ### Technology Stack
 - **Framework**: Astro 5 with React 18.3 integration
-- **Styling**: Tailwind CSS 4
-- **State Management**: Zustand for client-side state
-- **Database**: Supabase (PostgreSQL with real-time features)
-- **Testing**: Vitest for unit tests, Playwright for E2E tests
-- **Authentication**: Supabase Auth with email/password and password reset
+- **Styling**: Tailwind CSS 4 with Typography plugin
+- **State Management**: Zustand for client-side state with URL persistence
+- **Database**: Supabase (PostgreSQL with auth and real-time features)
+- **Testing**: Vitest (unit tests with JSDOM), Playwright (E2E with Page Object Model)
+- **Authentication**: Supabase Auth with email/password and password reset flow
+- **Validation**: Zod for schema validation, React Hook Form for forms
+- **Build Tools**: TypeScript 5, TSX for scripts
 
 ### Project Structure
 
@@ -49,51 +51,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `services/` - Business logic services, notably `RulesBuilderService`
 - `store/` - Zustand stores for state management
 - `hooks/` - Custom React hooks
+- `features/` - Feature flags system for environment-based functionality control
+- `i18n/` - Internationalization with translations
+- `db/` - Database types and utilities
 
 #### Key Components Architecture
-- **Rules System**: Rules are organized by technology stacks (frontend, backend, database, etc.) and stored in `src/data/rules/`
-- **Rules Builder Service**: Core service in `src/services/rules-builder/` that generates markdown content using strategy pattern (single-file vs multi-file output)
-- **Collections System**: User can save and manage rule collections via `collectionsStore`
-- **Feature Flags**: Environment-based feature toggling system in `src/features/featureFlags.ts`
+- **Rules System**: Rules are organized by technology stacks (frontend, backend, database, etc.) and stored in `src/data/rules/`. Each rule category exports typed rule arrays.
+- **Rules Builder Service**: Core service in `src/services/rules-builder/` that generates markdown content using strategy pattern (single-file vs multi-file output strategies)
+- **Collections System**: User can save and manage rule collections via `collectionsStore` with dirty state tracking and Supabase persistence
+- **Feature Flags**: Environment-based feature toggling system in `src/features/featureFlags.ts` controlling API endpoints, pages, and UI components
 
 #### MCP Server (`mcp-server/`)
 Standalone Cloudflare Worker implementing Model Context Protocol for programmatic access to AI rules. Provides tools:
-- `listAvailableRules` - Get available rule categories
-- `getRuleContent` - Fetch specific rule content
+- `listAvailableRules` - Get available rule categories with identifiers and stack hierarchy
+- `getRuleContent` - Fetch specific rule content by library identifier
+
+Deployed at: `https://10x-rules-mcp-server.przeprogramowani.workers.dev/sse`
 
 ### State Management Pattern
 The application uses Zustand with multiple specialized stores:
-- `techStackStore` - Manages selected libraries and tech stack
+- `techStackStore` - Manages selected libraries and tech stack with URL sync
 - `collectionsStore` - Handles saved rule collections with dirty state tracking
-- `authStore` - Authentication state management
-- `projectStore` - Project metadata (name, description)
+- `authStore` - Authentication state management with Supabase session handling
+- `projectStore` - Project metadata (name, description) with URL persistence
+- `navigationStore` - UI navigation state
 
 ### Environment Configuration
 - Uses Astro's environment schema for type-safe environment variables
-- Supports three environments: `local`, `integration`, `prod`
-- Feature flags control functionality per environment
+- Supports three environments: `local`, `integration`, `prod` (via `PUBLIC_ENV_NAME`)
+- Feature flags control functionality per environment (.ai/feature-flags.md)
 - Requires `.env.local` with Supabase credentials and Cloudflare Turnstile keys
 
 ### Database Integration
 - Supabase integration with TypeScript types in `src/db/database.types.ts`
 - Collections are stored in Supabase with user association
-- Real-time capabilities available but not currently utilized
+- Authentication flow includes email verification and password reset
+- Rate limiting implemented for API endpoints
 
 ### Testing Strategy
-- Unit tests use Vitest with React Testing Library and JSDOM
+- Unit tests use Vitest with React Testing Library and JSDOM environment
 - E2E tests use Playwright with Page Object Model pattern
-- Test files located in `tests/` for unit tests and `e2e/` for E2E tests
-- All tests run in CI/CD pipeline
+- Test setup includes MSW for API mocking
+- Tests run in CI/CD pipeline via GitHub Actions
+- E2E tests use `.env.integration` for isolated testing environment
 
 ### Rules Content System
 Rules are defined as TypeScript objects and exported from category-specific files in `src/data/rules/`. The system supports:
-- Categorization by technology layers (frontend, backend, database, etc.)
-- Library-specific rules with placeholder replacement
-- Multi-file vs single-file output strategies
-- Markdown generation with project context
+- Categorization by technology layers (frontend, backend, database, testing, infrastructure, accessibility, coding standards)
+- Library-specific rules with placeholder replacement ({{project_name}}, {{library}})
+- Multi-file vs single-file output strategies based on editor type
+- Markdown generation with project context and library-specific content
 
 ### Development Workflow
-1. Rules contributions go in `src/data/rules/` with corresponding translations in `src/i18n/translations.ts`
-2. Use feature flags to control new functionality rollout
-3. Collections allow users to save and share rule combinations
-4. The MCP server enables programmatic access for AI assistants
+1. Rules contributions go in `src/data/rules/` with corresponding translations in `src/i18n/translations.ts` (unit tests will fail without translations)
+2. Use feature flags to control new functionality rollout across environments
+3. Collections allow users to save and share rule combinations with authentication
+4. The MCP server enables programmatic access for AI assistants (Cursor, Claude, etc.)
+5. Run `npm run generate-rules` after modifying rules to update `preparedRules.json` for MCP server
