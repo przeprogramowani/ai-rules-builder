@@ -108,3 +108,22 @@ Rules are defined as TypeScript objects and exported from category-specific file
 3. Collections allow users to save and share rule combinations with authentication
 4. The MCP server enables programmatic access for AI assistants (Cursor, Claude, etc.)
 5. Run `npm run generate-rules` after modifying rules to update `preparedRules.json` for MCP server
+
+## Important Development Instructions
+
+### Key Development Principles
+- Do what has been asked; nothing more, nothing less
+- NEVER create files unless they're absolutely necessary for achieving your goal
+- ALWAYS prefer editing existing files to creating new ones
+- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
+
+### Working with Rules
+- When adding new rules, they must be added to both `src/data/rules/` TypeScript files AND corresponding translations in `src/i18n/translations.ts`
+- Unit tests will fail if translations are missing for new rules
+- Always run `npm run migrate-rules` after adding rules to sync them with the database
+- Run `npm run generate-rules` after modifying rules to update `preparedRules.json` for the MCP server
+
+### Database vs File-Based Rules
+- The system supports both database-stored rules (default) and file-based fallback
+- Use `USE_DATABASE_RULES=false` environment variable to force file-based rules during development
+- Database rules allow updates without code deployments
