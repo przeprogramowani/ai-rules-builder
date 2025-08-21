@@ -80,13 +80,14 @@ CF_CAPTCHA_SECRET_KEY=1x0000000000000000000000000000000AA
 - React 18.3
 - Tailwind 4
 - Zustand
+- Supabase (PostgreSQL)
 - Lucide React
 
 ## Project Components
 
 This repository contains multiple key components:
 
--   **AI Rules Builder UI (Root):** The main Astro/React application providing the web interface for creating and managing AI rules.
+-   **AI Rules Builder UI (Root):** The main Astro/React application providing the web interface for creating and managing AI rules. Rules are dynamically loaded from Supabase database with automatic fallback to file-based rules for reliability.
 -   **MCP Server (`./mcp-server`):** A Cloudflare Worker implementing the Model Context Protocol (MCP). This server allows AI assistants (like Cursor, Claude, etc.) to programmatically access the defined AI rules via specific tools (`listAvailableRules`, `getRuleContent`). This enables integration with editors for fetching context-aware coding guidelines. For detailed setup, usage, and planned features, see the [MCP Server README](./mcp-server/README.md).
 
 ### Feature Flags
@@ -98,6 +99,27 @@ The project uses a feature flags system to separate deployments from releases. F
 - UI components visibility
 
 For detailed documentation about feature flags implementation, see `.ai/feature-flags.md`.
+
+### Rules Management
+
+The application supports both database-stored and file-based rules:
+
+- **Database Rules (Default):** Rules are stored in Supabase and can be updated without code deployments
+- **File-Based Fallback:** Automatic fallback to TypeScript files in `src/data/rules/` if database is unavailable
+- **Environment Control:** Use `USE_DATABASE_RULES=false` to disable database rules entirely
+
+#### Available Scripts
+
+```bash
+# Migrate existing rules from files to database
+npm run migrate-rules
+
+# Development server (uses database rules by default)
+npm run dev
+
+# Generate rules JSON for MCP server
+npm run generate-rules
+```
 
 ### Testing
 
@@ -154,12 +176,19 @@ Tests are automatically run in the CI/CD pipeline using GitHub Actions. See `.gi
 
 ## Contributions
 
-Send updates to:
+### Adding New Rules
 
-- `src/data/dictionaries.ts`
-- `src/data/rules/...`
+- Add rules to appropriate files in `src/data/rules/`
+- Update `src/data/dictionaries.ts` for new libraries
+- Add translations in `src/i18n/translations.ts` (required for tests to pass)
+- Run `npm run migrate-rules` to sync with database
 
-Important: Introduce translations for new rules in `src/i18n/translations.ts`, otherwise the unit test will fail.
+### Development Workflow
+
+1. Add new rules via database or update TypeScript files
+2. If adding new libraries, update dictionaries and translations
+3. Test locally with both database and fallback modes
+4. Submit pull request with proper documentation
 
 ## How to Write Effective Rules
 
