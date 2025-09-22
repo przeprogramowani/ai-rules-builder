@@ -1,11 +1,11 @@
 import { Check } from 'lucide-react';
-import type { KeyboardEvent } from 'react';
 import React from 'react';
 import { Library } from '../../data/dictionaries';
 import { getLibraryTranslation } from '../../i18n/translations';
 import type { LayerType } from '../../styles/theme';
 import { getLayerClasses } from '../../styles/theme';
 import { useAccordionContentOpen } from '../ui/Accordion';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface LibraryItemProps {
   library: Library;
@@ -19,12 +19,9 @@ export const LibraryItem: React.FC<LibraryItemProps> = React.memo(
     const isParentAccordionOpen = useAccordionContentOpen();
     const itemClasses = getLayerClasses.libraryItem(layerType, isSelected);
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onToggle(library);
-      }
-    };
+    const handleKeyDown = useKeyboardActivation<HTMLButtonElement>(() => {
+      onToggle(library);
+    });
 
     return (
       <button

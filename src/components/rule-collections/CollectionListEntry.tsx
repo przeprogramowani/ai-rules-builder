@@ -4,6 +4,7 @@ import type { Collection } from '../../store/collectionsStore';
 import { useCollectionsStore } from '../../store/collectionsStore';
 import DeletionDialog from './DeletionDialog';
 import SaveCollectionDialog from './SaveCollectionDialog';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface CollectionListEntryProps {
   collection: Collection;
@@ -29,9 +30,13 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
     onClick?.(collection);
   };
 
+  const openDeleteDialog = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDeleteDialogOpen(true);
+    openDeleteDialog();
   };
 
   const handleSaveClick = async (e: React.MouseEvent) => {
@@ -60,10 +65,32 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
     }
   };
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const openEditDialog = () => {
     setIsEditDialogOpen(true);
   };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openEditDialog();
+  };
+
+  const handleEditKeyDown = useKeyboardActivation<HTMLDivElement>(
+    () => {
+      openEditDialog();
+    },
+    {
+      stopPropagation: true,
+    },
+  );
+
+  const handleDeleteKeyDown = useKeyboardActivation<HTMLDivElement>(
+    () => {
+      openDeleteDialog();
+    },
+    {
+      stopPropagation: true,
+    },
+  );
 
   const handleEditSave = async (name: string, description: string) => {
     try {
@@ -101,12 +128,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
               aria-label={`Edit ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleEditClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleEditKeyDown}
             >
               <Pencil className="size-4" />
             </div>
@@ -117,12 +139,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-colors"
               aria-label={`Delete ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleDeleteClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleDeleteKeyDown}
             >
               <Trash2 className="size-4" />
             </div>
