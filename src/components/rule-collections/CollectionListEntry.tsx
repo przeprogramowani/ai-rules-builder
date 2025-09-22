@@ -4,6 +4,7 @@ import type { Collection } from '../../store/collectionsStore';
 import { useCollectionsStore } from '../../store/collectionsStore';
 import DeletionDialog from './DeletionDialog';
 import SaveCollectionDialog from './SaveCollectionDialog';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface CollectionListEntryProps {
   collection: Collection;
@@ -74,6 +75,10 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
     }
   };
 
+  const handleActionKeyDown = useKeyboardActivation<HTMLDivElement>({
+    stopPropagation: true,
+  });
+
   return (
     <>
       <button
@@ -101,12 +106,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
               aria-label={`Edit ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleEditClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleActionKeyDown}
             >
               <Pencil className="size-4" />
             </div>
@@ -117,12 +117,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-colors"
               aria-label={`Delete ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleDeleteClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleActionKeyDown}
             >
               <Trash2 className="size-4" />
             </div>
