@@ -9,8 +9,9 @@ import {
 import { useTechStackStore } from '../../../store/techStackStore';
 import type { LayerType } from '../../../styles/theme';
 import { layerToType } from '../../../styles/theme';
+import type { LibraryRulesMap } from '../../../data/rules/types';
 
-export const useRuleBuilder = () => {
+export const useRuleBuilder = (libraryRules: LibraryRulesMap) => {
   const {
     selectedLibraries,
     selectLayer,
@@ -58,6 +59,14 @@ export const useRuleBuilder = () => {
 
   // Get all available layers
   const layers = useMemo(() => Object.values(Layer), []);
+
+  // Helper function to get rules for a library using passed libraryRules
+  const getRulesForLibrary = useCallback(
+    (library: Library): string[] => {
+      return libraryRules[library] || [];
+    },
+    [libraryRules],
+  );
 
   // Function to get layer type for a layer
   const getLayerType = useCallback((layer: Layer): LayerType => {
@@ -386,5 +395,8 @@ export const useRuleBuilder = () => {
     getLayerType,
     getStackLayerType,
     getLibraryLayerType,
+
+    // Rules access
+    getRulesForLibrary,
   };
 };

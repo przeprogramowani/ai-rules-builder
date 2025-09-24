@@ -9,6 +9,7 @@ import type { RulesContent } from './RulesBuilderTypes.ts';
 import type { RulesGenerationStrategy } from './RulesGenerationStrategy.ts';
 import { MultiFileRulesStrategy } from './rules-generation-strategies/MultiFileRulesStrategy.ts';
 import { SingleFileRulesStrategy } from './rules-generation-strategies/SingleFileRulesStrategy.ts';
+import type { LibraryRulesMap } from '../../data/rules/types';
 
 /**
  * Service for building AI rules based on selected libraries
@@ -21,6 +22,7 @@ export class RulesBuilderService {
    * @param projectDescription - The description of the project
    * @param selectedLibraries - Array of selected libraries
    * @param multiFile - Whether to generate multiple files per each rule content
+   * @param libraryRules - Optional library rules map (fallback to file-based rules if not provided)
    * @returns The generated markdown content
    */
   static generateRulesContent(
@@ -28,14 +30,15 @@ export class RulesBuilderService {
     projectDescription: string,
     selectedLibraries: Library[],
     multiFile?: boolean,
+    libraryRules?: LibraryRulesMap,
   ): RulesContent[] {
     // Group libraries by stack and layer
     const librariesByStack = this.groupLibrariesByStack(selectedLibraries);
     const stacksByLayer = this.groupStacksByLayer(Object.keys(librariesByStack) as Stack[]);
 
     const strategy: RulesGenerationStrategy = multiFile
-      ? new MultiFileRulesStrategy()
-      : new SingleFileRulesStrategy();
+      ? new MultiFileRulesStrategy(libraryRules)
+      : new SingleFileRulesStrategy(libraryRules);
 
     return strategy.generateRules(
       projectName,

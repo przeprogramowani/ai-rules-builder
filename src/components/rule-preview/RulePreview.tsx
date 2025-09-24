@@ -7,8 +7,13 @@ import { RulePreviewTopbar } from './RulePreviewTopbar';
 import { DependencyUpload } from './DependencyUpload.tsx';
 import { MarkdownContentRenderer } from './MarkdownContentRenderer.tsx';
 import type { RulesContent } from '../../services/rules-builder/RulesBuilderTypes.ts';
+import type { LibraryRulesMap } from '../../data/rules/types';
 
-export const RulePreview: React.FC = () => {
+interface RulePreviewProps {
+  libraryRules: LibraryRulesMap;
+}
+
+export const RulePreview: React.FC<RulePreviewProps> = ({ libraryRules }) => {
   const { selectedLibraries } = useTechStackStore();
   const { projectName, projectDescription, isMultiFileEnvironment } = useProjectStore();
   const [markdownContent, setMarkdownContent] = useState<RulesContent[]>([]);
@@ -21,9 +26,10 @@ export const RulePreview: React.FC = () => {
       projectDescription,
       selectedLibraries,
       isMultiFileEnvironment,
+      libraryRules,
     );
     setMarkdownContent(markdowns);
-  }, [selectedLibraries, projectName, projectDescription, isMultiFileEnvironment]);
+  }, [selectedLibraries, projectName, projectDescription, isMultiFileEnvironment, libraryRules]);
 
   // Handle drag events
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
