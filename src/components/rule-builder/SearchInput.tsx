@@ -1,6 +1,7 @@
 import { Search, X } from 'lucide-react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface SearchInputProps {
   searchQuery: string;
@@ -32,14 +33,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     inputRef.current?.focus();
   }, [setSearchQuery]);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleClear();
-      }
-    },
-    [handleClear],
+  const createKeyboardActivationHandler = useKeyboardActivation<HTMLButtonElement>();
+  const handleKeyDown = useMemo(
+    () => createKeyboardActivationHandler(handleClear),
+    [createKeyboardActivationHandler, handleClear],
   );
 
   return (

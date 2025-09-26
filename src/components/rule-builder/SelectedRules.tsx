@@ -1,9 +1,9 @@
 import { X } from 'lucide-react';
 import React from 'react';
-import type { KeyboardEvent } from 'react';
 import { Library } from '../../data/dictionaries';
 import type { LayerType } from '../../styles/theme';
 import { getLayerClasses } from '../../styles/theme';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface SelectedRulesProps {
   selectedLibraries: Library[];
@@ -13,12 +13,7 @@ interface SelectedRulesProps {
 
 export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
   ({ selectedLibraries, unselectLibrary, getLibraryLayerType }) => {
-    const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>, library: Library) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        unselectLibrary(library);
-      }
-    };
+    const createKeyboardActivationHandler = useKeyboardActivation<HTMLButtonElement>();
 
     if (selectedLibraries.length === 0) {
       return null;
@@ -43,7 +38,7 @@ export const SelectedRules: React.FC<SelectedRulesProps> = React.memo(
                 <span>{library}</span>
                 <button
                   onClick={() => unselectLibrary(library)}
-                  onKeyDown={(e) => handleKeyDown(e, library)}
+                  onKeyDown={createKeyboardActivationHandler(() => unselectLibrary(library))}
                   className={`text-white opacity-70 cursor-pointer hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-1 ${getLayerClasses.focusRing(layerType)}`}
                   aria-label={`Remove ${library} rule`}
                   tabIndex={0}

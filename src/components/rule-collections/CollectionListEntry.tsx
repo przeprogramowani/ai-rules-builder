@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Book, Trash2, Pencil, Save } from 'lucide-react';
 import type { Collection } from '../../store/collectionsStore';
 import { useCollectionsStore } from '../../store/collectionsStore';
 import DeletionDialog from './DeletionDialog';
 import SaveCollectionDialog from './SaveCollectionDialog';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 interface CollectionListEntryProps {
   collection: Collection;
@@ -29,9 +30,17 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
     onClick?.(collection);
   };
 
+  const openDeleteDialog = useCallback(() => {
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const openEditDialog = useCallback(() => {
+    setIsEditDialogOpen(true);
+  }, []);
+
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDeleteDialogOpen(true);
+    openDeleteDialog();
   };
 
   const handleSaveClick = async (e: React.MouseEvent) => {
@@ -62,7 +71,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsEditDialogOpen(true);
+    openEditDialog();
   };
 
   const handleEditSave = async (name: string, description: string) => {
@@ -73,6 +82,18 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
       throw error;
     }
   };
+
+  const createIconKeyboardHandler = useKeyboardActivation<HTMLDivElement>({
+    stopPropagation: true,
+  });
+  const handleEditKeyDown = useMemo(
+    () => createIconKeyboardHandler(openEditDialog),
+    [createIconKeyboardHandler, openEditDialog],
+  );
+  const handleDeleteKeyDown = useMemo(
+    () => createIconKeyboardHandler(openDeleteDialog),
+    [createIconKeyboardHandler, openDeleteDialog],
+  );
 
   return (
     <>
@@ -101,12 +122,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
               aria-label={`Edit ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleEditClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleEditKeyDown}
             >
               <Pencil className="size-4" />
             </div>
@@ -117,12 +133,7 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
               tabIndex={0}
               className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-colors"
               aria-label={`Delete ${collection.name}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleDeleteClick(e as unknown as React.MouseEvent);
-                }
-              }}
+              onKeyDown={handleDeleteKeyDown}
             >
               <Trash2 className="size-4" />
             </div>
