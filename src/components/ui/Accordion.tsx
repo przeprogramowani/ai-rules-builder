@@ -1,7 +1,7 @@
 import { ChevronDown } from 'lucide-react';
-import type { KeyboardEvent } from 'react';
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { transitions } from '../../styles/theme';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
 // Create a context to track accordion open state
 const AccordionContentContext = createContext<boolean>(false);
@@ -67,12 +67,11 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = React.memo(
     // Only nested triggers should check parent state
     const shouldBeFocusable = isRoot || isParentAccordionOpen;
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onClick?.();
-      }
-    };
+    const createKeyboardActivationHandler = useKeyboardActivation<HTMLDivElement>();
+    const handleKeyDown = useMemo(
+      () => createKeyboardActivationHandler(() => onClick?.()),
+      [createKeyboardActivationHandler, onClick],
+    );
 
     return (
       <div
