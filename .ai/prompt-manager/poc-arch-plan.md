@@ -6,7 +6,7 @@ Deliver the prompt manager proof of concept in the shortest path that still hono
 
 
 ## MVP Guardrails (Keep Lean, Stay Grounded)
-- **Flag-first rollout:** Everything hides behind `PROMPT_MANAGER_ENABLED` with toggles defined in `featureFlags.ts`; telemetry stubs behind `PROMPT_USAGE_LOGGING_ENABLED` per POC Guiding Constraints.
+- **Flag-first rollout:** Everything hides behind `PROMPT_MANAGER_ENABLED` with toggles defined in `featureFlags.ts`;
 - **Reuse existing rails:** Stick to Astro routes + Supabase fetch patterns already proven in Rules Builder; no new client libraries until the POC ships.
 - **Single active version:** Maintain only one editable/published prompt entry (POC "Simplified prompt catalog schema") to avoid versioning overhead now.
 - **Organization-aware access:** Require an explicit `organization_members` membership before any prompt routes load; the launch cohort is mapped to `10xDevs`, and the remaining ~254 existing users stay locked out until they receive an organization assignment.
@@ -20,88 +20,12 @@ Deliver the prompt manager proof of concept in the shortest path that still hono
 | Supabase schema | `organizations`, `organization_members`, `prompt_collections`, `prompt_segments`, `prompts` | `prompt_versions`, `prompt_usage_logs`, enums, audit tables |
 | Admin UI | Table view scoped to active organization, edit/publish modal, status toggle | Markdown diffing, bulk publish, drafts filter presets |
 | Member UI | Organization selector, collection/segment filters, prompt accordion, copy & download actions | Full-text search, skeleton loaders, localization banner |
-| Telemetry | Console log stub when flag enabled | `prompt_usage_events` table + hook gate |
 | Testing | Vitest for guards + API, Playwright happy-path | Edge-case Vitest, telemetry + localization suites |
 | Documentation | README + `.ai/test-plan.md` update post-delivery | Dedicated module docs, diagrams, migration walkthroughs |
 
-## Inline Schema & Data Contracts (No External Lookup Needed)
-### Table Cheat Sheet
-- **`organizations`** — seeded list of organizations that can access prompts (10xDevs default present day).
-  - Columns: `id uuid`, `slug text` unique, `name text`, timestamps.
-  - Index: unique `slug` supports lookups in middleware/organization switcher.
-- **`organization_members`** — join table linking Supabase users to one or more organizations with role (default `member`).
-  - Columns: `organization_id uuid FK organizations`, `user_id uuid FK auth.users`, `role text` (`admin`/`member`), timestamps.
-  - Composite primary key `(organization_id, user_id)`.
-- **`prompt_collections`** — grouping of prompts per organization (maps to "modules" for 10xDevs but generic naming).
-  - Columns: `id uuid`, `organization_id uuid`, `slug text`, `title text`, `description text`, `sort_order integer`, timestamps.
-  - Constraint: `unique (organization_id, slug)` for lean lookup.
-- **`prompt_collection_segments`** — optional finer grouping inside a collection (replaces lesson terminology).
-  - Columns: `id uuid`, `collection_id uuid`, `slug text`, `title text`, `sort_order integer`, timestamps.
-  - Constraint: `unique (collection_id, slug)`.
-- **`prompts`** — single active record per collection/segment combination.
-  - Columns: `id uuid`, `organization_id uuid`, `collection_id uuid`, `segment_id uuid nullable`, `title text`, `markdown_body text`, `status text` (`draft`/`published`), `created_by uuid`, `updated_at`.
-  - Lean check constraint: `status in ('draft','published')`.
-  - Index: `idx_prompts_organization_scope` on `(organization_id, status, collection_id, segment_id)` speeds member queries.
+## Inline Schema & Data Contracts
+@.ai/prompt-manager/schema-proposal.md
 
-
-### SQL Definition (Ready for One Migration)
-```sql
-create table organizations (
-  id uuid primary key default gen_random_uuid(),
-  slug text not null unique,
-  name text not null,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
-create table organization_members (
-  organization_id uuid not null references organizations(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  role text not null default 'member' check (role in ('member','admin')),
-  created_at timestamptz default now(),
-  updated_at timestamptz default now(),
-  primary key (organization_id, user_id)
-);
-
-create table prompt_collections (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references organizations(id) on delete cascade,
-  slug text not null,
-  title text not null,
-  description text,
-  sort_order integer default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now(),
-  unique (organization_id, slug)
-);
-create index idx_prompt_collections_organization_sort on prompt_collections(organization_id, sort_order);
-
-create table prompt_collection_segments (
-  id uuid primary key default gen_random_uuid(),
-  collection_id uuid not null references prompt_collections(id) on delete cascade,
-  slug text not null,
-  title text not null,
-  sort_order integer default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now(),
-  unique (collection_id, slug)
-);
-create index idx_prompt_segments_collection_sort on prompt_collection_segments(collection_id, sort_order);
-
-create table prompts (
-  id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references organizations(id) on delete cascade,
-  collection_id uuid not null references prompt_collections(id) on delete cascade,
-  segment_id uuid references prompt_collection_segments(id) on delete set null,
-  title text not null,
-  markdown_body text not null,
-  status text not null default 'draft' check (status in ('draft','published')),
-  created_by uuid references auth.users(id),
-  updated_at timestamptz default now()
-);
-create index idx_prompts_organization_scope on prompts(organization_id, status, collection_id, segment_id);
-```
-*Lean choices: no enums, no trigger-managed timestamps, no `prompt_versions` or telemetry tables until validation. Aligns with `Phase B – Prompt Catalog MVP` requirements while enabling organization selectors.*
 
 ### Seeding Strategy
 - Seed `organizations` with at least `10xdevs` slug plus any internal testing orgs.
@@ -148,8 +72,7 @@ DR1: Approve the lean schema (columns + indexes) above so migration can land wit
 D1: Lean schema approved.
 DR2: Confirm API route placement (`src/pages/api/prompts/...`) vs. co-located feature folder to keep imports consistent.
 D2: API route placement confirmed.
-DR3: Agree on telemetry stub stance: console logging only, or ship the minimal Supabase table even if unused during demo.
-D3: Console logging only.
+
 
 ## De-Scoped (Documented Deferrals)
 - No roster validation, telemetry tables, version history, or localization enhancements; revisit with full architecture plan once POC validated.
