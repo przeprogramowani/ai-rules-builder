@@ -45,7 +45,7 @@ Deliver the prompt manager proof of concept in the shortest path that still hono
 ## Implementation Tracks (3 Parallelizable Slices)
 1. **Track A – Access & Seed Bootstrapping**
    - Add feature flags in `featureFlags.ts` + middleware guard (POC phase A).
-   - Implement `ensurePromptAccess()` middleware helper reading organization memberships from Supabase metadata.
+   - Implement `ensurePromptAccess()` middleware helper reading organization memberships from Supabase.
    - Apply migration above; document Supabase command in README after completion, including organization + collection seeds.
    - Drop seed SQL file into `supabase/migrations/<timestamp>__prompt_manager_seed.sql` using the snippet here (no dependency on other docs).
 2. **Track B – Admin & Member Surfaces**

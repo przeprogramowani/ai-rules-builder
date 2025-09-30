@@ -32,7 +32,10 @@ Prompt Manager POC to pierwsza iteracja menedżera promptów uruchamiana pod śc
 - ID: US-001
 - Tytuł: Sterowanie flagą Prompt Manager
 - Opis: Jako operator platformy chcę móc włączać i wyłączać flagę `PROMPT_MANAGER_ENABLED`, aby bezpiecznie kontrolować rollout funkcji w środowiskach.
-- Kryteria akceptacji: 1) `PROMPT_MANAGER_ENABLED` domyślnie ukrywa trasy `/prompts` i `/prompts/admin`; 2) Zmiana flagi w konfiguracji środowiska natychmiast blokuje lub udostępnia interfejs bez dodatkowego wdrożenia kodu; 3) Przy wyłączonej fladze użytkownicy widzą stan „request access”, a komponenty promptów nie są renderowane.
+- Kryteria akceptacji:
+1) `PROMPT_MANAGER_ENABLED` domyślnie ukrywa trasy `/prompts` i `/prompts/admin`;
+2) Zmiana flagi w konfiguracji środowiska natychmiast blokuje lub udostępnia interfejs bez dodatkowego wdrożenia kodu;
+3) Przy wyłączonej fladze użytkownicy widzą stan 404, a komponenty promptów nie są renderowane.
 
 ### US-002
 - ID: US-002

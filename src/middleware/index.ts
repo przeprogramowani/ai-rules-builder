@@ -1,4 +1,10 @@
 import { createSupabaseServerInstance } from '@/db/supabase.client';
+import {
+  ensurePromptManagerEnabled,
+  getUserOrganizations,
+  hasPromptManagerAccess,
+  hasPromptManagerAdminAccess,
+} from '@/services/prompt-manager/access';
 import { sequence, defineMiddleware } from 'astro:middleware';
 import { checkRateLimit, setRateLimitCookie } from '../services/rateLimiter';
 
@@ -57,6 +63,56 @@ const PUBLIC_PATHS = [
   '/privacy/en',
 ];
 
+const PROMPT_MANAGER_BASE_PATH = '/prompts';
+const PROMPT_MANAGER_ADMIN_PATH = '/prompts/admin';
+
+const TEXT_PROMPT_MANAGER_DISABLED = 'Prompt Manager is not available.';
+const TEXT_PROMPT_MANAGER_ACCESS_DENIED =
+  'Prompt Manager access is restricted to approved organizations.';
+
+function normalisePath(pathname: string): string {
+  if (!pathname.endsWith('/') || pathname === '/') {
+    return pathname;
+  }
+  return pathname.replace(/\/+$/, '') || '/';
+}
+
+function isPromptManagerAdminRoute(pathname: string): boolean {
+  const normalised = normalisePath(pathname);
+  return (
+    normalised === PROMPT_MANAGER_ADMIN_PATH ||
+    normalised.startsWith(`${PROMPT_MANAGER_ADMIN_PATH}/`)
+  );
+}
+
+function isPromptManagerRoute(pathname: string): boolean {
+  const normalised = normalisePath(pathname);
+  if (isPromptManagerAdminRoute(normalised)) {
+    return true;
+  }
+  return (
+    normalised === PROMPT_MANAGER_BASE_PATH || normalised.startsWith(`${PROMPT_MANAGER_BASE_PATH}/`)
+  );
+}
+
+function promptManagerFlagDisabledResponse(): Response {
+  return new Response(TEXT_PROMPT_MANAGER_DISABLED, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  });
+}
+
+function promptManagerAccessDeniedResponse(): Response {
+  return new Response(TEXT_PROMPT_MANAGER_ACCESS_DENIED, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  });
+}
+
 const validateRequest = defineMiddleware(
   async ({ locals, cookies, url, request, redirect }, next) => {
     try {
@@ -101,6 +157,35 @@ const validateRequest = defineMiddleware(
 
         // Redirect to login for protected routes
         return redirect('/auth/login');
+      }
+
+      const pathname = url.pathname;
+      const flagEnabled = ensurePromptManagerEnabled();
+      const isPromptRoute = isPromptManagerRoute(pathname);
+      const isAdminRoute = isPromptManagerAdminRoute(pathname);
+
+      if (isPromptRoute) {
+        const organizationResult = getUserOrganizations(user);
+        locals.promptManager = {
+          organizations: organizationResult.organizations,
+          issues: organizationResult.issues,
+          flagEnabled,
+        };
+
+        if (!flagEnabled) {
+          return promptManagerFlagDisabledResponse();
+        }
+
+        if (!hasPromptManagerAccess(user, organizationResult)) {
+          return promptManagerAccessDeniedResponse();
+        }
+
+        if (isAdminRoute && !hasPromptManagerAdminAccess(user, organizationResult)) {
+          if (hasPromptManagerAccess(user, organizationResult)) {
+            return redirect(PROMPT_MANAGER_BASE_PATH);
+          }
+          return promptManagerAccessDeniedResponse();
+        }
       }
 
       return next();

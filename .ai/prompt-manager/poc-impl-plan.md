@@ -12,7 +12,7 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 - Keep the feature name `prompt-manager`; only the public-facing routes and APIs use `/prompts` naming.
 
 ## Scope Included in POC
-- Feature flags, organization helpers, and route guards using Supabase user metadata (e.g., organization list + per-organization role for admin/member distinctions).
+- Feature flags, organization helpers, and route guards using Supabase user data (e.g., organization list + per-organization role for admin/member distinctions).
 - Cohort gate placeholder that currently allows only authenticated users with a seeded organization membership (initially `10xDevs`) while keeping the hook for richer roster validation later.
 - Simplified prompt catalog schema (single active version per prompt) stored entirely in Supabase with organization + collection scoping.
 - Admin curation UI with list + edit/publish toggle scoped to active organization.
@@ -32,7 +32,7 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 ## Phase 1 – Feature Flag & Access Foundations
 **Goal:** Gate future work safely and prep organization-aware identity checks.
 - Add `PROMPT_MANAGER_ENABLED` to `featureFlags.ts`, configuration surfaces, and documentation (no env schema changes).
-- Implement helper utilities `isPromptManagerEnabled()` and `getUserOrganizations()` that read Supabase metadata, defaulting to organization `10xDevs` when present.
+- Implement helper utilities `isPromptManagerEnabled()` and `getUserOrganizations()` that read Supabase tables, defaulting to organization `10xDevs` when present.
 - Add access guard middleware that requires authentication and at least one organization membership (defaulting to `10xDevs`) before reaching `/prompts` routes, returning a "request access" state for everyone else.
 - Write minimal tests for feature flag utilities, organization parsing, and middleware edge cases.
 - Exit criteria: Flags controllable per environment, guard helpers return expected results in unit tests, middleware blocks unauthenticated/zero-organization users.
