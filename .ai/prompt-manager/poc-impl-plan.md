@@ -40,9 +40,9 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 ## Phase 2 – Organization Membership Foundation
 **Goal:** Persist organizations and flexible user assignments.
 - Create Supabase migrations for `organizations` and `organization_members`, limiting roles to `member` and `admin`; defer dedicated RLS until after the POC.
-- Seed default organization `10xDevs` and associate only the curated launch cohort (subset of the 254 existing users) through manual SQL or admin UI script, leaving everyone else without membership until explicitly approved.
+- Seed default organization `10xDevs` and associate only the curated launch cohort (subset of the 254 existing users) through manual SQL, leaving everyone else without membership until explicitly approved.
 - Extend helper utilities to hydrate active organization context on session load (respect query param switch).
-- Exit criteria: Authenticated user with organization membership can switch organizations, admin flags respected per organization.
+- Exit criteria: Authenticated user with organization membership, admin flags respected per organization.
 
 ## Phase 3 – Prompt Collection Schema & Admin APIs
 **Goal:** Persist organization-scoped prompt collections with a single active version per prompt.

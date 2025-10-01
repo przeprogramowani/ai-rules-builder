@@ -3,6 +3,69 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      organization_members: {
+        Row: {
+          created_at: string;
+          organization_id: string;
+          role: 'member' | 'admin';
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          organization_id: string;
+          role?: 'member' | 'admin';
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          organization_id?: string;
+          role?: 'member' | 'admin';
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'organization_members_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'organization_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organizations: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       collections: {
         Row: {
           created_at: string;

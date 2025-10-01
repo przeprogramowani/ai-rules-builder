@@ -55,9 +55,29 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 
 3. Verify Supabase is running
 
-   ```bash
-   supabase status
-   ```
+ ```bash
+  supabase status
+  ```
+
+### Prompt Manager Phase 2 (Organizations)
+
+- Apply migrations after pulling latest changes:
+
+  ```bash
+  supabase db push
+  ```
+
+- Regenerate typed client definitions once the migration succeeds:
+
+  ```bash
+  supabase gen types typescript --project-ref "$SUPABASE_PROJECT_REF" \
+    --schema public > src/db/database.types.ts
+  ```
+
+- Seed the `10xDevs` roster by updating the placeholder emails inside
+  `supabase/migrations/20250413093000_prompt_manager_orgs.sql` or rerunning the
+  documented roster insert SQL and commit the regenerated types alongside any
+  roster changes.
 
 ## Dotenv
 

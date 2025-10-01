@@ -1,7 +1,7 @@
 import { createSupabaseServerInstance } from '@/db/supabase.client';
 import {
+  buildPromptManagerContext,
   ensurePromptManagerEnabled,
-  getUserOrganizations,
   hasPromptManagerAccess,
   hasPromptManagerAdminAccess,
 } from '@/services/prompt-manager/access';
@@ -165,10 +165,10 @@ const validateRequest = defineMiddleware(
       const isAdminRoute = isPromptManagerAdminRoute(pathname);
 
       if (isPromptRoute) {
-        const organizationResult = getUserOrganizations(user);
+        const requestedOrganizationSlug = url.searchParams.get('organization');
         locals.promptManager = {
-          organizations: organizationResult.organizations,
-          issues: organizationResult.issues,
+          organizations: [],
+          activeOrganization: null,
           flagEnabled,
         };
 
@@ -176,15 +176,26 @@ const validateRequest = defineMiddleware(
           return promptManagerFlagDisabledResponse();
         }
 
-        if (!hasPromptManagerAccess(user, organizationResult)) {
+        const context = await buildPromptManagerContext({
+          supabase,
+          userId: user.id,
+          requestedSlug: requestedOrganizationSlug,
+        });
+
+        locals.promptManager.organizations = context.organizations;
+        locals.promptManager.activeOrganization = context.activeOrganization;
+
+        if (!hasPromptManagerAccess(context.organizations)) {
           return promptManagerAccessDeniedResponse();
         }
 
-        if (isAdminRoute && !hasPromptManagerAdminAccess(user, organizationResult)) {
-          if (hasPromptManagerAccess(user, organizationResult)) {
-            return redirect(PROMPT_MANAGER_BASE_PATH);
-          }
-          return promptManagerAccessDeniedResponse();
+        if (isAdminRoute && !hasPromptManagerAdminAccess(context.organizations)) {
+          const targetSlug = context.activeOrganization?.slug;
+          const targetPath = targetSlug
+            ? `${PROMPT_MANAGER_BASE_PATH}?organization=${encodeURIComponent(targetSlug)}`
+            : PROMPT_MANAGER_BASE_PATH;
+
+          return redirect(targetPath);
         }
       }
 

@@ -3,10 +3,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './db/database.types.ts';
 import type { Env } from './features/featureFlags';
-import type {
-  OrganizationMembership,
-  OrganizationParseIssue,
-} from './services/prompt-manager/access';
+import type { OrganizationMembership } from './services/prompt-manager/access';
 
 declare global {
   interface Window {
@@ -24,7 +21,7 @@ declare global {
       };
       promptManager?: {
         organizations: OrganizationMembership[];
-        issues: OrganizationParseIssue[];
+        activeOrganization: OrganizationMembership | null;
         flagEnabled: boolean;
       };
     }

@@ -1,5 +1,21 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { User } from '@supabase/supabase-js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+import type { Database } from '@/db/database.types';
+import {
+  buildPromptManagerContext,
+  ensurePromptManagerEnabled,
+  hasPromptManagerAccess,
+  hasPromptManagerAdminAccess,
+  shouldAllowPromptManagerAccess,
+  shouldAllowPromptManagerAdminAccess,
+} from '@/services/prompt-manager/access';
+import {
+  fetchOrganizationBySlug,
+  fetchUserOrganizations,
+  selectActiveOrganization,
+  type OrganizationMembership,
+} from '@/services/prompt-manager/organizations';
 
 type MutableEnv = Record<string, unknown>;
 
@@ -16,124 +32,275 @@ function resetEnv() {
   Object.assign(mutableEnv, originalEnv);
 }
 
-function createUser(overrides: Partial<User> = {}): User {
+type MembershipRow = {
+  organization_id: string;
+  role: 'member' | 'admin' | string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  organizations: {
+    id: string;
+    slug: string;
+    name: string;
+  } | null;
+};
+
+type SupabaseQueryResult = {
+  data: MembershipRow[] | null;
+  error: { message: string } | null;
+};
+
+type SupabaseMembershipSpies = {
+  from: ReturnType<typeof vi.fn>;
+  select: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+};
+
+type SupabaseMembershipStub = {
+  client: SupabaseClient<Database>;
+  spies: SupabaseMembershipSpies;
+};
+
+function createMembershipStub(result: SupabaseQueryResult): SupabaseMembershipStub {
+  const order = vi.fn().mockResolvedValue(result);
+  const eq = vi.fn().mockReturnValue({ order });
+  const select = vi.fn().mockReturnValue({ eq });
+  const from = vi.fn().mockImplementation(() => ({ select }));
+
   return {
-    id: overrides.id ?? 'user-123',
-    aud: overrides.aud ?? 'authenticated',
-    created_at: overrides.created_at ?? new Date().toISOString(),
-    email: overrides.email ?? 'member@example.com',
-    phone: overrides.phone ?? '',
-    app_metadata: overrides.app_metadata ?? {},
-    user_metadata: overrides.user_metadata ?? {},
-    role: overrides.role ?? 'authenticated',
-    updated_at: overrides.updated_at ?? new Date().toISOString(),
-    identities: overrides.identities ?? [],
-    factors: overrides.factors ?? [],
-    confirmed_at: overrides.confirmed_at ?? new Date().toISOString(),
-    email_confirmed_at: overrides.email_confirmed_at ?? new Date().toISOString(),
-    phone_confirmed_at: overrides.phone_confirmed_at ?? null,
-    last_sign_in_at: overrides.last_sign_in_at ?? new Date().toISOString(),
-    app_state: overrides.app_state ?? undefined,
-    raw_app_meta_data: overrides.raw_app_meta_data ?? {},
-    raw_user_meta_data: overrides.raw_user_meta_data ?? {},
-    reauthentication_token: overrides.reauthentication_token ?? null,
-    reauthentication_token_sent_at: overrides.reauthentication_token_sent_at ?? null,
-    is_anonymous: overrides.is_anonymous ?? false,
-    invited_at: overrides.invited_at ?? null,
-    email_change_confirm_status: overrides.email_change_confirm_status ?? 0,
-    email_change_sent_at: overrides.email_change_sent_at ?? null,
-    email_change_token_current: overrides.email_change_token_current ?? null,
-    email_change_token_new: overrides.email_change_token_new ?? null,
-    email_change: overrides.email_change ?? null,
-    phone_change: overrides.phone_change ?? '',
-    phone_change_sent_at: overrides.phone_change_sent_at ?? null,
-    phone_change_token: overrides.phone_change_token ?? null,
-    phone_change_token_current: overrides.phone_change_token_current ?? null,
-    phone_change_token_new: overrides.phone_change_token_new ?? null,
-    recovery_sent_at: overrides.recovery_sent_at ?? null,
-    confirmation_sent_at: overrides.confirmation_sent_at ?? null,
-  } as User;
+    client: { from } as unknown as SupabaseClient<Database>,
+    spies: { from, select, eq, order },
+  };
 }
+
+describe('prompt manager organizations service', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('maps supabase rows into organization memberships', async () => {
+    const stub = createMembershipStub({
+      data: [
+        {
+          organization_id: 'org-1',
+          role: 'member',
+          created_at: '2025-04-13T00:00:00Z',
+          updated_at: '2025-04-13T00:00:00Z',
+          user_id: 'user-123',
+          organizations: { id: 'org-1', slug: 'org-1', name: 'Org One' },
+        },
+        {
+          organization_id: 'org-2',
+          role: 'admin',
+          created_at: '2025-04-13T00:00:01Z',
+          updated_at: '2025-04-13T00:00:01Z',
+          user_id: 'user-123',
+          organizations: { id: 'org-2', slug: 'org-2', name: 'Org Two' },
+        },
+      ],
+      error: null,
+    });
+
+    const memberships = await fetchUserOrganizations(stub.client, 'user-123');
+
+    expect(stub.spies.from).toHaveBeenCalledWith('organization_members');
+    expect(stub.spies.select).toHaveBeenCalled();
+    expect(stub.spies.eq).toHaveBeenCalledWith('user_id', 'user-123');
+    expect(stub.spies.order).toHaveBeenCalledWith('created_at', { ascending: true });
+
+    expect(memberships).toEqual<OrganizationMembership[]>([
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ]);
+  });
+
+  it('filters out rows without organization join data', async () => {
+    const stub = createMembershipStub({
+      data: [
+        {
+          organization_id: 'org-3',
+          role: 'member',
+          created_at: '2025-04-13T00:00:02Z',
+          updated_at: '2025-04-13T00:00:02Z',
+          user_id: 'user-123',
+          organizations: null,
+        },
+      ],
+      error: null,
+    });
+
+    const memberships = await fetchUserOrganizations(stub.client, 'user-123');
+    expect(memberships).toEqual([]);
+  });
+
+  it('returns an empty array and logs when supabase errors', async () => {
+    const stub = createMembershipStub({ data: null, error: { message: 'boom' } });
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const memberships = await fetchUserOrganizations(stub.client, 'user-123');
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(memberships).toEqual([]);
+  });
+
+  it('selects the first membership when slug missing', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ];
+
+    expect(selectActiveOrganization(memberships, null)).toEqual(memberships[0]);
+  });
+
+  it('selects membership by slug ignoring case', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ];
+
+    const active = selectActiveOrganization(memberships, 'ORG-2');
+    expect(active).toEqual(memberships[1]);
+  });
+
+  it('falls back to first membership when slug invalid', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ];
+
+    const active = selectActiveOrganization(memberships, 'unknown');
+    expect(active).toEqual(memberships[0]);
+  });
+});
 
 describe('prompt manager access helpers', () => {
   beforeEach(() => {
-    vi.resetModules();
+    vi.restoreAllMocks();
     resetEnv();
-    mutableEnv.PUBLIC_ENV_NAME = 'prod';
+    mutableEnv.PUBLIC_ENV_NAME = 'local';
     delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
     delete mutableEnv.PROMPT_MANAGER_ENABLED;
   });
 
-  it('returns empty organizations when metadata missing', async () => {
-    const { getUserOrganizations } = await import('@/services/prompt-manager/access');
-    const result = getUserOrganizations(createUser());
-    expect(result.organizations).toHaveLength(0);
-    expect(result.issues).toHaveLength(0);
+  afterEach(() => {
+    resetEnv();
   });
 
-  it('parses prompt manager organizations from metadata array', async () => {
-    const { getUserOrganizations, hasPromptManagerAccess } = await import('@/services/prompt-manager/access');
-    const user = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizations: [
-            { id: 'org-1', role: 'member', name: 'Org One', slug: 'org-1' },
-            { organizationId: 'org-2', role: 'admin', name: 'Org Two' },
-          ],
+  it('builds context and resolves active organization with slug override', async () => {
+    const stub = createMembershipStub({
+      data: [
+        {
+          organization_id: 'org-1',
+          role: 'member',
+          created_at: '2025-04-13T00:00:00Z',
+          updated_at: '2025-04-13T00:00:00Z',
+          user_id: 'user-123',
+          organizations: { id: 'org-1', slug: 'org-1', name: 'Org One' },
         },
-      },
+        {
+          organization_id: 'org-2',
+          role: 'admin',
+          created_at: '2025-04-13T00:00:01Z',
+          updated_at: '2025-04-13T00:00:01Z',
+          user_id: 'user-123',
+          organizations: { id: 'org-2', slug: 'org-2', name: 'Org Two' },
+        },
+      ],
+      error: null,
     });
 
-    const result = getUserOrganizations(user);
-    expect(result.organizations).toHaveLength(2);
-    expect(result.organizations[0]).toMatchObject({ id: 'org-1', role: 'member', name: 'Org One' });
-    expect(result.organizations[1]).toMatchObject({ id: 'org-2', role: 'admin' });
-    expect(hasPromptManagerAccess(user, result)).toBe(true);
+    const context = await buildPromptManagerContext({
+      supabase: stub.client,
+      userId: 'user-123',
+      requestedSlug: 'ORG-2',
+    });
+
+    expect(context.organizations).toHaveLength(2);
+    expect(context.activeOrganization?.slug).toBe('org-2');
   });
 
-  it('collects issues and falls back to default organization when entries invalid', async () => {
-    const { getUserOrganizations } = await import('@/services/prompt-manager/access');
-    const user = createUser({
-      app_metadata: {
-        prompt_manager: {
-          organizations: [{ role: 'admin' }],
-        },
-      },
-    });
-
-    const result = getUserOrganizations(user);
-    expect(result.organizations).toHaveLength(1);
-    expect(result.organizations[0]).toMatchObject({ id: '10xdevs', role: 'member' });
-    expect(result.issues.map((issue) => issue.code)).toContain('missing_identifier');
+  it('indicates access when memberships available', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+    ];
+    expect(hasPromptManagerAccess(memberships)).toBe(true);
   });
 
-  it('creates default membership when boolean access flag is set', async () => {
-    const { getUserOrganizations } = await import('@/services/prompt-manager/access');
-    const user = createUser({
-      user_metadata: {
-        promptManagerAccess: {
-          hasPromptManagerAccess: true,
-        },
-      },
-    });
-
-    const result = getUserOrganizations(user);
-    expect(result.organizations).toEqual([
-      expect.objectContaining({ id: '10xdevs', role: 'member' }),
-    ]);
+  it('detects admin membership correctly', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ];
+    expect(hasPromptManagerAdminAccess(memberships)).toBe(true);
   });
 
-  it('detects admin membership via helper', async () => {
-    const { getUserOrganizations, hasPromptManagerAdminAccess } = await import('@/services/prompt-manager/access');
-    const user = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizationMemberships: [{ organization_id: 'org-admin', role: 'admin' }],
-        },
-      },
-    });
+  it('respects feature flag overrides when checking access', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
+    ];
 
-    const result = getUserOrganizations(user);
-    expect(hasPromptManagerAdminAccess(user, result)).toBe(true);
+    expect(shouldAllowPromptManagerAccess(memberships, { promptManager: true })).toBe(true);
+    expect(shouldAllowPromptManagerAccess(memberships, { promptManager: false })).toBe(false);
+  });
+
+  it('respects flag overrides for admin access checks', () => {
+    const memberships: OrganizationMembership[] = [
+      { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
+    ];
+
+    expect(shouldAllowPromptManagerAdminAccess(memberships, { promptManager: true })).toBe(true);
+    expect(shouldAllowPromptManagerAdminAccess(memberships, { promptManager: false })).toBe(false);
+  });
+
+  it('mirrors feature flag state via ensurePromptManagerEnabled', () => {
+    expect(ensurePromptManagerEnabled()).toBe(true);
+    expect(ensurePromptManagerEnabled({ promptManager: false })).toBe(false);
+  });
+});
+
+describe('fetchOrganizationBySlug', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('returns null when slug empty', async () => {
+    const stub = {
+      from: vi.fn(),
+    } as unknown as SupabaseClient<Database>;
+
+    expect(await fetchOrganizationBySlug(stub, '')).toBeNull();
+    expect(await fetchOrganizationBySlug(stub, '   ')).toBeNull();
+  });
+
+  it('returns organization summary when found', async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: 'org-1', slug: 'org-1', name: 'Org One' },
+      error: null,
+    });
+    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+
+    const stub = { from } as unknown as SupabaseClient<Database>;
+    const result = await fetchOrganizationBySlug(stub, 'org-1');
+
+    expect(from).toHaveBeenCalledWith('organizations');
+    expect(eq).toHaveBeenCalledWith('slug', 'org-1');
+    expect(result).toEqual({ id: 'org-1', slug: 'org-1', name: 'Org One' });
+  });
+
+  it('returns null and logs when supabase errors', async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({ data: null, error: { message: 'fail' } });
+    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const stub = { from } as unknown as SupabaseClient<Database>;
+    const result = await fetchOrganizationBySlug(stub, 'org-1');
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 });

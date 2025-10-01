@@ -34,6 +34,19 @@ vi.mock('@/db/supabase.client', () => ({
   createSupabaseServerInstance: vi.fn(() => mockSupabaseClient),
 }));
 
+const buildPromptManagerContextMock = vi.fn();
+
+vi.mock('@/services/prompt-manager/access', async () => {
+  const actual = await vi.importActual<typeof import('@/services/prompt-manager/access')>(
+    '@/services/prompt-manager/access',
+  );
+
+  return {
+    ...actual,
+    buildPromptManagerContext: buildPromptManagerContextMock,
+  };
+});
+
 function createUser(overrides: Partial<User> = {}): User {
   return {
     id: overrides.id ?? 'user-123',
@@ -114,6 +127,7 @@ describe('middleware prompt manager guard', () => {
   beforeEach(() => {
     currentUser = null;
     mockSupabaseClient.auth.getUser.mockClear();
+    buildPromptManagerContextMock.mockReset();
     resetEnv();
     mutableEnv.PUBLIC_ENV_NAME = 'local';
     mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = 'false';
@@ -129,25 +143,24 @@ describe('middleware prompt manager guard', () => {
   });
 
   it('returns 404 when flag disabled', async () => {
-    currentUser = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizations: [{ id: 'org-1', role: 'admin' }],
-        },
-      },
-    });
+    currentUser = createUser();
 
     mutableEnv.PROMPT_MANAGER_ENABLED = 'false';
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(404);
+    expect(buildPromptManagerContextMock).not.toHaveBeenCalled();
   });
 
   it('blocks prompt routes without organization membership', async () => {
     currentUser = createUser();
     delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
     mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
+    buildPromptManagerContextMock.mockResolvedValue({
+      organizations: [],
+      activeOrganization: null,
+    });
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
@@ -155,52 +168,54 @@ describe('middleware prompt manager guard', () => {
   });
 
   it('allows prompt route when membership present', async () => {
-    currentUser = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizations: [{ id: 'org-member', role: 'member' }],
-        },
-      },
-    });
+    currentUser = createUser();
     delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
     mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
+    buildPromptManagerContextMock.mockResolvedValue({
+      organizations: [
+        { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
+      ],
+      activeOrganization: { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
+    });
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(200);
     expect(context.locals.promptManager?.organizations).toHaveLength(1);
+    expect(context.locals.promptManager?.activeOrganization?.slug).toBe('org-member');
   });
 
   it('redirects member trying to access admin route', async () => {
-    currentUser = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizations: [{ id: 'org-member', role: 'member' }],
-        },
-      },
-    });
+    currentUser = createUser();
     delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
     mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
+    buildPromptManagerContextMock.mockResolvedValue({
+      organizations: [
+        { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
+      ],
+      activeOrganization: { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
+    });
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts/admin');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(302);
-    expect(response.headers.get('Location')).toBe('/prompts');
+    expect(response.headers.get('Location')).toBe('/prompts?organization=org-member');
   });
 
   it('allows admin route for admin members', async () => {
-    currentUser = createUser({
-      user_metadata: {
-        prompt_manager: {
-          organizations: [{ id: 'org-admin', role: 'admin' }],
-        },
-      },
-    });
+    currentUser = createUser();
     delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
     mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
+    buildPromptManagerContextMock.mockResolvedValue({
+      organizations: [
+        { id: 'org-admin', slug: 'org-admin', name: 'Org Admin', role: 'admin' },
+      ],
+      activeOrganization: { id: 'org-admin', slug: 'org-admin', name: 'Org Admin', role: 'admin' },
+    });
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts/admin');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(200);
+    expect(context.locals.promptManager?.activeOrganization?.slug).toBe('org-admin');
   });
 });
