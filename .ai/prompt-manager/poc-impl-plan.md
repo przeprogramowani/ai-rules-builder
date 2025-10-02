@@ -51,12 +51,13 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 - Build server-side utilities/APIs (Astro endpoints) for CRUD operations restricted to organization admins using middleware checks rather than RLS.
 - Exit criteria: Admin-only API supports create draft → publish scoped to an organization/collection, migrations pass tests, and middleware-gated access behaves as expected in local runs.
 
-## Phase 4 – Member Experience Slice
+## Phase 4 – Member Experience Slice & Member APIs
 **Goal:** Provide members with gated prompt discovery.
 - Build member-facing routes: organization selector (default 10xDevs), collection and segment filters, search/filter bar, prompt detail modal/page, favorites toggle.
 - Enforce access guard via middleware using organization membership checks alongside the feature flag.
 - Ensure graceful fallback states for unauthorized users, users without organization membership, and when flag disabled.
 - Exit criteria: Authenticated member with organization membership can switch organizations, browse, search, view markdown, copy and download prompts end-to-end.
+- Build server-side utilities/APIs (Astro endpoints) for CRUD operations restricted to organization members using middleware checks rather than RLS.
 
 ## Phase 5 – Admin Experience Slice
 **Goal:** Enable admins to curate and publish prompts iteratively.

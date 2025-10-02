@@ -1,0 +1,135 @@
+import { supabaseAdmin } from '@/db/supabase-admin';
+import type {
+  PromptCollection,
+  PromptSegment,
+  CreateCollectionInput,
+  CreateSegmentInput,
+  ServiceResult,
+} from './types';
+
+/**
+ * Get all collections for an organization, ordered by sort_order
+ */
+export async function getCollections(
+  organizationId: string,
+): Promise<ServiceResult<PromptCollection[]>> {
+  try {
+    const { data: collections, error } = await supabaseAdmin
+      .from('prompt_collections')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    return { data: (collections as PromptCollection[]) || [], error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
+
+/**
+ * Get all segments for a collection, ordered by sort_order
+ */
+export async function getSegments(collectionId: string): Promise<ServiceResult<PromptSegment[]>> {
+  try {
+    const { data: segments, error } = await supabaseAdmin
+      .from('prompt_collection_segments')
+      .select('*')
+      .eq('collection_id', collectionId)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    return { data: (segments as PromptSegment[]) || [], error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
+
+/**
+ * Create a new collection (admin only)
+ */
+export async function createCollection(
+  organizationId: string,
+  data: CreateCollectionInput,
+): Promise<ServiceResult<PromptCollection>> {
+  try {
+    const { data: collection, error } = await supabaseAdmin
+      .from('prompt_collections')
+      .insert({
+        organization_id: organizationId,
+        slug: data.slug,
+        title: data.title,
+        description: data.description ?? null,
+        sort_order: data.sort_order ?? 0,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    return { data: collection as PromptCollection, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
+
+/**
+ * Create a new segment within a collection (admin only)
+ */
+export async function createSegment(
+  collectionId: string,
+  data: CreateSegmentInput,
+): Promise<ServiceResult<PromptSegment>> {
+  try {
+    const { data: segment, error } = await supabaseAdmin
+      .from('prompt_collection_segments')
+      .insert({
+        collection_id: collectionId,
+        slug: data.slug,
+        title: data.title,
+        sort_order: data.sort_order ?? 0,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    return { data: segment as PromptSegment, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
