@@ -15,6 +15,7 @@ interface DropdownProps<T = string> {
   renderOption?: (option: DropdownOption<T>, isSelected: boolean) => React.ReactNode;
   className?: string;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export function Dropdown<T = string>({
@@ -25,6 +26,7 @@ export function Dropdown<T = string>({
   renderOption,
   className = '',
   placeholder = 'Select option',
+  disabled = false,
 }: DropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
@@ -101,7 +103,7 @@ export function Dropdown<T = string>({
   const selectedOption = options.find((opt) => opt.value === value);
 
   // Create dropdown menu component
-  const dropdownMenu = isOpen && (
+  const dropdownMenu = isOpen && !disabled && (
     <div
       ref={dropdownRef}
       className="fixed bg-gray-800 border border-gray-600 rounded-md shadow-lg z-[9999] max-h-64 overflow-y-auto"
@@ -118,6 +120,7 @@ export function Dropdown<T = string>({
           return (
             <li key={String(option.value)} role="option" aria-selected={isSelected}>
               <button
+                type="button"
                 onClick={() => handleOptionSelect(option.value)}
                 className={`w-full px-3 py-2 text-left text-sm flex items-center justify-between hover:bg-gray-700 focus:outline-none focus:bg-gray-700 ${
                   isSelected ? 'bg-gray-700 text-white' : 'text-gray-300'
@@ -144,10 +147,12 @@ export function Dropdown<T = string>({
       {label && <label className="block text-sm font-medium text-gray-300 mb-2">{label}</label>}
       {/* Dropdown trigger button */}
       <button
+        type="button"
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
-        className="flex items-center justify-between w-full sm:w-auto min-w-[180px] px-3 py-2 text-sm bg-gray-700 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+        disabled={disabled}
+        className="flex items-center justify-between w-full sm:w-auto min-w-[180px] px-3 py-2 text-sm bg-gray-700 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-700"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={label || 'Select option'}

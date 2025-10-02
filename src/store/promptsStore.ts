@@ -7,6 +7,21 @@ export type Prompt = Tables<'prompts'>;
 export type PromptCollection = Tables<'prompt_collections'>;
 export type PromptSegment = Tables<'prompt_collection_segments'>;
 
+// Admin action input types
+export interface CreatePromptInput {
+  title: string;
+  collection_id: string;
+  segment_id: string;
+  markdown_body: string;
+}
+
+export interface UpdatePromptInput {
+  title?: string;
+  collection_id?: string;
+  segment_id?: string;
+  markdown_body?: string;
+}
+
 interface PromptsState {
   // Organization context
   organizations: OrganizationMembership[];
@@ -18,6 +33,11 @@ interface PromptsState {
 
   // Prompts (published only for members)
   prompts: Prompt[];
+
+  // Admin-specific state
+  adminPrompts: Prompt[]; // includes drafts
+  isAdminMode: boolean;
+  statusFilter: 'all' | 'draft' | 'published';
 
   // Filters
   selectedCollectionId: string | null;
@@ -44,6 +64,30 @@ interface PromptsState {
   setFilters: (collectionId: string | null, segmentId: string | null, search?: string) => void;
   setSearchQuery: (query: string) => void;
   reset: () => void;
+
+  // Admin actions
+  createPrompt: (data: CreatePromptInput) => Promise<void>;
+  updatePrompt: (id: string, data: UpdatePromptInput) => Promise<void>;
+  deletePrompt: (id: string) => Promise<void>;
+  togglePublishStatus: (id: string) => Promise<void>;
+  fetchAdminPrompts: (filters?: {
+    organizationId?: string;
+    collectionId?: string;
+    segmentId?: string;
+    search?: string;
+    status?: 'all' | 'draft' | 'published';
+  }) => Promise<void>;
+  setStatusFilter: (status: 'all' | 'draft' | 'published') => void;
+  setAdminMode: (enabled: boolean) => void;
+  createCollection: (data: {
+    title: string;
+    description?: string;
+    slug?: string;
+  }) => Promise<PromptCollection>;
+  createSegment: (
+    collectionId: string,
+    data: { title: string; slug?: string },
+  ) => Promise<PromptSegment>;
 }
 
 const initialState = {
@@ -52,6 +96,9 @@ const initialState = {
   collections: [],
   segments: [],
   prompts: [],
+  adminPrompts: [],
+  isAdminMode: false,
+  statusFilter: 'all' as const,
   selectedCollectionId: null,
   selectedSegmentId: null,
   searchQuery: '',
@@ -128,6 +175,9 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
         isLoading: false,
       });
 
+      // Fetch segments for all collections so they're available for display
+      await Promise.all(collections.map((collection) => get().fetchSegments(collection.id)));
+
       // Fetch prompts for the organization
       await get().fetchPrompts({ organizationId: orgId });
     } catch (error) {
@@ -147,10 +197,15 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
         throw new Error('Failed to fetch segments');
       }
 
-      const segments = (await response.json()) as PromptSegment[];
+      const newSegments = (await response.json()) as PromptSegment[];
+
+      // Accumulate segments instead of replacing - keep segments from other collections
+      const { segments: existingSegments } = get();
+      const otherSegments = existingSegments.filter((s) => s.collection_id !== collectionId);
+      const allSegments = [...otherSegments, ...newSegments];
 
       set({
-        segments,
+        segments: allSegments,
         isLoading: false,
       });
     } catch (error) {
@@ -234,10 +289,277 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
   setSearchQuery: async (query: string) => {
     set({ searchQuery: query });
-    await get().fetchPrompts({ search: query });
+    const { isAdminMode } = get();
+    if (isAdminMode) {
+      await get().fetchAdminPrompts({ search: query });
+    } else {
+      await get().fetchPrompts({ search: query });
+    }
   },
 
   reset: () => {
     set(initialState);
+  },
+
+  // Admin actions
+  createPrompt: async (data: CreatePromptInput) => {
+    const { activeOrganization } = get();
+    if (!activeOrganization) {
+      throw new Error('No active organization');
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch('/api/prompts/admin/prompts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, organization_id: activeOrganization.id }),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to create prompt');
+      }
+
+      // Refetch admin prompts
+      await get().fetchAdminPrompts();
+
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  updatePrompt: async (id: string, data: UpdatePromptInput) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch(`/api/prompts/admin/prompts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to update prompt');
+      }
+
+      // Refetch admin prompts
+      await get().fetchAdminPrompts();
+
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  deletePrompt: async (id: string) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch(`/api/prompts/admin/prompts/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to delete prompt');
+      }
+
+      // Refetch admin prompts
+      await get().fetchAdminPrompts();
+
+      set({ isLoading: false, selectedPromptId: null });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  togglePublishStatus: async (id: string) => {
+    const { adminPrompts } = get();
+    const prompt = adminPrompts.find((p) => p.id === id);
+    if (!prompt) return;
+
+    // Optimistic update
+    const newStatus = prompt.status === 'published' ? 'draft' : 'published';
+    const updatedPrompts = adminPrompts.map((p) => (p.id === id ? { ...p, status: newStatus } : p));
+    set({ adminPrompts: updatedPrompts });
+
+    try {
+      const response = await fetch(`/api/prompts/admin/prompts/${id}/publish`, {
+        method: 'PATCH',
+      });
+
+      if (!response.ok) {
+        // Rollback on error
+        set({ adminPrompts });
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to toggle publish status');
+      }
+    } catch (error) {
+      // Rollback on error
+      set({
+        adminPrompts,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
+    }
+  },
+
+  fetchAdminPrompts: async (filters = {}) => {
+    const {
+      activeOrganization,
+      selectedCollectionId,
+      selectedSegmentId,
+      searchQuery,
+      statusFilter,
+    } = get();
+
+    const orgId = filters.organizationId || activeOrganization?.id;
+    if (!orgId) {
+      set({ adminPrompts: [] });
+      return;
+    }
+
+    try {
+      set({ isLoading: true, error: null });
+
+      const params = new URLSearchParams({ organization_id: orgId });
+
+      const collectionId = filters.collectionId ?? selectedCollectionId;
+      if (collectionId) {
+        params.append('collection_id', collectionId);
+      }
+
+      const segmentId = filters.segmentId ?? selectedSegmentId;
+      if (segmentId) {
+        params.append('segment_id', segmentId);
+      }
+
+      const search = filters.search ?? searchQuery;
+      if (search) {
+        params.append('search', search);
+      }
+
+      const status = filters.status ?? statusFilter;
+      if (status && status !== 'all') {
+        params.append('status', status);
+      }
+
+      const response = await fetch(`/api/prompts/admin/prompts?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch admin prompts');
+      }
+
+      const result = (await response.json()) as { data: Prompt[]; error: null };
+      const adminPrompts = result.data;
+
+      set({
+        adminPrompts,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+    }
+  },
+
+  setStatusFilter: async (status: 'all' | 'draft' | 'published') => {
+    set({ statusFilter: status });
+    await get().fetchAdminPrompts({ status });
+  },
+
+  setAdminMode: (enabled: boolean) => {
+    set({ isAdminMode: enabled });
+  },
+
+  createCollection: async (data: { title: string; description?: string; slug?: string }) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch('/api/prompts/admin/prompt-collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to create collection');
+      }
+
+      const result = (await response.json()) as { data: PromptCollection; error: null };
+      const newCollection = result.data;
+
+      // Append to collections array
+      const { collections } = get();
+      set({
+        collections: [...collections, newCollection],
+        isLoading: false,
+      });
+
+      return newCollection;
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  createSegment: async (collectionId: string, data: { title: string; slug?: string }) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const response = await fetch(
+        `/api/prompts/admin/prompt-collections/${collectionId}/segments`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { error?: string };
+        throw new Error(errorData.error || 'Failed to create segment');
+      }
+
+      const result = (await response.json()) as { data: PromptSegment; error: null };
+      const newSegment = result.data;
+
+      // Append to segments array
+      const { segments } = get();
+      set({
+        segments: [...segments, newSegment],
+        isLoading: false,
+      });
+
+      return newSegment;
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isLoading: false,
+      });
+      throw error;
+    }
   },
 }));

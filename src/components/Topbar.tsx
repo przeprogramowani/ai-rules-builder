@@ -1,6 +1,7 @@
-import { WandSparkles } from 'lucide-react';
+import { WandSparkles, FileText, Shield } from 'lucide-react';
 import DependencyUploader from './rule-parser/DependencyUploader';
 import { useAuthStore } from '../store/authStore';
+import { usePromptsStore } from '../store/promptsStore';
 import { useEffect } from 'react';
 import LoginButton from './auth/LoginButton';
 
@@ -14,6 +15,7 @@ interface TopbarProps {
 
 export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarProps) {
   const { setUser } = useAuthStore();
+  const { organizations, fetchOrganizations } = usePromptsStore();
 
   // Initialize auth store with user data from server
   useEffect(() => {
@@ -21,6 +23,20 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
       setUser(initialUser);
     }
   }, [initialUser, setUser]);
+
+  // Fetch organizations to check admin access
+  useEffect(() => {
+    if (initialUser) {
+      fetchOrganizations();
+    }
+  }, [initialUser, fetchOrganizations]);
+
+  // Check if user is admin
+  const isAdmin = organizations.some((org) => org.role === 'admin');
+  const hasPromptAccess = organizations.length > 0;
+
+  // Get current path for active state
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
   return (
     <header className="sticky top-0 z-10 w-full bg-gray-900 border-b border-gray-800 p-3 px-4 md:p-4 md:px-6 shadow-md">
@@ -35,6 +51,36 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
         </a>
 
         <div className="flex flex-row items-center space-x-4">
+          {/* Navigation Links */}
+          {initialUser && hasPromptAccess && (
+            <nav className="hidden md:flex items-center space-x-1">
+              <a
+                href="/prompts"
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                  currentPath === '/prompts'
+                    ? 'bg-blue-900/30 text-blue-300'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <FileText className="size-4" />
+                Prompts Library
+              </a>
+              {isAdmin && (
+                <a
+                  href="/prompts/admin"
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                    currentPath.startsWith('/prompts/admin')
+                      ? 'bg-purple-900/30 text-purple-300'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Shield className="size-4" />
+                  Prompts Admin
+                </a>
+              )}
+            </nav>
+          )}
+
           <div className="w-auto">
             <DependencyUploader />
           </div>

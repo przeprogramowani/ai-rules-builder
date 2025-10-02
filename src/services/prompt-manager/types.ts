@@ -50,17 +50,18 @@ export interface PromptFilters {
   status?: 'draft' | 'published';
   collection_id?: string;
   segment_id?: string;
+  search?: string;
 }
 
 export interface CreateCollectionInput {
-  slug: string;
+  slug?: string;
   title: string;
   description?: string;
   sort_order?: number;
 }
 
 export interface CreateSegmentInput {
-  slug: string;
+  slug?: string;
   title: string;
   sort_order?: number;
 }

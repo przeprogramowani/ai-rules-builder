@@ -271,6 +271,10 @@ export async function listPrompts(
       query = query.eq('segment_id', filters.segment_id);
     }
 
+    if (filters?.search) {
+      query = query.or(`title.ilike.%${filters.search}%,markdown_body.ilike.%${filters.search}%`);
+    }
+
     const { data: prompts, error } = await query;
 
     if (error) {

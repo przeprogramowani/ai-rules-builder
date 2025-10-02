@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/db/supabase-admin';
+import { slugify } from '@/utils/slugify';
 import type {
   PromptCollection,
   PromptSegment,
@@ -71,14 +72,31 @@ export async function createCollection(
   data: CreateCollectionInput,
 ): Promise<ServiceResult<PromptCollection>> {
   try {
+    // Auto-generate slug from title if not provided
+    const slug = data.slug || slugify(data.title);
+
+    // Calculate sort_order if not provided
+    let sortOrder = data.sort_order;
+    if (sortOrder === undefined) {
+      const { data: maxResult } = await supabaseAdmin
+        .from('prompt_collections')
+        .select('sort_order')
+        .eq('organization_id', organizationId)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .single();
+
+      sortOrder = maxResult ? maxResult.sort_order + 1 : 0;
+    }
+
     const { data: collection, error } = await supabaseAdmin
       .from('prompt_collections')
       .insert({
         organization_id: organizationId,
-        slug: data.slug,
+        slug,
         title: data.title,
         description: data.description ?? null,
-        sort_order: data.sort_order ?? 0,
+        sort_order: sortOrder,
       })
       .select()
       .single();
@@ -107,13 +125,30 @@ export async function createSegment(
   data: CreateSegmentInput,
 ): Promise<ServiceResult<PromptSegment>> {
   try {
+    // Auto-generate slug from title if not provided
+    const slug = data.slug || slugify(data.title);
+
+    // Calculate sort_order if not provided
+    let sortOrder = data.sort_order;
+    if (sortOrder === undefined) {
+      const { data: maxResult } = await supabaseAdmin
+        .from('prompt_collection_segments')
+        .select('sort_order')
+        .eq('collection_id', collectionId)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .single();
+
+      sortOrder = maxResult ? maxResult.sort_order + 1 : 0;
+    }
+
     const { data: segment, error } = await supabaseAdmin
       .from('prompt_collection_segments')
       .insert({
         collection_id: collectionId,
-        slug: data.slug,
+        slug,
         title: data.title,
-        sort_order: data.sort_order ?? 0,
+        sort_order: sortOrder,
       })
       .select()
       .single();

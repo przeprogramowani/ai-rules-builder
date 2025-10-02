@@ -78,6 +78,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const status = url.searchParams.get('status');
     const collectionId = url.searchParams.get('collection_id');
     const segmentId = url.searchParams.get('segment_id');
+    const search = url.searchParams.get('search');
 
     if (status === 'draft' || status === 'published') {
       filters.status = status;
@@ -87,6 +88,9 @@ export const GET: APIRoute = async ({ url, locals }) => {
     }
     if (segmentId) {
       filters.segment_id = segmentId;
+    }
+    if (search) {
+      filters.search = search;
     }
 
     const result = await listPrompts(organizationId, filters);

@@ -18,10 +18,12 @@ export const PromptFilters: React.FC = () => {
   // Create segment options with "All" option (only show when a collection is selected)
   const segmentOptions: DropdownOption<string | null>[] = [
     { value: null, label: 'All Segments' },
-    ...segments.map((segment) => ({
-      value: segment.id,
-      label: segment.title,
-    })),
+    ...segments
+      .filter((segment) => segment.collection_id === selectedCollectionId)
+      .map((segment) => ({
+        value: segment.id,
+        label: segment.title,
+      })),
   ];
 
   const handleCollectionChange = (collectionId: string | null) => {
