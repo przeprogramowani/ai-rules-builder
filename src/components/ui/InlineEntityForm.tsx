@@ -7,9 +7,15 @@ interface InlineEntityFormProps {
   type: 'collection' | 'segment';
   onSave: (data: { title: string; description?: string; slug?: string }) => Promise<void>;
   onCancel: () => void;
+  collectionId?: string; // Add this line
 }
 
-export default function InlineEntityForm({ type, onSave, onCancel }: InlineEntityFormProps) {
+export default function InlineEntityForm({
+  type,
+  onSave,
+  onCancel,
+}: // collectionId,
+InlineEntityFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [slug, setSlug] = useState('');

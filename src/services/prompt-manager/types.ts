@@ -3,8 +3,10 @@ export interface Prompt {
   organization_id: string;
   collection_id: string;
   segment_id: string | null;
-  title: string;
-  markdown_body: string;
+  title_en: string;
+  title_pl: string | null;
+  markdown_body_en: string;
+  markdown_body_pl: string | null;
   status: 'draft' | 'published';
   created_by: string | null;
   created_at: string;
@@ -33,16 +35,21 @@ export interface PromptSegment {
 }
 
 export interface CreatePromptInput {
-  title: string;
+  title_en: string;
+  title_pl?: string | null;
   collection_id: string;
   segment_id?: string;
-  markdown_body: string;
+  markdown_body_en: string;
+  markdown_body_pl?: string | null;
   created_by?: string;
 }
 
 export interface UpdatePromptInput {
-  title?: string;
-  markdown_body?: string;
+  title_en?: string;
+  title_pl?: string | null;
+  markdown_body_en?: string;
+  markdown_body_pl?: string | null;
+  collection_id?: string;
   segment_id?: string | null;
 }
 

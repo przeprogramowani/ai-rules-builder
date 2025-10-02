@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { MarkdownRenderer } from '../ui/MarkdownRenderer';
 import { CopyDownloadActions } from '../ui/CopyDownloadActions';
 
 export const PromptDetail: React.FC = () => {
-  const { selectedPromptId, prompts, collections, segments, selectPrompt } = usePromptsStore();
+  const { selectedPromptId, prompts, collections, segments, selectPrompt, preferredLanguage } =
+    usePromptsStore();
+  const [language, setLanguage] = useState<'en' | 'pl'>(preferredLanguage);
 
   const selectedPrompt = prompts.find((p) => p.id === selectedPromptId);
 
@@ -25,6 +27,8 @@ export const PromptDetail: React.FC = () => {
   useEffect(() => {
     if (selectedPromptId) {
       document.body.style.overflow = 'hidden';
+      // Reset to user's preferred language when a new prompt is opened
+      setLanguage(preferredLanguage);
     } else {
       document.body.style.overflow = '';
     }
@@ -32,7 +36,7 @@ export const PromptDetail: React.FC = () => {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [selectedPromptId]);
+  }, [selectedPromptId, preferredLanguage]);
 
   if (!selectedPrompt) {
     return null;
@@ -51,8 +55,18 @@ export const PromptDetail: React.FC = () => {
     }
   };
 
+  const hasPolishVersion = selectedPrompt.title_pl && selectedPrompt.markdown_body_pl;
+  const title =
+    language === 'pl' && selectedPrompt.title_pl
+      ? selectedPrompt.title_pl
+      : selectedPrompt.title_en;
+  const markdownBody =
+    language === 'pl' && selectedPrompt.markdown_body_pl
+      ? selectedPrompt.markdown_body_pl
+      : selectedPrompt.markdown_body_en;
+
   // Generate filename for download
-  const filename = `${selectedPrompt.title.toLowerCase().replace(/\s+/g, '-')}.md`;
+  const filename = `${title.toLowerCase().replace(/\s+/g, '-')}.md`;
 
   return (
     <div
@@ -63,13 +77,43 @@ export const PromptDetail: React.FC = () => {
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-gray-700">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-white mb-2">{selectedPrompt.title}</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
 
             {/* Breadcrumb */}
-            <div className="flex flex-wrap gap-2 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
               {collection && <span>{collection.title}</span>}
               {collection && segment && <span className="text-gray-600">›</span>}
               {segment && <span>{segment.title}</span>}
+
+              {/* Language Switcher */}
+              {hasPolishVersion && (
+                <div className="flex items-center gap-2 ml-4 border-l border-gray-600 pl-4">
+                  <button
+                    onClick={() => setLanguage('en')}
+                    className={`px-2 py-1 text-sm rounded-md ${
+                      language === 'en'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600'
+                    }`}
+                    aria-label="English"
+                    title="English"
+                  >
+                    🇬🇧
+                  </button>
+                  <button
+                    onClick={() => setLanguage('pl')}
+                    className={`px-2 py-1 text-sm rounded-md ${
+                      language === 'pl'
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600'
+                    }`}
+                    aria-label="Polski"
+                    title="Polski"
+                  >
+                    🇵🇱
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -85,11 +129,9 @@ export const PromptDetail: React.FC = () => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <MarkdownRenderer
-            content={selectedPrompt.markdown_body}
+            content={markdownBody}
             className="mt-0"
-            actions={
-              <CopyDownloadActions content={selectedPrompt.markdown_body} filename={filename} />
-            }
+            actions={<CopyDownloadActions content={markdownBody} filename={filename} />}
           />
         </div>
 

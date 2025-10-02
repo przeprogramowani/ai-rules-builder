@@ -76,19 +76,12 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 - Connect UI to APIs with error handling; add optimistic updates or revalidation.
 - Exit criteria: Admin walkthrough (switch organization, draft create, publish) demo-ready behind flag.
 
-## Phase 6 – Telemetry & Opt-Out (Anonymous)
-**Goal:** Capture anonymous usage while respecting opt-out.
-- Implement `prompt_usage_logs` table without user identifiers; store hashed viewport session ID or prompt IDs only.
-- Add client telemetry service honoring opt-out toggles; store opt-out preference server-side keyed by user id while logs remain anonymous (e.g., link via hash + salt stored server-side, discard raw user id).
-- Update admin analytics stubs/tools for aggregated anonymous reporting.
-- Exit criteria: Telemetry events recorded without user PII, opt-out flow verified, unit/integration tests cover logging decisions.
-
-## Phase 7 – Localization Pipeline
-**Goal:** Support Polish ↔ English (and future languages) prompt content.
-- Design translation workflow using Codex CLI + Context7 integration; document pipeline in `docs/prompt-manager/localization.md`.
-- Extend schema/UI to store language metadata per version and provide language switcher for members.
-- Automate translation job for new drafts (manual trigger) with status indicators in admin UI.
-- Exit criteria: Prompt versions can store multiple locales, admin can request automated translation, member can toggle language, tests validate fallback behavior.
+## Phase 6 – Localization
+**Goal:** Support storing and viewing prompt content in both Polish and English.
+- Extend database schema to store separate content for Polish and English versions of each prompt.
+- Update the Admin UI to include separate text areas for admins to manually enter or edit content for both languages (toggle language via switch or dropdown)
+- Add a language switcher in the Member UI for users to toggle between Polish and English prompt versions (if both versions are available)
+- Exit criteria: Admins can create and edit prompts in both Polish and English. Members can view prompts and switch between available languages.
 
 
 ## Deferred Until Post-POC
@@ -96,7 +89,7 @@ Ship a feature-flagged Prompt Manager proof of concept that exercises the core f
 - Automated nightly sync & failure auditing.
 - Version history, diffing, bulk publish.
 - Anonymous telemetry hardening (opt-out, metadata hashing, dashboards).
-- Automated localization pipeline, language switcher, offline access.
+- Language switcher improvements, offline access.
 
 ## Risks & Mitigations
 - Without richer roster validation, early testers might see prompts unexpectedly—limit feature flag access to trusted organizations and monitor membership records.

@@ -271,10 +271,22 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockCollection, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      // Mock the max sort_order query (returns null for no existing collections)
+      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
+      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
+      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
+      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
+
+      // Mock the insert query
+      const insertSingle = vi.fn().mockResolvedValue({ data: mockCollection, error: null });
+      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
+      const insert = vi.fn().mockReturnValue({ select: insertSelect });
+
+      // Return different mocks for each call
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce({ select: maxSelect })  // First call for max query
+        .mockReturnValueOnce({ insert });            // Second call for insert
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -293,13 +305,24 @@ describe('collectionService', () => {
     });
 
     it('returns error when database insert fails', async () => {
-      const single = vi.fn().mockResolvedValue({
+      // Mock the max sort_order query
+      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
+      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
+      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
+      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
+
+      // Mock the insert query to fail
+      const insertSingle = vi.fn().mockResolvedValue({
         data: null,
         error: { message: 'Insert failed', code: 'INSERT_ERROR' },
       });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
+      const insert = vi.fn().mockReturnValue({ select: insertSelect });
+
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce({ select: maxSelect })
+        .mockReturnValueOnce({ insert });
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -316,10 +339,11 @@ describe('collectionService', () => {
     });
 
     it('handles unexpected exceptions', async () => {
-      const insert = vi.fn().mockImplementation(() => {
+      // Mock to throw an error
+      const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -383,10 +407,21 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockSegment, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      // Mock the max sort_order query
+      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
+      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
+      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
+      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
+
+      // Mock the insert query
+      const insertSingle = vi.fn().mockResolvedValue({ data: mockSegment, error: null });
+      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
+      const insert = vi.fn().mockReturnValue({ select: insertSelect });
+
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce({ select: maxSelect })
+        .mockReturnValueOnce({ insert });
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
@@ -404,13 +439,24 @@ describe('collectionService', () => {
     });
 
     it('returns error when database insert fails', async () => {
-      const single = vi.fn().mockResolvedValue({
+      // Mock the max sort_order query
+      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
+      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
+      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
+      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
+
+      // Mock the insert query to fail
+      const insertSingle = vi.fn().mockResolvedValue({
         data: null,
         error: { message: 'Insert failed', code: 'INSERT_ERROR' },
       });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
+      const insert = vi.fn().mockReturnValue({ select: insertSelect });
+
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce({ select: maxSelect })
+        .mockReturnValueOnce({ insert });
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
@@ -427,10 +473,11 @@ describe('collectionService', () => {
     });
 
     it('handles unexpected exceptions', async () => {
-      const insert = vi.fn().mockImplementation(() => {
+      // Mock to throw an error
+      const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',

@@ -53,8 +53,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -67,10 +69,10 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
-        title: 'Test Prompt',
+        title_en: 'Test Prompt',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        markdown_body: '# Test Content',
+        markdown_body_en: '# Test Content',
         created_by: 'user-1',
       };
 
@@ -81,8 +83,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
       });
@@ -96,8 +100,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: null,
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: null,
         created_at: '2025-01-01T00:00:00Z',
@@ -110,9 +116,9 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
-        title: 'Test Prompt',
+        title_en: 'Test Prompt',
         collection_id: 'collection-1',
-        markdown_body: '# Test Content',
+        markdown_body_en: '# Test Content',
       };
 
       const result = await createPrompt('org-1', input);
@@ -136,9 +142,9 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
-        title: 'Test Prompt',
+        title_en: 'Test Prompt',
         collection_id: 'collection-1',
-        markdown_body: '# Test Content',
+        markdown_body_en: '# Test Content',
       };
 
       const result = await createPrompt('org-1', input);
@@ -157,9 +163,9 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
-        title: 'Test Prompt',
+        title_en: 'Test Prompt',
         collection_id: 'collection-1',
-        markdown_body: '# Test Content',
+        markdown_body_en: '# Test Content',
       };
 
       const result = await createPrompt('org-1', input);
@@ -179,8 +185,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Updated Prompt',
-        markdown_body: '# Updated Content',
+        title_en: 'Updated Prompt',
+        title_pl: null,
+        markdown_body_en: '# Updated Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -195,8 +203,8 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
-        title: 'Updated Prompt',
-        markdown_body: '# Updated Content',
+        title_en: 'Updated Prompt',
+        markdown_body_en: '# Updated Content',
       };
 
       const result = await updatePrompt('prompt-1', 'org-1', input);
@@ -204,8 +212,8 @@ describe('promptService', () => {
       expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
       expect(update).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Updated Prompt',
-          markdown_body: '# Updated Content',
+          title_en: 'Updated Prompt',
+          markdown_body_en: '# Updated Content',
           updated_at: expect.any(String),
         })
       );
@@ -219,8 +227,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Updated Title Only',
-        markdown_body: '# Original Content',
+        title_en: 'Updated Title Only',
+        title_pl: null,
+        markdown_body_en: '# Original Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -235,20 +245,20 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
-        title: 'Updated Title Only',
+        title_en: 'Updated Title Only',
       };
 
       const result = await updatePrompt('prompt-1', 'org-1', input);
 
       expect(update).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Updated Title Only',
+          title_en: 'Updated Title Only',
           updated_at: expect.any(String),
         })
       );
       expect(update).toHaveBeenCalledWith(
         expect.not.objectContaining({
-          markdown_body: expect.anything(),
+          markdown_body_en: expect.anything(),
         })
       );
       expect(result.data).toEqual(mockPrompt);
@@ -263,7 +273,7 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
-        title: 'Updated Prompt',
+        title_en: 'Updated Prompt',
       };
 
       const result = await updatePrompt('prompt-1', 'org-1', input);
@@ -287,7 +297,7 @@ describe('promptService', () => {
       (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
-        title: 'Updated Prompt',
+        title_en: 'Updated Prompt',
       };
 
       const result = await updatePrompt('prompt-1', 'org-1', input);
@@ -307,8 +317,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'published',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -357,8 +369,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -440,8 +454,10 @@ describe('promptService', () => {
         organization_id: 'org-1',
         collection_id: 'collection-1',
         segment_id: 'segment-1',
-        title: 'Test Prompt',
-        markdown_body: '# Test Content',
+        title_en: 'Test Prompt',
+        title_pl: null,
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
         status: 'draft',
         created_by: 'user-1',
         created_at: '2025-01-01T00:00:00Z',
@@ -506,8 +522,10 @@ describe('promptService', () => {
           organization_id: 'org-1',
           collection_id: 'collection-1',
           segment_id: 'segment-1',
-          title: 'Prompt 1',
-          markdown_body: '# Content 1',
+          title_en: 'Prompt 1',
+          title_pl: null,
+          markdown_body_en: '# Content 1',
+          markdown_body_pl: null,
           status: 'published',
           created_by: 'user-1',
           created_at: '2025-01-01T00:00:00Z',
@@ -518,8 +536,10 @@ describe('promptService', () => {
           organization_id: 'org-1',
           collection_id: 'collection-1',
           segment_id: null,
-          title: 'Prompt 2',
-          markdown_body: '# Content 2',
+          title_en: 'Prompt 2',
+          title_pl: null,
+          markdown_body_en: '# Content 2',
+          markdown_body_pl: null,
           status: 'draft',
           created_by: 'user-1',
           created_at: '2025-01-01T00:00:00Z',
@@ -548,8 +568,10 @@ describe('promptService', () => {
           organization_id: 'org-1',
           collection_id: 'collection-1',
           segment_id: 'segment-1',
-          title: 'Prompt 1',
-          markdown_body: '# Content 1',
+          title_en: 'Prompt 1',
+          title_pl: null,
+          markdown_body_en: '# Content 1',
+          markdown_body_pl: null,
           status: 'published',
           created_by: 'user-1',
           created_at: '2025-01-01T00:00:00Z',

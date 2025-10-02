@@ -31,18 +31,20 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
   const segments = usePromptsStore((state) => state.segments ?? []);
   const { createCollection, createSegment, fetchSegments } = usePromptsStore();
 
-  const [title, setTitle] = useState('');
+  const [titleEn, setTitleEn] = useState('');
+  const [markdownBodyEn, setMarkdownBodyEn] = useState('');
+  const [titlePl, setTitlePl] = useState('');
+  const [markdownBodyPl, setMarkdownBodyPl] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [segmentId, setSegmentId] = useState('');
-  const [markdownBody, setMarkdownBody] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
-    title?: string;
+    titleEn?: string;
     collectionId?: string;
     segmentId?: string;
-    markdownBody?: string;
+    markdownBodyEn?: string;
   }>({});
 
   // Inline creation states
@@ -52,20 +54,24 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
   // Initialize form with initial data
   useEffect(() => {
     if (initialData) {
-      setTitle(initialData.title);
+      setTitleEn(initialData.title_en);
+      setMarkdownBodyEn(initialData.markdown_body_en);
+      setTitlePl(initialData.title_pl || '');
+      setMarkdownBodyPl(initialData.markdown_body_pl || '');
       setCollectionId(initialData.collection_id);
       setSegmentId(initialData.segment_id || '');
-      setMarkdownBody(initialData.markdown_body);
 
       // Ensure segments are loaded for this collection
       if (initialData.collection_id) {
         fetchSegments(initialData.collection_id);
       }
     } else {
-      setTitle('');
+      setTitleEn('');
+      setMarkdownBodyEn('');
+      setTitlePl('');
+      setMarkdownBodyPl('');
       setCollectionId('');
       setSegmentId('');
-      setMarkdownBody('');
     }
     setError(null);
     setValidationErrors({});
@@ -77,8 +83,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
   const validate = (): boolean => {
     const errors: typeof validationErrors = {};
 
-    if (!title.trim()) {
-      errors.title = 'Title is required';
+    if (!titleEn.trim()) {
+      errors.titleEn = 'English title is required';
     }
 
     if (!collectionId) {
@@ -89,8 +95,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
       errors.segmentId = 'Segment is required';
     }
 
-    if (!markdownBody.trim()) {
-      errors.markdownBody = 'Content is required';
+    if (!markdownBodyEn.trim()) {
+      errors.markdownBodyEn = 'English content is required';
     }
 
     setValidationErrors(errors);
@@ -109,10 +115,12 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
       setError(null);
 
       const data: CreatePromptInput | UpdatePromptInput = {
-        title: title.trim(),
+        title_en: titleEn.trim(),
+        markdown_body_en: markdownBodyEn.trim(),
+        title_pl: titlePl.trim(),
+        markdown_body_pl: markdownBodyPl.trim(),
         collection_id: collectionId,
         segment_id: segmentId,
-        markdown_body: markdownBody.trim(),
       };
 
       await onSave(data);
@@ -247,17 +255,24 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
           className="space-y-4"
         >
           <FormInput
-            label="Title"
-            id="title"
-            value={title}
+            label="Title (English)"
+            id="title_en"
+            value={titleEn}
             onChange={(e) => {
-              setTitle(e.target.value);
-              if (hasAttemptedSave && validationErrors.title) {
-                setValidationErrors((prev) => ({ ...prev, title: undefined }));
+              setTitleEn(e.target.value);
+              if (hasAttemptedSave && validationErrors.titleEn) {
+                setValidationErrors((prev) => ({ ...prev, titleEn: undefined }));
               }
             }}
-            error={hasAttemptedSave ? validationErrors.title : undefined}
-            placeholder="Enter prompt title"
+            error={hasAttemptedSave ? validationErrors.titleEn : undefined}
+            placeholder="Enter prompt title in English"
+          />
+          <FormInput
+            label="Title (Polish)"
+            id="title_pl"
+            value={titlePl}
+            onChange={(e) => setTitlePl(e.target.value)}
+            placeholder="Enter prompt title in Polish"
           />
 
           <div className="space-y-1">
@@ -313,17 +328,26 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
           )}
 
           <FormTextarea
-            label="Content (Markdown)"
-            id="markdown_body"
-            value={markdownBody}
+            label="Content (Markdown, English)"
+            id="markdown_body_en"
+            value={markdownBodyEn}
             onChange={(e) => {
-              setMarkdownBody(e.target.value);
-              if (hasAttemptedSave && validationErrors.markdownBody) {
-                setValidationErrors((prev) => ({ ...prev, markdownBody: undefined }));
+              setMarkdownBodyEn(e.target.value);
+              if (hasAttemptedSave && validationErrors.markdownBodyEn) {
+                setValidationErrors((prev) => ({ ...prev, markdownBodyEn: undefined }));
               }
             }}
-            error={hasAttemptedSave ? validationErrors.markdownBody : undefined}
-            placeholder="Enter prompt content in markdown format..."
+            error={hasAttemptedSave ? validationErrors.markdownBodyEn : undefined}
+            placeholder="Enter prompt content in English markdown format..."
+            rows={10}
+          />
+
+          <FormTextarea
+            label="Content (Markdown, Polish)"
+            id="markdown_body_pl"
+            value={markdownBodyPl}
+            onChange={(e) => setMarkdownBodyPl(e.target.value)}
+            placeholder="Enter prompt content in Polish markdown format..."
             rows={10}
           />
 

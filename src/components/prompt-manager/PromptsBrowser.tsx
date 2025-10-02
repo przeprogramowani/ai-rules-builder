@@ -5,6 +5,7 @@ import { PromptFilters } from './PromptFilters';
 import { SearchBar } from '../ui/SearchBar';
 import { PromptsList } from './PromptsList';
 import { PromptDetail } from './PromptDetail';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const PromptsBrowser: React.FC = () => {
   const { fetchOrganizations, searchQuery, setSearchQuery, prompts, selectedPromptId } =
@@ -28,15 +29,20 @@ export const PromptsBrowser: React.FC = () => {
       {/* Organization Selector */}
       <OrganizationSelector />
 
-      {/* Search Bar */}
-      <div className="mb-6">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search prompts..."
-          matchCount={prompts.length}
-          totalCount={prompts.length}
-        />
+      {/* Search Bar and Language Switcher */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex-1 w-full sm:w-auto">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search prompts..."
+            matchCount={prompts.length}
+            totalCount={prompts.length}
+          />
+        </div>
+        <div className="flex-shrink-0">
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* Filters */}

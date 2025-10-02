@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import type { Tables } from '../db/database.types';
 import type { OrganizationMembership } from '../services/prompt-manager/organizations';
+import type { Language } from '../services/prompt-manager/language';
+import {
+  loadLanguagePreference,
+  saveLanguagePreference,
+} from '../services/prompt-manager/language';
 
 // Type aliases for database tables
 export type Prompt = Tables<'prompts'>;
@@ -9,17 +14,21 @@ export type PromptSegment = Tables<'prompt_collection_segments'>;
 
 // Admin action input types
 export interface CreatePromptInput {
-  title: string;
+  title_en: string;
+  title_pl?: string | null;
   collection_id: string;
   segment_id: string;
-  markdown_body: string;
+  markdown_body_en: string;
+  markdown_body_pl?: string | null;
 }
 
 export interface UpdatePromptInput {
-  title?: string;
+  title_en?: string;
+  title_pl?: string | null;
   collection_id?: string;
   segment_id?: string;
-  markdown_body?: string;
+  markdown_body_en?: string;
+  markdown_body_pl?: string | null;
 }
 
 interface PromptsState {
@@ -49,6 +58,9 @@ interface PromptsState {
   isLoading: boolean;
   error: string | null;
 
+  // Language preference
+  preferredLanguage: Language;
+
   // Actions
   fetchOrganizations: () => Promise<void>;
   setActiveOrganization: (org: OrganizationMembership | null) => void;
@@ -64,6 +76,9 @@ interface PromptsState {
   setFilters: (collectionId: string | null, segmentId: string | null, search?: string) => void;
   setSearchQuery: (query: string) => void;
   reset: () => void;
+
+  // Language actions
+  setPreferredLanguage: (lang: Language) => void;
 
   // Admin actions
   createPrompt: (data: CreatePromptInput) => Promise<void>;
@@ -105,6 +120,7 @@ const initialState = {
   selectedPromptId: null,
   isLoading: false,
   error: null,
+  preferredLanguage: loadLanguagePreference(),
 };
 
 export const usePromptsStore = create<PromptsState>((set, get) => ({
@@ -299,6 +315,12 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
   reset: () => {
     set(initialState);
+  },
+
+  // Language actions
+  setPreferredLanguage: (lang: Language) => {
+    saveLanguagePreference(lang);
+    set({ preferredLanguage: lang });
   },
 
   // Admin actions

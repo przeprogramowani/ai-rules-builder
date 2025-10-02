@@ -1,13 +1,14 @@
 import React from 'react';
 import type { Prompt } from '../../store/promptsStore';
 import { usePromptsStore } from '../../store/promptsStore';
+import { getLocalizedTitle, getLocalizedBody } from '../../services/prompt-manager/language';
 
 interface PromptCardProps {
   prompt: Prompt;
 }
 
 export const PromptCard: React.FC<PromptCardProps> = ({ prompt }) => {
-  const { selectPrompt, collections, segments } = usePromptsStore();
+  const { selectPrompt, collections, segments, preferredLanguage } = usePromptsStore();
 
   const collection = collections.find((c) => c.id === prompt.collection_id);
   const segment = segments.find((s) => s.id === prompt.segment_id);
@@ -24,8 +25,10 @@ export const PromptCard: React.FC<PromptCardProps> = ({ prompt }) => {
   };
 
   // Truncate markdown body for preview (first 150 characters)
-  const preview =
-    prompt.markdown_body.substring(0, 150) + (prompt.markdown_body.length > 150 ? '...' : '');
+  // Use user's preferred language with fallback to English
+  const title = getLocalizedTitle(prompt, preferredLanguage);
+  const body = getLocalizedBody(prompt, preferredLanguage);
+  const preview = body.substring(0, 150) + (body.length > 150 ? '...' : '');
 
   return (
     <div
@@ -34,9 +37,9 @@ export const PromptCard: React.FC<PromptCardProps> = ({ prompt }) => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`View prompt: ${prompt.title}`}
+      aria-label={`View prompt: ${title}`}
     >
-      <h3 className="text-lg font-semibold text-white mb-2 truncate">{prompt.title}</h3>
+      <h3 className="text-lg font-semibold text-white mb-2 truncate">{title}</h3>
 
       <div className="flex flex-wrap gap-2 mb-3">
         {collection && (

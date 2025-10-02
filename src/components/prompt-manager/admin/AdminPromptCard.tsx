@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Archive, Loader2, Pencil, Send, Trash2 } from 'lucide-react';
 import type { Prompt, PromptCollection, PromptSegment } from '../../../store/promptsStore';
 import StatusBadge from '../../ui/StatusBadge';
+import { hasPolishVersion } from '../../../services/prompt-manager/language';
 
 interface AdminPromptCardProps {
   prompt: Prompt;
@@ -54,8 +55,10 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
   };
 
   // Get preview of markdown content (first 150 chars)
-  const preview =
-    prompt.markdown_body.slice(0, 150) + (prompt.markdown_body.length > 150 ? '...' : '');
+  // Use English version for admin view by default
+  const title = prompt.title_en;
+  const body = prompt.markdown_body_en;
+  const preview = body.slice(0, 150) + (body.length > 150 ? '...' : '');
 
   const isPublished = prompt.status === 'published';
 
@@ -82,7 +85,7 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
               isSelected ? 'text-blue-400' : 'text-white group-hover:text-blue-400'
             }`}
           >
-            {prompt.title}
+            {title}
           </h3>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -92,7 +95,7 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
             onClick={handleTogglePublish}
             disabled={isToggling}
             className="p-1.5 rounded-md text-gray-400 hover:text-green-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-all cursor-pointer disabled:opacity-50 "
-            aria-label={isPublished ? `Unpublish ${prompt.title}` : `Publish ${prompt.title}`}
+            aria-label={isPublished ? `Unpublish ${title}` : `Publish ${title}`}
           >
             {isToggling ? (
               <Loader2 className="size-4 animate-spin" />
@@ -105,14 +108,14 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
           <button
             onClick={handleEditClick}
             className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-            aria-label={`Edit ${prompt.title}`}
+            aria-label={`Edit ${title}`}
           >
             <Pencil className="size-4" />
           </button>
           <button
             onClick={handleDeleteClick}
             className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-all"
-            aria-label={`Delete ${prompt.title}`}
+            aria-label={`Delete ${title}`}
           >
             <Trash2 className="size-4" />
           </button>
@@ -124,8 +127,6 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
 
       {/* Metadata */}
       <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge status={prompt.status === 'published' ? 'published' : 'draft'} />
-
         {collection && (
           <span className="text-xs px-2 py-1 rounded bg-indigo-700 text-indigo-100">
             {collection.title}
@@ -137,11 +138,21 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
             {segment.title}
           </span>
         )}
+
+        {/* Language indicator badge */}
+        {hasPolishVersion(prompt) ? (
+          <span className="text-xs px-2 py-1 rounded bg-green-700 text-green-100">🇬🇧 🇵🇱</span>
+        ) : (
+          <span className="text-xs px-2 py-1 rounded bg-gray-700 text-gray-300">🇬🇧</span>
+        )}
       </div>
 
-      {/* Updated date */}
-      <div className="mt-2 text-xs text-gray-500">
-        Updated: {new Date(prompt.updated_at).toLocaleDateString()}
+      {/* Status and Updated date */}
+      <div className="mt-2 flex items-center gap-2 text-xs">
+        <StatusBadge status={prompt.status === 'published' ? 'published' : 'draft'} />
+        <span className="text-gray-500">
+          Updated: {new Date(prompt.updated_at).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );

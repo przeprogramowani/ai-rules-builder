@@ -21,8 +21,10 @@ export async function createPrompt(
         organization_id: organizationId,
         collection_id: data.collection_id,
         segment_id: data.segment_id ?? null,
-        title: data.title,
-        markdown_body: data.markdown_body,
+        title_en: data.title_en,
+        title_pl: data.title_pl ?? null,
+        markdown_body_en: data.markdown_body_en,
+        markdown_body_pl: data.markdown_body_pl ?? null,
         status: 'draft',
         created_by: data.created_by ?? null,
       })
@@ -58,8 +60,11 @@ export async function updatePrompt(
       updated_at: new Date().toISOString(),
     };
 
-    if (data.title !== undefined) updateData.title = data.title;
-    if (data.markdown_body !== undefined) updateData.markdown_body = data.markdown_body;
+    if (data.title_en !== undefined) updateData.title_en = data.title_en;
+    if (data.title_pl !== undefined) updateData.title_pl = data.title_pl;
+    if (data.markdown_body_en !== undefined) updateData.markdown_body_en = data.markdown_body_en;
+    if (data.markdown_body_pl !== undefined) updateData.markdown_body_pl = data.markdown_body_pl;
+    if (data.collection_id !== undefined) updateData.collection_id = data.collection_id;
     if (data.segment_id !== undefined) updateData.segment_id = data.segment_id;
 
     const { data: prompt, error } = await supabaseAdmin
@@ -272,7 +277,9 @@ export async function listPrompts(
     }
 
     if (filters?.search) {
-      query = query.or(`title.ilike.%${filters.search}%,markdown_body.ilike.%${filters.search}%`);
+      query = query.or(
+        `title_en.ilike.%${filters.search}%,title_pl.ilike.%${filters.search}%,markdown_body_en.ilike.%${filters.search}%,markdown_body_pl.ilike.%${filters.search}%`,
+      );
     }
 
     const { data: prompts, error } = await query;

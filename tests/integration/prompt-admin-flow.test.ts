@@ -96,10 +96,10 @@ describe('Prompt Admin Flow Integration Test', () => {
 
     // Step 3: Create a new draft prompt
     const newPromptInput: CreatePromptInput = {
-      title: 'Test Prompt',
+      title_en: 'Test Prompt',
       collection_id: COLLECTION_ID,
       segment_id: SEGMENT_ID,
-      markdown_body: '# Initial Content\n\nThis is the initial prompt content.',
+      markdown_body_en: '# Initial Content\n\nThis is the initial prompt content.',
       created_by: USER_ID,
     };
 
@@ -108,8 +108,10 @@ describe('Prompt Admin Flow Integration Test', () => {
       organization_id: ORG_ID,
       collection_id: COLLECTION_ID,
       segment_id: SEGMENT_ID,
-      title: 'Test Prompt',
-      markdown_body: '# Initial Content\n\nThis is the initial prompt content.',
+      title_en: 'Test Prompt',
+      title_pl: null,
+      markdown_body_en: '# Initial Content\n\nThis is the initial prompt content.',
+      markdown_body_pl: null,
       status: 'draft' as const,
       created_by: USER_ID,
       created_at: '2025-01-01T00:00:00Z',
@@ -129,8 +131,8 @@ describe('Prompt Admin Flow Integration Test', () => {
     // Step 4: Update the prompt content
     const updatedPrompt = {
       ...createdPrompt,
-      title: 'Updated Test Prompt',
-      markdown_body: '# Updated Content\n\nThis is the updated prompt content with more details.',
+      title_en: 'Updated Test Prompt',
+      markdown_body_en: '# Updated Content\n\nThis is the updated prompt content with more details.',
       updated_at: '2025-01-02T00:00:00Z',
     };
 
@@ -142,10 +144,10 @@ describe('Prompt Admin Flow Integration Test', () => {
     (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({ update });
 
     const updateResult = await updatePrompt(createdPromptId, ORG_ID, {
-      title: 'Updated Test Prompt',
-      markdown_body: '# Updated Content\n\nThis is the updated prompt content with more details.',
+      title_en: 'Updated Test Prompt',
+      markdown_body_en: '# Updated Content\n\nThis is the updated prompt content with more details.',
     });
-    expect(updateResult.data?.title).toBe('Updated Test Prompt');
+    expect(updateResult.data?.title_en).toBe('Updated Test Prompt');
     expect(updateResult.data?.status).toBe('draft'); // Still draft
     expect(updateResult.error).toBeNull();
 
@@ -271,9 +273,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert: createInsert });
 
     const createResult = await createPrompt(ORG_ID, {
-      title: 'Test',
+      title_en: 'Test',
       collection_id: 'non-existent-collection',
-      markdown_body: 'Content',
+      markdown_body_en: 'Content',
     });
     expect(createResult.data).toBeNull();
     expect(createResult.error?.code).toBe('FK_VIOLATION');
