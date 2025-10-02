@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { type Collection } from '../../../types/collection.types';
+import { type RuleCollection } from '../../../types/ruleCollection.types';
 import { isFeatureEnabled } from '../../../features/featureFlags';
 
 export const prerender = false;
@@ -57,7 +57,7 @@ export const PUT: APIRoute = (async ({ params, request, locals }) => {
   }
 
   try {
-    const updatedCollection: Collection = await request.json();
+    const updatedCollection: RuleCollection = await request.json();
 
     // Validate the updated collection
     if (

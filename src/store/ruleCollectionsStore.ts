@@ -1,35 +1,26 @@
 import { create } from 'zustand';
-import { Library } from '../data/dictionaries';
 import { useTechStackStore } from './techStackStore';
+import { type RuleCollection } from '../types/ruleCollection.types';
 
-export interface Collection {
-  id: string;
-  name: string;
-  description: string;
-  libraries: Library[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CollectionsState {
-  collections: Collection[];
-  selectedCollection: Collection | null;
-  pendingCollection: Collection | null;
+interface RuleCollectionsState {
+  collections: RuleCollection[];
+  selectedCollection: RuleCollection | null;
+  pendingCollection: RuleCollection | null;
   isUnsavedChangesDialogOpen: boolean;
   isLoading: boolean;
   error: string | null;
   fetchCollections: () => Promise<void>;
-  selectCollection: (collection: Collection) => void;
+  selectCollection: (collection: RuleCollection) => void;
   deleteCollection: (collectionId: string) => Promise<void>;
   isDirty: () => boolean;
   saveChanges: () => Promise<void>;
-  updateCollection: (collectionId: string, updatedCollection: Collection) => Promise<void>;
-  handlePendingCollectionSelect: (collection: Collection) => void;
+  updateCollection: (collectionId: string, updatedCollection: RuleCollection) => Promise<void>;
+  handlePendingCollectionSelect: (collection: RuleCollection) => void;
   confirmPendingCollection: () => void;
   closeUnsavedChangesDialog: () => void;
 }
 
-export const useCollectionsStore = create<CollectionsState>((set, get) => ({
+export const useRuleCollectionsStore = create<RuleCollectionsState>((set, get) => ({
   collections: [],
   selectedCollection: null,
   pendingCollection: null,
@@ -39,19 +30,19 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
   fetchCollections: async () => {
     try {
       set({ isLoading: true, error: null });
-      const response = await fetch(`/api/collections`);
+      const response = await fetch(`/api/rule-collections`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch collections');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as RuleCollection[];
       set({ collections: data, isLoading: false });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Unknown error', isLoading: false });
     }
   },
-  selectCollection: (collection: Collection) => {
+  selectCollection: (collection: RuleCollection) => {
     const techStackStore = useTechStackStore.getState();
 
     // Reset tech stack state before setting new collection
@@ -71,7 +62,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       isUnsavedChangesDialogOpen: false,
     });
   },
-  handlePendingCollectionSelect: (collection: Collection) => {
+  handlePendingCollectionSelect: (collection: RuleCollection) => {
     const { selectedCollection, isDirty } = get();
 
     if (selectedCollection?.id === collection.id) {
@@ -104,7 +95,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       const { collections } = get();
       set({ isLoading: true, error: null });
 
-      const response = await fetch(`/api/collections/${collectionId}`, {
+      const response = await fetch(`/api/rule-collections/${collectionId}`, {
         method: 'DELETE',
       });
 
@@ -162,7 +153,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await fetch(`/api/collections/${selectedCollection.id}`, {
+      const response = await fetch(`/api/rule-collections/${selectedCollection.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +165,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
         throw new Error('Failed to save collection changes');
       }
 
-      const savedCollection = await response.json();
+      const savedCollection = (await response.json()) as RuleCollection;
 
       // Update collections list and selected collection
       set((state) => ({
@@ -195,11 +186,11 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
       throw error;
     }
   },
-  updateCollection: async (collectionId: string, updatedCollection: Collection) => {
+  updateCollection: async (collectionId: string, updatedCollection: RuleCollection) => {
     try {
       set({ isLoading: true, error: null });
 
-      const response = await fetch(`/api/collections/${collectionId}`, {
+      const response = await fetch(`/api/rule-collections/${collectionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +202,7 @@ export const useCollectionsStore = create<CollectionsState>((set, get) => ({
         throw new Error('Failed to update collection');
       }
 
-      const savedCollection = await response.json();
+      const savedCollection = (await response.json()) as RuleCollection;
 
       // Update collections list and selected collection
       set((state) => ({

@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { CollectionsSidebarPage } from '../page-objects/CollectionsSidebarPage';
-import { SaveCollectionDialog } from '../page-objects/SaveCollectionDialog';
+import { RuleCollectionsSidebarPage } from '../page-objects/RuleCollectionsSidebarPage';
+import { SaveRuleCollectionDialog } from '../page-objects/SaveRuleCollectionDialog';
 
-test.describe('Collections Management', () => {
+test.describe('Rule Collections Management', () => {
   /**
    * Generates a unique collection name for testing
    */
@@ -13,8 +13,8 @@ test.describe('Collections Management', () => {
 
   test('should create a new collection', async ({ page }) => {
     // Arrange
-    const sidebarPage = new CollectionsSidebarPage(page);
-    const saveDialog = new SaveCollectionDialog(page);
+    const sidebarPage = new RuleCollectionsSidebarPage(page);
+    const saveDialog = new SaveRuleCollectionDialog(page);
     const testData = {
       name: generateUniqueName(),
       description: 'This is a test collection created by E2E test',
@@ -47,8 +47,8 @@ test.describe('Collections Management', () => {
 
   test('should show error when creating collection without name', async ({ page }) => {
     // Arrange
-    const sidebarPage = new CollectionsSidebarPage(page);
-    const saveDialog = new SaveCollectionDialog(page);
+    const sidebarPage = new RuleCollectionsSidebarPage(page);
+    const saveDialog = new SaveRuleCollectionDialog(page);
 
     // Navigate to the main page
     await page.goto('/');

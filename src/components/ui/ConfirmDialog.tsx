@@ -66,7 +66,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ isOpen, onClose, c
     >
       <div
         ref={dialogRef}
-        className="bg-gray-900 rounded-lg shadow-lg max-w-full md:max-w-md lg:max-w-3xl xl:max-w-5xl mx-4 p-4 focus:outline-none animate-fade-in"
+        className="bg-gray-900 rounded-lg shadow-lg min-w-[400px] max-w-full md:max-w-md lg:max-w-3xl xl:max-w-5xl mx-4 p-4 focus:outline-none animate-fade-in"
         tabIndex={-1}
       >
         <ConfirmDialogContext.Provider value={{ isOpen, onClose }}>

@@ -6,7 +6,7 @@ import {
   ConfirmDialogActions,
 } from '../ui/ConfirmDialog';
 
-interface SaveCollectionDialogProps {
+interface SaveRuleCollectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string, description: string) => Promise<void>;
@@ -14,7 +14,7 @@ interface SaveCollectionDialogProps {
   initialDescription?: string;
 }
 
-export const SaveCollectionDialog: React.FC<SaveCollectionDialogProps> = ({
+export const SaveRuleCollectionDialog: React.FC<SaveRuleCollectionDialogProps> = ({
   isOpen,
   onClose,
   onSave,
@@ -115,4 +115,4 @@ export const SaveCollectionDialog: React.FC<SaveCollectionDialogProps> = ({
   );
 };
 
-export default SaveCollectionDialog;
+export default SaveRuleCollectionDialog;

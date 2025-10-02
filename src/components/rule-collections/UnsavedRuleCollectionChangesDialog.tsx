@@ -6,7 +6,7 @@ import {
   ConfirmDialogActions,
 } from '../ui/ConfirmDialog';
 
-interface UnsavedChangesDialogProps {
+interface UnsavedRuleCollectionChangesDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => Promise<void>;
@@ -14,13 +14,9 @@ interface UnsavedChangesDialogProps {
   collectionName: string;
 }
 
-export const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  onSkip,
-  collectionName,
-}) => {
+export const UnsavedRuleCollectionChangesDialog: React.FC<
+  UnsavedRuleCollectionChangesDialogProps
+> = ({ isOpen, onClose, onSave, onSkip, collectionName }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
@@ -68,4 +64,4 @@ export const UnsavedChangesDialog: React.FC<UnsavedChangesDialogProps> = ({
   );
 };
 
-export default UnsavedChangesDialog;
+export default UnsavedRuleCollectionChangesDialog;

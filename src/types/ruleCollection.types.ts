@@ -1,7 +1,7 @@
 import { type Library } from '../data/dictionaries';
 import { type Database } from '../db/database.types';
 
-export interface Collection {
+export interface RuleCollection {
   id: string;
   userId: string;
   name: string;
@@ -11,9 +11,9 @@ export interface Collection {
   updatedAt: string;
 }
 
-export function collectionMapper(
+export function ruleCollectionMapper(
   collection: Database['public']['Tables']['collections']['Row'],
-): Collection {
+): RuleCollection {
   return {
     id: collection.id,
     userId: collection.user_id,

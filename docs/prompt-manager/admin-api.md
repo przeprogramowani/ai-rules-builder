@@ -348,7 +348,7 @@ curl -X PATCH https://your-domain.com/api/prompts/admin/prompts/prompt-uuid/publ
 
 Get all collections for the active organization.
 
-**Endpoint**: `GET /api/prompts/admin/collections`
+**Endpoint**: `GET /api/prompts/admin/prompt-collections`
 
 **Response** (`200 OK`):
 ```json
@@ -381,7 +381,7 @@ Get all collections for the active organization.
 
 **cURL Example**:
 ```bash
-curl https://your-domain.com/api/prompts/admin/collections \
+curl https://your-domain.com/api/prompts/admin/prompt-collections \
   -H "Cookie: sb-access-token=YOUR_SESSION_TOKEN"
 ```
 
@@ -391,7 +391,7 @@ curl https://your-domain.com/api/prompts/admin/collections \
 
 Get all segments within a specific collection.
 
-**Endpoint**: `GET /api/prompts/admin/collections/:id/segments`
+**Endpoint**: `GET /api/prompts/admin/prompt-collections/:id/segments`
 
 **Response** (`200 OK`):
 ```json
@@ -422,7 +422,7 @@ Get all segments within a specific collection.
 
 **cURL Example**:
 ```bash
-curl https://your-domain.com/api/prompts/admin/collections/collection-uuid/segments \
+curl https://your-domain.com/api/prompts/admin/prompt-collections/collection-uuid/segments \
   -H "Cookie: sb-access-token=YOUR_SESSION_TOKEN"
 ```
 
@@ -434,13 +434,13 @@ curl https://your-domain.com/api/prompts/admin/collections/collection-uuid/segme
 
 ```bash
 # 1. Get available collections
-COLLECTIONS=$(curl -s https://your-domain.com/api/prompts/admin/collections \
+COLLECTIONS=$(curl -s https://your-domain.com/api/prompts/admin/prompt-collections \
   -H "Cookie: sb-access-token=$TOKEN")
 
 COLLECTION_ID=$(echo $COLLECTIONS | jq -r '.data[0].id')
 
 # 2. Get segments for the collection
-SEGMENTS=$(curl -s "https://your-domain.com/api/prompts/admin/collections/$COLLECTION_ID/segments" \
+SEGMENTS=$(curl -s "https://your-domain.com/api/prompts/admin/prompt-collections/$COLLECTION_ID/segments" \
   -H "Cookie: sb-access-token=$TOKEN")
 
 SEGMENT_ID=$(echo $SEGMENTS | jq -r '.data[0].id')

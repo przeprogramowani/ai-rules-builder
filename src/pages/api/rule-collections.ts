@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { type Collection, collectionMapper } from '../../types/collection.types';
+import { type RuleCollection, ruleCollectionMapper } from '../../types/ruleCollection.types';
 import { isFeatureEnabled } from '../../features/featureFlags';
 
 export const prerender = false;
@@ -42,10 +42,10 @@ export const GET: APIRoute = (async ({ locals }) => {
     });
   }
 
-  let collections: Collection[] = [];
+  let collections: RuleCollection[] = [];
 
   if (data) {
-    collections = data.map(collectionMapper);
+    collections = data.map(ruleCollectionMapper);
   }
 
   return new Response(JSON.stringify(collections), {
@@ -81,7 +81,11 @@ export const POST = (async ({ request, locals }) => {
   }
 
   try {
-    const collection = await request.json();
+    const collection = (await request.json()) as Partial<RuleCollection> & {
+      name: string;
+      description: string;
+      libraries: unknown[];
+    };
 
     // Validate required fields
     if (!collection.name || !collection.description) {

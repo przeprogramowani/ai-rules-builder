@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getCollections } from '@/services/prompt-manager/collectionService';
+import { getCollections } from '@/services/prompt-manager/promptCollectionService';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {

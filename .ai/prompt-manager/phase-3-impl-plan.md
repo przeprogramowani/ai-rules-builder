@@ -285,10 +285,10 @@ src/pages/api/prompts/admin/
 │   ├── [id].ts                   # PUT /api/prompts/admin/prompts/[id]
 │   ├── [id]/
 │   │   └── publish.ts            # PATCH /api/prompts/admin/prompts/[id]/publish
-├── collections.ts                # GET /api/prompts/admin/collections
-└── collections/
+├── prompt-collections.ts         # GET /api/prompts/admin/prompt-collections
+└── prompt-collections/
     └── [id]/
-        └── segments.ts           # GET /api/prompts/admin/collections/[id]/segments
+        └── segments.ts           # GET /api/prompts/admin/prompt-collections/[id]/segments
 ```
 
 ### Endpoint Implementations
@@ -323,14 +323,14 @@ src/pages/api/prompts/admin/
 - Call `promptService.listPrompts()` with filters
 - Return 200 with prompt array
 
-#### `GET /api/prompts/admin/collections`
+#### `GET /api/prompts/admin/prompt-collections`
 - Verify admin access
-- Call `collectionService.getCollections()`
+- Call `promptCollectionService.getCollections()`
 - Return 200 with collections array
 
-#### `GET /api/prompts/admin/collections/[id]/segments`
+#### `GET /api/prompts/admin/prompt-collections/[id]/segments`
 - Verify admin access
-- Call `collectionService.getSegments()`
+- Call `promptCollectionService.getSegments()`
 - Return 200 with segments array
 
 ### Common Response Patterns

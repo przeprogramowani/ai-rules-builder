@@ -1,18 +1,21 @@
 import React, { useEffect } from 'react';
 import { Album, ChevronLeft, LogIn } from 'lucide-react';
 import { transitions } from '../../styles/theme';
-import { CollectionsList } from './CollectionsList';
-import { useCollectionsStore } from '../../store/collectionsStore';
+import { RuleCollectionsList } from './RuleCollectionsList';
+import { useRuleCollectionsStore } from '../../store/ruleCollectionsStore';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigationStore } from '../../store/navigationStore';
 
-interface CollectionsSidebarProps {
+interface RuleCollectionsSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
 }
 
-export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, onToggle }) => {
-  const fetchCollections = useCollectionsStore((state) => state.fetchCollections);
+export const RuleCollectionsSidebar: React.FC<RuleCollectionsSidebarProps> = ({
+  isOpen,
+  onToggle,
+}) => {
+  const fetchCollections = useRuleCollectionsStore((state) => state.fetchCollections);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { activePanel } = useNavigationStore();
   const isMobileCollectionsActive = activePanel === 'collections';
@@ -39,7 +42,7 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
         <div className="p-4 h-full overflow-y-auto pb-20 md:pb-4">
           <h2 className="text-xl font-semibold text-white mb-6">Collections</h2>
           {isAuthenticated ? (
-            <CollectionsList />
+            <RuleCollectionsList />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4 text-gray-400">
               <LogIn className="size-8 mb-4" />
@@ -69,4 +72,4 @@ export const CollectionsSidebar: React.FC<CollectionsSidebarProps> = ({ isOpen, 
   );
 };
 
-export default CollectionsSidebar;
+export default RuleCollectionsSidebar;

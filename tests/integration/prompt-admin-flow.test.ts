@@ -8,7 +8,7 @@ import {
   getPrompt,
   listPrompts,
 } from '@/services/prompt-manager/promptService';
-import { getCollections, getSegments } from '@/services/prompt-manager/collectionService';
+import { getCollections, getSegments } from '@/services/prompt-manager/promptCollectionService';
 import type { CreatePromptInput } from '@/services/prompt-manager/types';
 
 // Mock the supabase admin client

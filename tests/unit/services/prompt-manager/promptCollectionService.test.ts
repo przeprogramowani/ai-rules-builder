@@ -4,7 +4,7 @@ import {
   getSegments,
   createCollection,
   createSegment,
-} from '@/services/prompt-manager/collectionService';
+} from '@/services/prompt-manager/promptCollectionService';
 import type {
   PromptCollection,
   PromptSegment,

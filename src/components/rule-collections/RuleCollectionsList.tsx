@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useCollectionsStore, type Collection } from '../../store/collectionsStore';
+import { useRuleCollectionsStore } from '../../store/ruleCollectionsStore';
+import { type RuleCollection } from '../../types/ruleCollection.types';
 import { useTechStackStore } from '../../store/techStackStore';
-import CollectionListEntry from './CollectionListEntry';
-import SaveCollectionDialog from './SaveCollectionDialog';
-import UnsavedChangesDialog from './UnsavedChangesDialog';
+import RuleCollectionListEntry from './RuleCollectionListEntry';
+import SaveRuleCollectionDialog from './SaveRuleCollectionDialog';
+import UnsavedRuleCollectionChangesDialog from './UnsavedRuleCollectionChangesDialog';
 import { AlertCircle, Loader2, Plus } from 'lucide-react';
 import { Library } from '../../data/dictionaries';
 
-export const CollectionsList: React.FC = () => {
+export const RuleCollectionsList: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const {
     collections,
@@ -20,10 +21,10 @@ export const CollectionsList: React.FC = () => {
     closeUnsavedChangesDialog,
     selectedCollection,
     fetchCollections,
-  } = useCollectionsStore();
+  } = useRuleCollectionsStore();
   const { selectedLibraries } = useTechStackStore();
 
-  const handleCollectionSelect = (collection: Collection) => {
+  const handleCollectionSelect = (collection: RuleCollection) => {
     handlePendingCollectionSelect(collection);
   };
 
@@ -52,7 +53,7 @@ export const CollectionsList: React.FC = () => {
     };
 
     try {
-      const response = await fetch('/api/collections', {
+      const response = await fetch('/api/rule-collections', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +65,7 @@ export const CollectionsList: React.FC = () => {
         throw new Error('Failed to create collection');
       }
 
-      const savedCollection = await response.json();
+      const savedCollection = (await response.json()) as RuleCollection;
 
       // Refresh collections list
       await fetchCollections();
@@ -99,7 +100,7 @@ export const CollectionsList: React.FC = () => {
     <>
       <div data-test-id="collections-list" className="space-y-4">
         {collections.map((collection) => (
-          <CollectionListEntry
+          <RuleCollectionListEntry
             key={collection.id}
             collection={collection}
             onClick={handleCollectionSelect}
@@ -119,13 +120,13 @@ export const CollectionsList: React.FC = () => {
         </button>
       </div>
 
-      <SaveCollectionDialog
+      <SaveRuleCollectionDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSave={handleCreateCollection}
       />
 
-      <UnsavedChangesDialog
+      <UnsavedRuleCollectionChangesDialog
         isOpen={isUnsavedChangesDialogOpen}
         onClose={closeUnsavedChangesDialog}
         onSave={handleSaveAndContinue}
@@ -136,4 +137,4 @@ export const CollectionsList: React.FC = () => {
   );
 };
 
-export default CollectionsList;
+export default RuleCollectionsList;

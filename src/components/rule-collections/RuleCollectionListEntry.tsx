@@ -1,17 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Book, Trash2, Pencil, Save } from 'lucide-react';
-import type { Collection } from '../../store/collectionsStore';
-import { useCollectionsStore } from '../../store/collectionsStore';
+import type { RuleCollection } from '../../types/ruleCollection.types';
+import { useRuleCollectionsStore } from '../../store/ruleCollectionsStore';
 import DeletionDialog from './DeletionDialog';
-import SaveCollectionDialog from './SaveCollectionDialog';
+import SaveRuleCollectionDialog from './SaveRuleCollectionDialog';
 import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
 
-interface CollectionListEntryProps {
-  collection: Collection;
-  onClick?: (collection: Collection) => void;
+interface RuleCollectionListEntryProps {
+  collection: RuleCollection;
+  onClick?: (collection: RuleCollection) => void;
 }
 
-export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
+export const RuleCollectionListEntry: React.FC<RuleCollectionListEntryProps> = ({
   collection,
   onClick,
 }) => {
@@ -19,11 +19,11 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const selectedCollection = useCollectionsStore((state) => state.selectedCollection);
-  const deleteCollection = useCollectionsStore((state) => state.deleteCollection);
-  const isDirty = useCollectionsStore((state) => state.isDirty);
-  const saveChanges = useCollectionsStore((state) => state.saveChanges);
-  const updateCollection = useCollectionsStore((state) => state.updateCollection);
+  const selectedCollection = useRuleCollectionsStore((state) => state.selectedCollection);
+  const deleteCollection = useRuleCollectionsStore((state) => state.deleteCollection);
+  const isDirty = useRuleCollectionsStore((state) => state.isDirty);
+  const saveChanges = useRuleCollectionsStore((state) => state.saveChanges);
+  const updateCollection = useRuleCollectionsStore((state) => state.updateCollection);
   const isSelected = selectedCollection?.id === collection.id;
 
   const handleClick = () => {
@@ -171,15 +171,15 @@ export const CollectionListEntry: React.FC<CollectionListEntryProps> = ({
         title="Delete Collection"
       />
 
-      <SaveCollectionDialog
+      <SaveRuleCollectionDialog
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
         onSave={handleEditSave}
         initialName={collection.name}
-        initialDescription={collection.description}
+        initialDescription={collection.description || ''}
       />
     </>
   );
 };
 
-export default CollectionListEntry;
+export default RuleCollectionListEntry;

@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 
-export class CollectionsSidebarPage {
+export class RuleCollectionsSidebarPage {
   readonly page: Page;
   readonly sidebar: Locator;
   readonly toggleButton: Locator;

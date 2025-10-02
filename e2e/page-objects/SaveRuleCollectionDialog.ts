@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 
-export class SaveCollectionDialog {
+export class SaveRuleCollectionDialog {
   readonly page: Page;
   readonly form: Locator;
   readonly nameInput: Locator;
