@@ -27,7 +27,9 @@ export const PromptsBrowser: React.FC = () => {
       </div>
 
       {/* Organization Selector */}
-      <OrganizationSelector />
+      <div className="mb-6">
+        <OrganizationSelector />
+      </div>
 
       {/* Search Bar and Language Switcher */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

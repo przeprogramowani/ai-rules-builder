@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Plus } from 'lucide-react';
 import { usePromptsStore } from '../../../store/promptsStore';
 import type { Prompt, CreatePromptInput, UpdatePromptInput } from '../../../store/promptsStore';
 import OrganizationSelector from '../OrganizationSelector';
@@ -183,8 +184,17 @@ export const PromptsAdminPanel: React.FC = () => {
         <p className="text-gray-400">Manage your organization's prompt templates</p>
       </div>
 
-      {/* Organization Selector */}
-      <OrganizationSelector />
+      {/* Organization Selector and Create Button */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <OrganizationSelector />
+        <button
+          onClick={handleCreateNew}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="size-4" />
+          Create New Prompt
+        </button>
+      </div>
 
       {/* Search Bar */}
       <div className="mb-6">
@@ -246,7 +256,6 @@ export const PromptsAdminPanel: React.FC = () => {
           isLoading={isLoading}
           error={error}
           selectedPromptId={selectedPromptId}
-          onCreateNew={handleCreateNew}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onTogglePublish={handleTogglePublish}

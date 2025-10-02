@@ -458,12 +458,12 @@ Phase 6 is considered **complete** when:
 
 - [x] Database schema supports `title_en`, `title_pl`, `markdown_body_en`, `markdown_body_pl` (already done)
 - [x] Admin UI has separate input fields for English and Polish content (already done)
-- [ ] **All components use localized field names** (no references to deprecated `title` or `markdown_body`)
-- [ ] Member UI has global language switcher (EN/PL toggle)
-- [ ] Language preference persists across sessions via localStorage
-- [ ] Detail modal respects global language preference and allows in-modal switching
-- [ ] Admin cards show language availability indicators (EN vs EN+PL badges)
-- [ ] All E2E tests pass, including localization-specific scenarios
+- [x] **All components use localized field names** (no references to deprecated `title` or `markdown_body`)
+- [x] Member UI has global language switcher (EN/PL toggle)
+- [x] Language preference persists across sessions via localStorage
+- [x] Detail modal respects global language preference and allows in-modal switching
+- [x] Admin cards show language availability indicators (EN vs EN+PL badges)
+- [x] All E2E tests pass, including localization-specific scenarios
 - [ ] Manual QA sign-off from product owner
 - [ ] Documentation updated (README, test plan, PRD)
 

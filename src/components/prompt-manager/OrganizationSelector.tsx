@@ -22,7 +22,7 @@ export const OrganizationSelector: React.FC = () => {
   }
 
   return (
-    <div className="mb-6">
+    <div>
       <Dropdown
         label="Organization"
         options={options}

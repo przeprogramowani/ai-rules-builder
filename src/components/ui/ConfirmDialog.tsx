@@ -101,7 +101,7 @@ export const ConfirmDialogHeader: React.FC<ConfirmDialogHeaderProps> = ({ childr
       <h3 className="text-lg font-medium text-white">{children}</h3>
       <button
         onClick={onClose}
-        className="text-gray-400 hover:text-white transition-colors"
+        className="text-gray-400 hover:text-white transition-colors cursor-pointer"
         aria-label="Close"
       >
         <X className="size-5" />
