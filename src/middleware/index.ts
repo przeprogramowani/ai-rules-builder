@@ -65,10 +65,10 @@ const PUBLIC_PATHS = [
 
 const PROMPT_MANAGER_BASE_PATH = '/prompts';
 const PROMPT_MANAGER_ADMIN_PATH = '/prompts/admin';
+const PROMPT_MANAGER_REQUEST_ACCESS_PATH = '/prompts/request-access';
+const PROMPT_MANAGER_API_PATH = '/api/prompts';
 
 const TEXT_PROMPT_MANAGER_DISABLED = 'Prompt Manager is not available.';
-const TEXT_PROMPT_MANAGER_ACCESS_DENIED =
-  'Prompt Manager access is restricted to approved organizations.';
 
 function normalisePath(pathname: string): string {
   if (!pathname.endsWith('/') || pathname === '/') {
@@ -90,22 +90,19 @@ function isPromptManagerRoute(pathname: string): boolean {
   if (isPromptManagerAdminRoute(normalised)) {
     return true;
   }
+  // Exclude request-access page from access checks
+  if (normalised === PROMPT_MANAGER_REQUEST_ACCESS_PATH) {
+    return false;
+  }
   return (
-    normalised === PROMPT_MANAGER_BASE_PATH || normalised.startsWith(`${PROMPT_MANAGER_BASE_PATH}/`)
+    normalised === PROMPT_MANAGER_BASE_PATH ||
+    normalised.startsWith(`${PROMPT_MANAGER_BASE_PATH}/`) ||
+    normalised.startsWith(PROMPT_MANAGER_API_PATH)
   );
 }
 
 function promptManagerFlagDisabledResponse(): Response {
   return new Response(TEXT_PROMPT_MANAGER_DISABLED, {
-    status: 404,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-    },
-  });
-}
-
-function promptManagerAccessDeniedResponse(): Response {
-  return new Response(TEXT_PROMPT_MANAGER_ACCESS_DENIED, {
     status: 404,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
@@ -186,7 +183,7 @@ const validateRequest = defineMiddleware(
         locals.promptManager.activeOrganization = context.activeOrganization;
 
         if (!hasPromptManagerAccess(context.organizations)) {
-          return promptManagerAccessDeniedResponse();
+          return redirect(PROMPT_MANAGER_REQUEST_ACCESS_PATH);
         }
 
         if (isAdminRoute && !hasPromptManagerAdminAccess(context.organizations)) {

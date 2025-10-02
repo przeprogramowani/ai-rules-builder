@@ -288,3 +288,54 @@ export async function listPrompts(
     };
   }
 }
+
+/**
+ * List published prompts only (member-safe)
+ * Members can only see published prompts
+ */
+export async function listPublishedPrompts(
+  organizationId: string,
+  filters?: Omit<PromptFilters, 'status'>,
+): Promise<ServiceResult<Prompt[]>> {
+  return listPrompts(organizationId, { ...filters, status: 'published' });
+}
+
+/**
+ * Get a single published prompt by ID (member-safe)
+ * Returns 404 if prompt is not published or doesn't belong to organization
+ */
+export async function getPublishedPrompt(
+  promptId: string,
+  organizationId: string,
+): Promise<ServiceResult<Prompt>> {
+  try {
+    const { data: prompt, error } = await supabaseAdmin
+      .from('prompts')
+      .select('*')
+      .eq('id', promptId)
+      .eq('organization_id', organizationId)
+      .eq('status', 'published')
+      .single();
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    if (!prompt) {
+      return {
+        data: null,
+        error: { message: 'Prompt not found', code: 'NOT_FOUND' },
+      };
+    }
+
+    return { data: prompt as Prompt, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}

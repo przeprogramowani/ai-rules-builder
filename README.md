@@ -17,7 +17,8 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 - **Build AI Rules:** Create customized rule sets for different editors (Copilot, Cursor, Windsurf)
 - **Export Options:** Easily copy to clipboard or download as markdown files
 - **Smart Import:** Automatically generate rules by dropping package.json or requirements.txt files
-- **Editor Integration:** Provides programmatic access to rules via an [MCP Server](./mcp-server/README.md) for integration with AI assistants in editors like Cursor.
+- **Editor Integration:** Provides programmatic access to rules via an [MCP Server](./mcp-server/README.md) for integration with AI assistants in editors like Cursor
+
 
 ## Getting Started
 
@@ -59,25 +60,6 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
   supabase status
   ```
 
-### Prompt Manager Phase 2 (Organizations)
-
-- Apply migrations after pulling latest changes:
-
-  ```bash
-  supabase db push
-  ```
-
-- Regenerate typed client definitions once the migration succeeds:
-
-  ```bash
-  supabase gen types typescript --project-ref "$SUPABASE_PROJECT_REF" \
-    --schema public > src/db/database.types.ts
-  ```
-
-- Seed the `10xDevs` roster by updating the placeholder emails inside
-  `supabase/migrations/20250413093000_prompt_manager_orgs.sql` or rerunning the
-  documented roster insert SQL and commit the regenerated types alongside any
-  roster changes.
 
 ## Dotenv
 
