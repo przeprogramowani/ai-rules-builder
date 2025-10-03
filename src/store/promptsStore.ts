@@ -2,10 +2,7 @@ import { create } from 'zustand';
 import type { Tables } from '../db/database.types';
 import type { OrganizationMembership } from '../services/prompt-manager/organizations';
 import type { Language } from '../services/prompt-manager/language';
-import {
-  loadLanguagePreference,
-  saveLanguagePreference,
-} from '../services/prompt-manager/language';
+import { saveLanguagePreference } from '../services/prompt-manager/language';
 
 // Type aliases for database tables
 export type Prompt = Tables<'prompts'>;
@@ -120,7 +117,7 @@ const initialState = {
   selectedPromptId: null,
   isLoading: false,
   error: null,
-  preferredLanguage: loadLanguagePreference(),
+  preferredLanguage: 'en' as Language,
 };
 
 export const usePromptsStore = create<PromptsState>((set, get) => ({
@@ -233,7 +230,13 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
   },
 
   fetchPrompts: async (filters = {}) => {
-    const { activeOrganization, selectedCollectionId, selectedSegmentId, searchQuery } = get();
+    const {
+      activeOrganization,
+      selectedCollectionId,
+      selectedSegmentId,
+      searchQuery,
+      preferredLanguage,
+    } = get();
 
     const orgId = filters.organizationId || activeOrganization?.id;
     if (!orgId) {
@@ -260,6 +263,9 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       if (search) {
         params.append('search', search);
       }
+
+      // Add language parameter
+      params.append('language', preferredLanguage);
 
       const response = await fetch(`/api/prompts?${params.toString()}`);
 
@@ -318,9 +324,19 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
   },
 
   // Language actions
-  setPreferredLanguage: (lang: Language) => {
+  setPreferredLanguage: async (lang: Language) => {
     saveLanguagePreference(lang);
     set({ preferredLanguage: lang });
+
+    // Refetch prompts with new language if there's a search query
+    const { searchQuery, isAdminMode } = get();
+    if (searchQuery) {
+      if (isAdminMode) {
+        await get().fetchAdminPrompts({ search: searchQuery });
+      } else {
+        await get().fetchPrompts({ search: searchQuery });
+      }
+    }
   },
 
   // Admin actions
@@ -449,6 +465,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       selectedSegmentId,
       searchQuery,
       statusFilter,
+      preferredLanguage,
     } = get();
 
     const orgId = filters.organizationId || activeOrganization?.id;
@@ -481,6 +498,9 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       if (status && status !== 'all') {
         params.append('status', status);
       }
+
+      // Add language parameter
+      params.append('language', preferredLanguage);
 
       const response = await fetch(`/api/prompts/admin/prompts?${params.toString()}`);
 

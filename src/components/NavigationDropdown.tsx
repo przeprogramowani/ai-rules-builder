@@ -45,7 +45,7 @@ export default function NavigationDropdown({
     <div className="relative" data-dropdown>
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
         aria-expanded={isDropdownOpen}
         aria-haspopup="true"
       >

@@ -41,6 +41,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const collectionId = url.searchParams.get('collection_id');
   const segmentId = url.searchParams.get('segment_id');
   const search = url.searchParams.get('search');
+  const language = url.searchParams.get('language') || 'en';
 
   if (!organizationId) {
     return new Response(JSON.stringify({ error: 'organization_id is required' }), {
@@ -87,11 +88,14 @@ export const GET: APIRoute = async ({ locals, url }) => {
   // Client-side search filtering (simple case-insensitive search)
   if (search && search.trim()) {
     const searchLower = search.toLowerCase().trim();
-    prompts = prompts.filter(
-      (prompt) =>
-        prompt.title.toLowerCase().includes(searchLower) ||
-        prompt.markdown_body.toLowerCase().includes(searchLower),
-    );
+    const titleField = language === 'pl' ? 'title_pl' : 'title_en';
+    const bodyField = language === 'pl' ? 'markdown_body_pl' : 'markdown_body_en';
+
+    prompts = prompts.filter((prompt) => {
+      const title = prompt[titleField] || prompt.title_en || '';
+      const body = prompt[bodyField] || prompt.markdown_body_en || '';
+      return title.toLowerCase().includes(searchLower) || body.toLowerCase().includes(searchLower);
+    });
   }
 
   return new Response(JSON.stringify(prompts), {

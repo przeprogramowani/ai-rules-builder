@@ -6,15 +6,23 @@ import { SearchBar } from '../ui/SearchBar';
 import { PromptsList } from './PromptsList';
 import { PromptDetail } from './PromptDetail';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { loadLanguagePreference } from '../../services/prompt-manager/language';
 
 export const PromptsBrowser: React.FC = () => {
-  const { fetchOrganizations, searchQuery, setSearchQuery, prompts, selectedPromptId } =
-    usePromptsStore();
+  const {
+    fetchOrganizations,
+    searchQuery,
+    setSearchQuery,
+    prompts,
+    selectedPromptId,
+    setPreferredLanguage,
+  } = usePromptsStore();
 
-  // Fetch organizations on mount
+  // Initialize language preference and fetch organizations on mount
   useEffect(() => {
+    setPreferredLanguage(loadLanguagePreference());
     fetchOrganizations();
-  }, [fetchOrganizations]);
+  }, [fetchOrganizations, setPreferredLanguage]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

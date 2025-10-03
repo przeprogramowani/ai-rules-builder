@@ -1,9 +1,10 @@
 import React from 'react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { PromptCard } from './PromptCard';
+import { hasPolishVersion } from '../../services/prompt-manager/language';
 
 export const PromptsList: React.FC = () => {
-  const { prompts, isLoading, error } = usePromptsStore();
+  const { prompts, isLoading, error, preferredLanguage } = usePromptsStore();
 
   if (isLoading) {
     return (
@@ -21,7 +22,15 @@ export const PromptsList: React.FC = () => {
     );
   }
 
-  if (prompts.length === 0) {
+  // Filter prompts based on language availability
+  const filteredPrompts = prompts.filter((prompt) => {
+    if (preferredLanguage === 'en') {
+      return true; // English is always available
+    }
+    return hasPolishVersion(prompt); // For Polish, check if translation exists
+  });
+
+  if (filteredPrompts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <div className="text-gray-400 text-lg mb-2">No prompts found</div>
@@ -32,7 +41,7 @@ export const PromptsList: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {prompts.map((prompt) => (
+      {filteredPrompts.map((prompt) => (
         <PromptCard key={prompt.id} prompt={prompt} />
       ))}
     </div>

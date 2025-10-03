@@ -48,6 +48,11 @@ const detectBrowserLanguage = (): Language => {
  * Load language preference from localStorage, defaulting to browser locale
  */
 export const loadLanguagePreference = (): Language => {
+  // Return 'en' as default for SSR - will be corrected on client hydration
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
   try {
     const stored = localStorage.getItem(LANGUAGE_PREFERENCE_KEY);
     if (stored === 'pl' || stored === 'en') {
@@ -56,7 +61,7 @@ export const loadLanguagePreference = (): Language => {
     // No stored preference - detect from browser
     return detectBrowserLanguage();
   } catch {
-    return detectBrowserLanguage();
+    return 'en';
   }
 };
 
