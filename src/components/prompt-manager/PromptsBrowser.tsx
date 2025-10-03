@@ -7,6 +7,7 @@ import { PromptsList } from './PromptsList';
 import { PromptDetail } from './PromptDetail';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { loadLanguagePreference } from '../../services/prompt-manager/language';
+import { parsePromptParams, hasValidParams } from '../../utils/urlParams';
 
 export const PromptsBrowser: React.FC = () => {
   const {
@@ -16,13 +17,28 @@ export const PromptsBrowser: React.FC = () => {
     prompts,
     selectedPromptId,
     setPreferredLanguage,
+    hydrateFromUrl,
   } = usePromptsStore();
 
-  // Initialize language preference and fetch organizations on mount
+  // Initialize - check for URL params first, otherwise normal initialization
   useEffect(() => {
-    setPreferredLanguage(loadLanguagePreference());
-    fetchOrganizations();
-  }, [fetchOrganizations, setPreferredLanguage]);
+    const params = parsePromptParams(new URL(window.location.href));
+
+    if (hasValidParams(params)) {
+      // Deep link mode: hydrate from URL parameters
+      setPreferredLanguage(loadLanguagePreference());
+      hydrateFromUrl(params).then((result) => {
+        if (result.errors.length > 0) {
+          // Log errors for now - can be enhanced with toast notifications later
+          console.warn('[PromptsBrowser] URL hydration errors:', result.errors);
+        }
+      });
+    } else {
+      // Normal mode: standard initialization
+      setPreferredLanguage(loadLanguagePreference());
+      fetchOrganizations();
+    }
+  }, [fetchOrganizations, setPreferredLanguage, hydrateFromUrl]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

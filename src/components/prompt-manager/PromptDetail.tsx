@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Share2, Check } from 'lucide-react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { MarkdownRenderer } from '../ui/MarkdownRenderer';
 import { CopyDownloadActions } from '../ui/CopyDownloadActions';
+import { buildPromptUrl } from '../../utils/urlParams';
 
 export const PromptDetail: React.FC = () => {
-  const { selectedPromptId, prompts, collections, segments, selectPrompt, preferredLanguage } =
-    usePromptsStore();
+  const {
+    selectedPromptId,
+    prompts,
+    collections,
+    segments,
+    selectPrompt,
+    preferredLanguage,
+    activeOrganization,
+  } = usePromptsStore();
   const [language, setLanguage] = useState<'en' | 'pl'>(preferredLanguage);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const selectedPrompt = prompts.find((p) => p.id === selectedPromptId);
 
@@ -52,6 +61,30 @@ export const PromptDetail: React.FC = () => {
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
       handleClose();
+    }
+  };
+
+  const handleShare = async () => {
+    if (!activeOrganization) return;
+
+    const url = buildPromptUrl({
+      org: activeOrganization.slug,
+      collection: collection?.slug,
+      segment: segment?.slug,
+      prompt: selectedPrompt.id,
+    });
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      console.log('[PromptDetail] Link copied to clipboard:', url);
+
+      // Reset the "copied" state after 2 seconds
+      setTimeout(() => {
+        setLinkCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error('[PromptDetail] Failed to copy link:', error);
     }
   };
 
@@ -140,6 +173,24 @@ export const PromptDetail: React.FC = () => {
           <div className="text-sm text-gray-500">
             Last updated: {new Date(selectedPrompt.updated_at).toLocaleString()}
           </div>
+
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            aria-label="Share prompt link"
+          >
+            {linkCopied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Link Copied!
+              </>
+            ) : (
+              <>
+                <Share2 className="h-4 w-4" />
+                Share Link
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

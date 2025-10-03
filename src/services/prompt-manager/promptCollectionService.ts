@@ -38,6 +38,46 @@ export async function getCollections(
 }
 
 /**
+ * Get a collection by slug within an organization
+ */
+export async function getCollectionBySlug(
+  organizationId: string,
+  slug: string,
+): Promise<ServiceResult<PromptCollection>> {
+  try {
+    const normalizedSlug = slug.trim().toLowerCase();
+
+    const { data: collection, error } = await supabaseAdmin
+      .from('prompt_collections')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('slug', normalizedSlug)
+      .maybeSingle();
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    if (!collection) {
+      return {
+        data: null,
+        error: { message: 'Collection not found', code: 'NOT_FOUND' },
+      };
+    }
+
+    return { data: collection as PromptCollection, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
+
+/**
  * Get all segments for a collection, ordered by sort_order
  */
 export async function getSegments(collectionId: string): Promise<ServiceResult<PromptSegment[]>> {
@@ -56,6 +96,46 @@ export async function getSegments(collectionId: string): Promise<ServiceResult<P
     }
 
     return { data: (segments as PromptSegment[]) || [], error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: (err as Error).message, code: 'INTERNAL_ERROR' },
+    };
+  }
+}
+
+/**
+ * Get a segment by slug within a collection
+ */
+export async function getSegmentBySlug(
+  collectionId: string,
+  slug: string,
+): Promise<ServiceResult<PromptSegment>> {
+  try {
+    const normalizedSlug = slug.trim().toLowerCase();
+
+    const { data: segment, error } = await supabaseAdmin
+      .from('prompt_collection_segments')
+      .select('*')
+      .eq('collection_id', collectionId)
+      .eq('slug', normalizedSlug)
+      .maybeSingle();
+
+    if (error) {
+      return {
+        data: null,
+        error: { message: error.message, code: error.code || 'UNKNOWN_ERROR' },
+      };
+    }
+
+    if (!segment) {
+      return {
+        data: null,
+        error: { message: 'Segment not found', code: 'NOT_FOUND' },
+      };
+    }
+
+    return { data: segment as PromptSegment, error: null };
   } catch (err) {
     return {
       data: null,

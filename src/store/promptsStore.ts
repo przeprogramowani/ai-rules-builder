@@ -3,6 +3,12 @@ import type { Tables } from '../db/database.types';
 import type { OrganizationMembership } from '../services/prompt-manager/organizations';
 import type { Language } from '../services/prompt-manager/language';
 import { saveLanguagePreference } from '../services/prompt-manager/language';
+import type { PromptLinkParams } from '../utils/urlParams';
+import { isUUID } from '../utils/urlParams';
+import {
+  findCollectionBySlugOrId,
+  findSegmentBySlugOrId,
+} from '../services/prompt-manager/lookupService';
 
 // Type aliases for database tables
 export type Prompt = Tables<'prompts'>;
@@ -60,19 +66,33 @@ interface PromptsState {
 
   // Actions
   fetchOrganizations: () => Promise<void>;
+  fetchOrganizationsList: () => Promise<void>;
   setActiveOrganization: (org: OrganizationMembership | null) => void;
-  fetchCollections: (orgId: string) => Promise<void>;
-  fetchSegments: (collectionId: string) => Promise<void>;
-  fetchPrompts: (filters?: {
-    organizationId?: string;
-    collectionId?: string;
-    segmentId?: string;
-    search?: string;
-  }) => Promise<void>;
+  fetchCollections: (
+    orgId: string,
+    skipLoadingToggle?: boolean,
+    skipPromptFetch?: boolean,
+  ) => Promise<void>;
+  fetchSegments: (collectionId: string, skipLoadingToggle?: boolean) => Promise<void>;
+  fetchPrompts: (
+    filters?: {
+      organizationId?: string;
+      collectionId?: string;
+      segmentId?: string;
+      search?: string;
+    },
+    skipLoadingToggle?: boolean,
+  ) => Promise<void>;
   selectPrompt: (promptId: string | null) => void;
   setFilters: (collectionId: string | null, segmentId: string | null, search?: string) => void;
   setSearchQuery: (query: string) => void;
   reset: () => void;
+
+  // Deep linking
+  hydrateFromUrl: (params: PromptLinkParams) => Promise<{
+    success: boolean;
+    errors: string[];
+  }>;
 
   // Language actions
   setPreferredLanguage: (lang: Language) => void;
@@ -141,18 +161,41 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       set({
         organizations,
         activeOrganization: activeOrg,
-        isLoading: false,
       });
 
-      // Fetch collections for the active organization
+      // Fetch collections for the active organization (skip loading toggle)
       if (activeOrg) {
-        await get().fetchCollections(activeOrg.id);
+        await get().fetchCollections(activeOrg.id, true);
       }
+
+      // Only set loading false after the entire cascade completes
+      set({ isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Unknown error',
         isLoading: false,
       });
+    }
+  },
+
+  // Lightweight version for deep-linking - just fetches org list without side effects
+  fetchOrganizationsList: async () => {
+    try {
+      const response = await fetch('/api/prompt-manager/organizations');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch organizations');
+      }
+
+      const data = (await response.json()) as { organizations: OrganizationMembership[] };
+      const organizations = data.organizations || [];
+
+      set({ organizations });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
     }
   },
 
@@ -165,16 +208,22 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       selectedCollectionId: null,
       selectedSegmentId: null,
       selectedPromptId: null,
+      isLoading: true,
     });
 
     if (org) {
-      await get().fetchCollections(org.id);
+      await get().fetchCollections(org.id, true);
+      set({ isLoading: false });
+    } else {
+      set({ isLoading: false });
     }
   },
 
-  fetchCollections: async (orgId: string) => {
+  fetchCollections: async (orgId: string, skipLoadingToggle = false, skipPromptFetch = false) => {
     try {
-      set({ isLoading: true, error: null });
+      if (!skipLoadingToggle) {
+        set({ isLoading: true, error: null });
+      }
       const response = await fetch(`/api/prompts/collections?organization_id=${orgId}`);
 
       if (!response.ok) {
@@ -185,14 +234,19 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
       set({
         collections,
-        isLoading: false,
       });
 
-      // Fetch segments for all collections so they're available for display
-      await Promise.all(collections.map((collection) => get().fetchSegments(collection.id)));
+      // Fetch segments for all collections so they're available for display (skip loading toggle)
+      await Promise.all(collections.map((collection) => get().fetchSegments(collection.id, true)));
 
-      // Fetch prompts for the organization
-      await get().fetchPrompts({ organizationId: orgId });
+      // Fetch prompts for the organization (skip loading toggle and skip if in deep-link mode)
+      if (!skipPromptFetch) {
+        await get().fetchPrompts({ organizationId: orgId }, true);
+      }
+
+      if (!skipLoadingToggle) {
+        set({ isLoading: false });
+      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -201,9 +255,11 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
     }
   },
 
-  fetchSegments: async (collectionId: string) => {
+  fetchSegments: async (collectionId: string, skipLoadingToggle = false) => {
     try {
-      set({ isLoading: true, error: null });
+      if (!skipLoadingToggle) {
+        set({ isLoading: true, error: null });
+      }
       const response = await fetch(`/api/prompts/collections/${collectionId}/segments`);
 
       if (!response.ok) {
@@ -219,8 +275,11 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
       set({
         segments: allSegments,
-        isLoading: false,
       });
+
+      if (!skipLoadingToggle) {
+        set({ isLoading: false });
+      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -229,7 +288,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
     }
   },
 
-  fetchPrompts: async (filters = {}) => {
+  fetchPrompts: async (filters = {}, skipLoadingToggle = false) => {
     const {
       activeOrganization,
       selectedCollectionId,
@@ -245,7 +304,9 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
     }
 
     try {
-      set({ isLoading: true, error: null });
+      if (!skipLoadingToggle) {
+        set({ isLoading: true, error: null });
+      }
 
       const params = new URLSearchParams({ organization_id: orgId });
 
@@ -277,8 +338,11 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
       set({
         prompts,
-        isLoading: false,
       });
+
+      if (!skipLoadingToggle) {
+        set({ isLoading: false });
+      }
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -296,17 +360,20 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       selectedCollectionId: collectionId,
       selectedSegmentId: segmentId,
       searchQuery: search ?? get().searchQuery,
+      isLoading: true,
     });
 
-    // Fetch segments if a collection is selected
+    // Fetch segments if a collection is selected (skip loading toggle)
     if (collectionId) {
-      await get().fetchSegments(collectionId);
+      await get().fetchSegments(collectionId, true);
     } else {
       set({ segments: [] });
     }
 
-    // Fetch prompts with the new filters
-    await get().fetchPrompts();
+    // Fetch prompts with the new filters (skip loading toggle)
+    await get().fetchPrompts({}, true);
+
+    set({ isLoading: false });
   },
 
   setSearchQuery: async (query: string) => {
@@ -321,6 +388,124 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
   reset: () => {
     set(initialState);
+  },
+
+  // Deep linking
+  hydrateFromUrl: async (params: PromptLinkParams) => {
+    const errors: string[] = [];
+    let success = false;
+
+    try {
+      set({ isLoading: true, error: null });
+
+      // Step 1: Resolve organization
+      if (!params.org) {
+        errors.push('No organization specified in URL');
+        set({ isLoading: false });
+        return { success: false, errors };
+      }
+
+      let targetOrg: OrganizationMembership | null = null;
+
+      // Try to find organization in user's memberships
+      const { organizations } = get();
+      if (!organizations.length) {
+        await get().fetchOrganizationsList();
+      }
+
+      const orgs = get().organizations;
+      const normalizedOrg = params.org.trim().toLowerCase();
+
+      // Check by slug first, then by ID
+      if (isUUID(normalizedOrg)) {
+        targetOrg = orgs.find((o) => o.id === normalizedOrg) || null;
+      } else {
+        targetOrg = orgs.find((o) => o.slug.toLowerCase() === normalizedOrg) || null;
+      }
+
+      if (!targetOrg) {
+        errors.push(`Organization '${params.org}' not found or you don't have access`);
+        set({ isLoading: false });
+        return { success: false, errors };
+      }
+
+      // Set active organization (without fetching, we'll do it manually below)
+      set({
+        activeOrganization: targetOrg,
+        collections: [],
+        segments: [],
+        prompts: [],
+        selectedCollectionId: null,
+        selectedSegmentId: null,
+        selectedPromptId: null,
+      });
+
+      // Fetch collections first (skip loading toggle, skip prompt fetch - we'll fetch filtered prompts later)
+      await get().fetchCollections(targetOrg.id, true, true);
+
+      // Step 2: Resolve collection (if provided)
+      let targetCollection: PromptCollection | null = null;
+      if (params.collection) {
+        targetCollection = await findCollectionBySlugOrId(targetOrg.id, params.collection);
+        if (!targetCollection) {
+          errors.push(`Collection '${params.collection}' not found`);
+        } else {
+          await get().fetchSegments(targetCollection.id, true);
+        }
+      }
+
+      // Step 3: Resolve segment (if provided)
+      let targetSegment: PromptSegment | null = null;
+      if (params.segment && targetCollection) {
+        targetSegment = await findSegmentBySlugOrId(targetCollection.id, params.segment);
+        if (!targetSegment) {
+          errors.push(`Segment '${params.segment}' not found`);
+        }
+      }
+
+      // Step 4: Fetch prompts with filters (skip loading toggle)
+      await get().fetchPrompts(
+        {
+          organizationId: targetOrg.id,
+          collectionId: targetCollection?.id,
+          segmentId: targetSegment?.id,
+        },
+        true,
+      );
+
+      // Batch all filter state updates into a single set() call to avoid re-renders
+      set({
+        selectedCollectionId: targetCollection?.id || null,
+        selectedSegmentId: targetSegment?.id || null,
+      });
+
+      // Step 5: Select specific prompt (if provided)
+      if (params.prompt) {
+        const { prompts } = get();
+        const targetPrompt = prompts.find((p) => p.id === params.prompt);
+
+        if (!targetPrompt) {
+          errors.push(`Prompt '${params.prompt}' not found`);
+        } else {
+          get().selectPrompt(params.prompt);
+          success = true;
+        }
+      } else {
+        // If no specific prompt requested, consider success if we got to org/collection/segment
+        success = true;
+      }
+
+      set({ isLoading: false });
+      return { success, errors };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      errors.push(`Failed to hydrate from URL: ${errorMessage}`);
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+      return { success: false, errors };
+    }
   },
 
   // Language actions
