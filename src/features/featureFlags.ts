@@ -40,15 +40,15 @@ const featureFlags: FeatureConfig = {
     auth: true,
     collections: true,
     authOnUI: true,
-    [PROMPT_LIBRARY_ENABLED]: false,
+    [PROMPT_LIBRARY_ENABLED]: true,
     [ORG_INVITES_ENABLED]: true,
   },
   prod: {
     auth: true,
     collections: true,
     authOnUI: true,
-    [PROMPT_LIBRARY_ENABLED]: false,
-    [ORG_INVITES_ENABLED]: false,
+    [PROMPT_LIBRARY_ENABLED]: true,
+    [ORG_INVITES_ENABLED]: true,
   },
 };
 

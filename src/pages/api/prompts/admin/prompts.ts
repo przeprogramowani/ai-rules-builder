@@ -18,10 +18,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const body = (await request.json()) as CreatePromptInput;
 
     // Validate required fields
-    if (!body.title || !body.collection_id || !body.markdown_body) {
+    if (!body.title_en || !body.collection_id || !body.markdown_body_en) {
       return new Response(
         JSON.stringify({
-          error: 'Missing required fields: title, collection_id, markdown_body',
+          error: 'Missing required fields: title_en, collection_id, markdown_body_en',
           code: 'VALIDATION_ERROR',
         }),
         {
