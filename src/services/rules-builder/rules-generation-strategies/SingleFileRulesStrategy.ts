@@ -1,12 +1,28 @@
 import type { RulesGenerationStrategy } from '../RulesGenerationStrategy.ts';
 import { Layer, Library, Stack } from '../../../data/dictionaries.ts';
 import type { RulesContent } from '../RulesBuilderTypes.ts';
-import { getRulesForLibrary } from '../../../data/rules.ts';
+import { getRulesForLibrary as getFileBasedRulesForLibrary } from '../../../data/rules.ts';
+import type { LibraryRulesMap } from '../../../data/rules/types';
 
 /**
  * Strategy for single-file rules generation
  */
 export class SingleFileRulesStrategy implements RulesGenerationStrategy {
+  private libraryRules?: LibraryRulesMap;
+
+  constructor(libraryRules?: LibraryRulesMap) {
+    this.libraryRules = libraryRules;
+  }
+
+  /**
+   * Get rules for a library - uses passed rules or falls back to file-based rules
+   */
+  private getRulesForLibrary(library: Library): string[] {
+    if (this.libraryRules) {
+      return this.libraryRules[library] || [];
+    }
+    return getFileBasedRulesForLibrary(library);
+  }
   generateRules(
     projectName: string,
     projectDescription: string,
@@ -49,9 +65,9 @@ export class SingleFileRulesStrategy implements RulesGenerationStrategy {
             markdown += `#### ${library}\n\n`;
 
             // Get specific rules for this library
-            const libraryRules = getRulesForLibrary(library);
-            if (libraryRules.length > 0) {
-              libraryRules.forEach((rule) => {
+            const librarySpecificRules = this.getRulesForLibrary(library);
+            if (librarySpecificRules.length > 0) {
+              librarySpecificRules.forEach((rule) => {
                 markdown += `- ${rule}\n`;
               });
             } else {

@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "generate-rules": "tsx ./scripts/generate-rules-json.mts",
+    "migrate-rules": "tsx ./scripts/migrate-rules-to-supabase.ts",
     "dev": "astro dev -- --mode local",
     "dev:e2e": "npm run astro dev -- --mode integration",
     "build": "astro build",

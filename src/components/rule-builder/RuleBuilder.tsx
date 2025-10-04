@@ -8,12 +8,14 @@ import { LayerItem } from './LayerItem';
 import { MCPDialog } from './modals/MCPDialog';
 import { SearchInput } from './SearchInput';
 import { SelectedRules } from './SelectedRules';
+import type { LibraryRulesMap } from '../../data/rules/types';
 
 interface RuleBuilderProps {
   className?: string;
+  libraryRules: LibraryRulesMap;
 }
 
-export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
+export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '', libraryRules }) => {
   const {
     layers,
     selectedLibraries,
@@ -41,7 +43,7 @@ export const RuleBuilder: React.FC<RuleBuilderProps> = ({ className = '' }) => {
     getFilteredLibrariesByStack,
     getLibraryCounts,
     isSearchActive,
-  } = useRuleBuilder();
+  } = useRuleBuilder(libraryRules);
 
   const { totalCount, matchedCount } = getLibraryCounts;
   const accordionRef = useRef<HTMLDivElement>(null);

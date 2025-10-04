@@ -1,13 +1,29 @@
 import type { RulesGenerationStrategy } from '../RulesGenerationStrategy.ts';
 import { Layer, type Library, Stack } from '../../../data/dictionaries.ts';
 import type { RulesContent } from '../RulesBuilderTypes.ts';
-import { getRulesForLibrary } from '../../../data/rules';
+import { getRulesForLibrary as getFileBasedRulesForLibrary } from '../../../data/rules';
 import { slugify } from '../../../utils/slugify.ts';
+import type { LibraryRulesMap } from '../../../data/rules/types';
 
 /**
  * Strategy for multi-file rules generation
  */
 export class MultiFileRulesStrategy implements RulesGenerationStrategy {
+  private libraryRules?: LibraryRulesMap;
+
+  constructor(libraryRules?: LibraryRulesMap) {
+    this.libraryRules = libraryRules;
+  }
+
+  /**
+   * Get rules for a library - uses passed rules or falls back to file-based rules
+   */
+  private getRulesForLibrary(library: Library): string[] {
+    if (this.libraryRules) {
+      return this.libraryRules[library] || [];
+    }
+    return getFileBasedRulesForLibrary(library);
+  }
   generateRules(
     projectName: string,
     projectDescription: string,
@@ -37,7 +53,7 @@ export class MultiFileRulesStrategy implements RulesGenerationStrategy {
               layer,
               stack,
               library,
-              libraryRules: getRulesForLibrary(library),
+              libraryRules: this.getRulesForLibrary(library),
             }),
           );
         });

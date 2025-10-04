@@ -20,10 +20,12 @@ export default defineConfig({
       CF_CAPTCHA_SITE_KEY: envField.string({
         context: 'server',
         access: 'secret',
+        optional: true,
       }),
       CF_CAPTCHA_SECRET_KEY: envField.string({
         context: 'server',
         access: 'secret',
+        optional: true,
       }),
     },
   },
