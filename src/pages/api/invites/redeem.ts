@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { redeemInvite } from '@/services/prompt-manager/invites';
+import { redeemInvite } from '@/services/prompt-library/invites';
 
 export const prerender = false;
 

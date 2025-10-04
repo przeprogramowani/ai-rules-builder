@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { isFeatureEnabled } from '../../../features/featureFlags';
-import { listPublishedPrompts } from '../../../services/prompt-manager/promptService';
+import { listPublishedPrompts } from '../../../services/prompt-library/promptService';
 
 export const prerender = false;
 
@@ -11,8 +11,8 @@ export const prerender = false;
  */
 export const GET: APIRoute = async ({ locals, url }) => {
   // Check if prompt manager feature is enabled
-  if (!isFeatureEnabled('promptManager')) {
-    return new Response(JSON.stringify({ error: 'Prompt Manager feature is disabled' }), {
+  if (!isFeatureEnabled('promptLibrary')) {
+    return new Response(JSON.stringify({ error: 'Prompt Library feature is disabled' }), {
       status: 404,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 
   // Check organization access
-  if (!locals.promptManager?.activeOrganization) {
+  if (!locals.promptLibrary?.activeOrganization) {
     return new Response(
       JSON.stringify({ error: 'No active organization. Please join an organization first.' }),
       {
@@ -51,7 +51,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 
   // Verify user has access to this organization
-  const hasAccess = locals.promptManager.organizations.some((org) => org.id === organizationId);
+  const hasAccess = locals.promptLibrary.organizations.some((org) => org.id === organizationId);
   if (!hasAccess) {
     return new Response(JSON.stringify({ error: 'Access denied to this organization' }), {
       status: 403,

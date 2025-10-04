@@ -8,8 +8,8 @@ import {
   deletePrompt,
   getPrompt,
   listPrompts,
-} from '@/services/prompt-manager/promptService';
-import type { Prompt, CreatePromptInput, UpdatePromptInput } from '@/services/prompt-manager/types';
+} from '@/services/prompt-library/promptService';
+import type { Prompt, CreatePromptInput, UpdatePromptInput } from '@/services/prompt-library/types';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import {

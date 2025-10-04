@@ -1,18 +1,18 @@
 import type { APIRoute } from 'astro';
-import { createPrompt, listPrompts } from '@/services/prompt-manager/promptService';
-import type { CreatePromptInput, PromptFilters } from '@/services/prompt-manager/types';
+import { createPrompt, listPrompts } from '@/services/prompt-library/promptService';
+import type { CreatePromptInput, PromptFilters } from '@/services/prompt-library/types';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Middleware ensures user and promptManager context exist
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const userId = locals.user.id;
 
     const body = (await request.json()) as CreatePromptInput;
@@ -64,14 +64,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 export const GET: APIRoute = async ({ url, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
 
     // Parse query params for filtering
     const filters: PromptFilters = {};

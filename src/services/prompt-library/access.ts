@@ -1,8 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import {
-  isPromptManagerEnabled,
-  PROMPT_MANAGER_ENABLED,
+  isPromptLibraryEnabled,
+  PROMPT_LIBRARY_ENABLED,
   type FeatureFlag,
 } from '@/features/featureFlags';
 import type { Database } from '@/db/database.types';
@@ -15,20 +15,20 @@ import {
 
 type Supabase = SupabaseClient<Database>;
 
-type PromptManagerContextOptions = {
+type PromptLibraryContextOptions = {
   supabase: Supabase;
   userId: string;
   requestedSlug?: string | null;
 };
 
-export type PromptManagerContext = {
+export type PromptLibraryContext = {
   organizations: OrganizationMembership[];
   activeOrganization: OrganizationMembership | null;
 };
 
-export async function buildPromptManagerContext(
-  options: PromptManagerContextOptions,
-): Promise<PromptManagerContext> {
+export async function buildPromptLibraryContext(
+  options: PromptLibraryContextOptions,
+): Promise<PromptLibraryContext> {
   const organizations = await fetchUserOrganizations(options.supabase, options.userId);
   const activeOrganization = selectActiveOrganization(organizations, options.requestedSlug);
 
@@ -38,44 +38,44 @@ export async function buildPromptManagerContext(
   };
 }
 
-export function hasPromptManagerAccess(organizations: OrganizationMembership[]): boolean {
+export function hasPromptLibraryAccess(organizations: OrganizationMembership[]): boolean {
   return organizations.length > 0;
 }
 
-export function hasPromptManagerAdminAccess(organizations: OrganizationMembership[]): boolean {
+export function hasPromptLibraryAdminAccess(organizations: OrganizationMembership[]): boolean {
   return organizations.some((membership) => membership.role === 'admin');
 }
 
-export function ensurePromptManagerEnabled(flags?: Partial<Record<FeatureFlag, boolean>>): boolean {
-  return isPromptManagerEnabled(flags);
+export function ensurePromptLibraryEnabled(flags?: Partial<Record<FeatureFlag, boolean>>): boolean {
+  return isPromptLibraryEnabled(flags);
 }
 
-export function shouldAllowPromptManagerAccess(
+export function shouldAllowPromptLibraryAccess(
   organizations: OrganizationMembership[],
   flags?: Partial<Record<FeatureFlag, boolean>>,
 ): boolean {
-  if (!ensurePromptManagerEnabled(flags)) {
+  if (!ensurePromptLibraryEnabled(flags)) {
     return false;
   }
 
-  return hasPromptManagerAccess(organizations);
+  return hasPromptLibraryAccess(organizations);
 }
 
-export function shouldAllowPromptManagerAdminAccess(
+export function shouldAllowPromptLibraryAdminAccess(
   organizations: OrganizationMembership[],
   flags?: Partial<Record<FeatureFlag, boolean>>,
 ): boolean {
-  if (!ensurePromptManagerEnabled(flags)) {
+  if (!ensurePromptLibraryEnabled(flags)) {
     return false;
   }
 
-  return hasPromptManagerAdminAccess(organizations);
+  return hasPromptLibraryAdminAccess(organizations);
 }
 
 export {
   fetchOrganizationBySlug,
   fetchUserOrganizations,
   selectActiveOrganization,
-  PROMPT_MANAGER_ENABLED,
+  PROMPT_LIBRARY_ENABLED,
 };
 export type { OrganizationMembership, OrganizationRole } from './organizations';

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Archive, Loader2, Pencil, Send, Trash2 } from 'lucide-react';
 import type { Prompt, PromptCollection, PromptSegment } from '../../../store/promptsStore';
 import StatusBadge from '../../ui/StatusBadge';
-import { hasPolishVersion } from '../../../services/prompt-manager/language';
+import { hasPolishVersion } from '../../../services/prompt-library/language';
 
 interface AdminPromptCardProps {
   prompt: Prompt;

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Prompt } from '../../store/promptsStore';
 import { usePromptsStore } from '../../store/promptsStore';
-import { getLocalizedTitle, getLocalizedBody } from '../../services/prompt-manager/language';
+import { getLocalizedTitle, getLocalizedBody } from '../../services/prompt-library/language';
 
 interface PromptCardProps {
   prompt: Prompt;

@@ -8,9 +8,9 @@ import {
   deletePrompt,
   getPrompt,
   listPrompts,
-} from '@/services/prompt-manager/promptService';
-import { getCollections, getSegments } from '@/services/prompt-manager/promptCollectionService';
-import type { CreatePromptInput } from '@/services/prompt-manager/types';
+} from '@/services/prompt-library/promptService';
+import { getCollections, getSegments } from '@/services/prompt-library/promptCollectionService';
+import type { CreatePromptInput } from '@/services/prompt-library/types';
 import { createMockSupabaseClient } from '../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../helpers/mockSupabaseClient';
 

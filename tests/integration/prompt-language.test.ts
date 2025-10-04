@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePromptsStore } from '@/store/promptsStore';
-import type { Language } from '@/services/prompt-manager/language';
+import type { Language } from '@/services/prompt-library/language';
 
 /**
  * Integration test for language preference management in the prompts store.

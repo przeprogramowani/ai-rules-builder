@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { publishPrompt, unpublishPrompt, getPrompt } from '@/services/prompt-manager/promptService';
+import { publishPrompt, unpublishPrompt, getPrompt } from '@/services/prompt-library/promptService';
 
 export const PATCH: APIRoute = async ({ params, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -21,7 +21,7 @@ export const PATCH: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
 
     // Get current status
     const currentPrompt = await getPrompt(locals.supabase, promptId, organizationId);

@@ -2,18 +2,18 @@ import type { APIRoute } from 'astro';
 import {
   getCollections,
   createCollection,
-} from '@/services/prompt-manager/promptCollectionService';
+} from '@/services/prompt-library/promptCollectionService';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const result = await getCollections(locals.supabase, organizationId);
 
     if (result.error) {
@@ -44,7 +44,7 @@ export const GET: APIRoute = async ({ locals }) => {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +87,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const result = await createCollection(locals.supabase, organizationId, {
       title,
       description,

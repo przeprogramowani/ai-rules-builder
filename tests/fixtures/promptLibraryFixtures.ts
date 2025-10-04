@@ -2,10 +2,10 @@ import type {
   Prompt,
   PromptCollection,
   PromptSegment,
-} from '@/services/prompt-manager/types';
+} from '@/services/prompt-library/types';
 
 /**
- * Test fixtures for Prompt Manager tests
+ * Test fixtures for Prompt Library tests
  * Provides consistent, reusable test data across all test suites
  *
  * FIXTURE AUDIT (2025-10-04):

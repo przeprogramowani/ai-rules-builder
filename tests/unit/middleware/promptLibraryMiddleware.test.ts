@@ -34,16 +34,16 @@ vi.mock('@/db/supabase.client', () => ({
   createSupabaseServerInstance: vi.fn(() => mockSupabaseClient),
 }));
 
-const buildPromptManagerContextMock = vi.fn();
+const buildPromptLibraryContextMock = vi.fn();
 
-vi.mock('@/services/prompt-manager/access', async () => {
-  const actual = await vi.importActual<typeof import('@/services/prompt-manager/access')>(
-    '@/services/prompt-manager/access',
+vi.mock('@/services/prompt-library/access', async () => {
+  const actual = await vi.importActual<typeof import('@/services/prompt-library/access')>(
+    '@/services/prompt-library/access',
   );
 
   return {
     ...actual,
-    buildPromptManagerContext: buildPromptManagerContextMock,
+    buildPromptLibraryContext: buildPromptLibraryContextMock,
   };
 });
 
@@ -127,11 +127,11 @@ describe('middleware prompt manager guard', () => {
   beforeEach(() => {
     currentUser = null;
     mockSupabaseClient.auth.getUser.mockClear();
-    buildPromptManagerContextMock.mockReset();
+    buildPromptLibraryContextMock.mockReset();
     resetEnv();
     mutableEnv.PUBLIC_ENV_NAME = 'local';
-    mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = 'false';
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'false';
+    mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED = 'false';
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'false';
   });
 
   it('redirects unauthenticated users to login', async () => {
@@ -145,19 +145,19 @@ describe('middleware prompt manager guard', () => {
   it('returns 404 when flag disabled', async () => {
     currentUser = createUser();
 
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'false';
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'false';
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(404);
-    expect(buildPromptManagerContextMock).not.toHaveBeenCalled();
+    expect(buildPromptLibraryContextMock).not.toHaveBeenCalled();
   });
 
   it('blocks prompt routes without organization membership', async () => {
     currentUser = createUser();
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
-    buildPromptManagerContextMock.mockResolvedValue({
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'true';
+    buildPromptLibraryContextMock.mockResolvedValue({
       organizations: [],
       activeOrganization: null,
     });
@@ -170,9 +170,9 @@ describe('middleware prompt manager guard', () => {
 
   it('allows prompt route when membership present', async () => {
     currentUser = createUser();
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
-    buildPromptManagerContextMock.mockResolvedValue({
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'true';
+    buildPromptLibraryContextMock.mockResolvedValue({
       organizations: [
         { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
       ],
@@ -182,15 +182,15 @@ describe('middleware prompt manager guard', () => {
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(200);
-    expect(context.locals.promptManager?.organizations).toHaveLength(1);
-    expect(context.locals.promptManager?.activeOrganization?.slug).toBe('org-member');
+    expect(context.locals.promptLibrary?.organizations).toHaveLength(1);
+    expect(context.locals.promptLibrary?.activeOrganization?.slug).toBe('org-member');
   });
 
   it('redirects member trying to access admin route', async () => {
     currentUser = createUser();
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
-    buildPromptManagerContextMock.mockResolvedValue({
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'true';
+    buildPromptLibraryContextMock.mockResolvedValue({
       organizations: [
         { id: 'org-member', slug: 'org-member', name: 'Org Member', role: 'member' },
       ],
@@ -205,9 +205,9 @@ describe('middleware prompt manager guard', () => {
 
   it('allows admin route for admin members', async () => {
     currentUser = createUser();
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
-    buildPromptManagerContextMock.mockResolvedValue({
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'true';
+    buildPromptLibraryContextMock.mockResolvedValue({
       organizations: [
         { id: 'org-admin', slug: 'org-admin', name: 'Org Admin', role: 'admin' },
       ],
@@ -217,6 +217,6 @@ describe('middleware prompt manager guard', () => {
     const context = createContext('/prompts/admin');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
     expect(response.status).toBe(200);
-    expect(context.locals.promptManager?.activeOrganization?.slug).toBe('org-admin');
+    expect(context.locals.promptLibrary?.activeOrganization?.slug).toBe('org-admin');
   });
 });

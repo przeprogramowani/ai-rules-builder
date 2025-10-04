@@ -11,8 +11,8 @@ export type Env = 'local' | 'integration' | 'prod';
 /**
  * Available feature flags in the application
  */
-export type FeatureFlag = 'auth' | 'collections' | 'authOnUI' | 'promptManager' | 'orgInvites';
-export const PROMPT_MANAGER_ENABLED: FeatureFlag = 'promptManager';
+export type FeatureFlag = 'auth' | 'collections' | 'authOnUI' | 'promptLibrary' | 'orgInvites';
+export const PROMPT_LIBRARY_ENABLED: FeatureFlag = 'promptLibrary';
 export const ORG_INVITES_ENABLED: FeatureFlag = 'orgInvites';
 type FeatureConfig = {
   [E in Env]: {
@@ -24,7 +24,7 @@ const FEATURE_KEYS: FeatureFlag[] = [
   'auth',
   'collections',
   'authOnUI',
-  PROMPT_MANAGER_ENABLED,
+  PROMPT_LIBRARY_ENABLED,
   ORG_INVITES_ENABLED,
 ];
 
@@ -33,34 +33,34 @@ const featureFlags: FeatureConfig = {
     auth: true,
     collections: true,
     authOnUI: true,
-    [PROMPT_MANAGER_ENABLED]: true,
+    [PROMPT_LIBRARY_ENABLED]: true,
     [ORG_INVITES_ENABLED]: true,
   },
   integration: {
     auth: true,
     collections: true,
     authOnUI: true,
-    [PROMPT_MANAGER_ENABLED]: false,
+    [PROMPT_LIBRARY_ENABLED]: false,
     [ORG_INVITES_ENABLED]: true,
   },
   prod: {
     auth: true,
     collections: true,
     authOnUI: true,
-    [PROMPT_MANAGER_ENABLED]: false,
+    [PROMPT_LIBRARY_ENABLED]: false,
     [ORG_INVITES_ENABLED]: false,
   },
 };
 
-const PROMPT_MANAGER_OVERRIDE_KEYS = [
-  'PUBLIC_PROMPT_MANAGER_ENABLED',
-  'PROMPT_MANAGER_ENABLED',
+const PROMPT_LIBRARY_OVERRIDE_KEYS = [
+  'PUBLIC_PROMPT_LIBRARY_ENABLED',
+  'PROMPT_LIBRARY_ENABLED',
 ] as const;
 
-function readPromptManagerOverride(): boolean | null {
+function readPromptLibraryOverride(): boolean | null {
   const env = import.meta.env as Record<string, string | undefined>;
 
-  for (const key of PROMPT_MANAGER_OVERRIDE_KEYS) {
+  for (const key of PROMPT_LIBRARY_OVERRIDE_KEYS) {
     const value = env[key];
     if (typeof value === 'string') {
       const normalized = value.trim().toLowerCase();
@@ -96,8 +96,8 @@ export function isFeatureEnabled(feature: FeatureFlag): boolean {
     return false;
   }
 
-  if (feature === PROMPT_MANAGER_ENABLED) {
-    const override = readPromptManagerOverride();
+  if (feature === PROMPT_LIBRARY_ENABLED) {
+    const override = readPromptLibraryOverride();
     if (override !== null) {
       return override;
     }
@@ -116,10 +116,10 @@ export function getAllFeatureFlags(): Record<FeatureFlag, boolean> {
   return Object.fromEntries(entries) as Record<FeatureFlag, boolean>;
 }
 
-export function isPromptManagerEnabled(overrides?: Partial<Record<FeatureFlag, boolean>>): boolean {
-  if (overrides && typeof overrides[PROMPT_MANAGER_ENABLED] === 'boolean') {
-    return overrides[PROMPT_MANAGER_ENABLED];
+export function isPromptLibraryEnabled(overrides?: Partial<Record<FeatureFlag, boolean>>): boolean {
+  if (overrides && typeof overrides[PROMPT_LIBRARY_ENABLED] === 'boolean') {
+    return overrides[PROMPT_LIBRARY_ENABLED];
   }
 
-  return isFeatureEnabled(PROMPT_MANAGER_ENABLED);
+  return isFeatureEnabled(PROMPT_LIBRARY_ENABLED);
 }

@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import type { Tables } from '../db/database.types';
-import type { OrganizationMembership } from '../services/prompt-manager/organizations';
-import type { Language } from '../services/prompt-manager/language';
-import { saveLanguagePreference } from '../services/prompt-manager/language';
+import type { OrganizationMembership } from '../services/prompt-library/organizations';
+import type { Language } from '../services/prompt-library/language';
+import { saveLanguagePreference } from '../services/prompt-library/language';
 import type { PromptLinkParams } from '../utils/urlParams';
 import { isUUID } from '../utils/urlParams';
 import {
   findCollectionBySlugOrId,
   findSegmentBySlugOrId,
-} from '../services/prompt-manager/lookupService';
+} from '../services/prompt-library/lookupService';
 
 // Type aliases for database tables
 export type Prompt = Tables<'prompts'>;
@@ -146,7 +146,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
   fetchOrganizations: async () => {
     try {
       set({ isLoading: true, error: null });
-      const response = await fetch('/api/prompt-manager/organizations');
+      const response = await fetch('/api/prompt-library/organizations');
 
       if (!response.ok) {
         throw new Error('Failed to fetch organizations');
@@ -181,7 +181,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
   // Lightweight version for deep-linking - just fetches org list without side effects
   fetchOrganizationsList: async () => {
     try {
-      const response = await fetch('/api/prompt-manager/organizations');
+      const response = await fetch('/api/prompt-library/organizations');
 
       if (!response.ok) {
         throw new Error('Failed to fetch organizations');

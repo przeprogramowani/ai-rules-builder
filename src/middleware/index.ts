@@ -1,10 +1,10 @@
 import { createSupabaseServerInstance } from '@/db/supabase.client';
 import {
-  buildPromptManagerContext,
-  ensurePromptManagerEnabled,
-  hasPromptManagerAccess,
-  hasPromptManagerAdminAccess,
-} from '@/services/prompt-manager/access';
+  buildPromptLibraryContext,
+  ensurePromptLibraryEnabled,
+  hasPromptLibraryAccess,
+  hasPromptLibraryAdminAccess,
+} from '@/services/prompt-library/access';
 import { sequence, defineMiddleware } from 'astro:middleware';
 import { checkRateLimit, setRateLimitCookie } from '../services/rateLimiter';
 
@@ -66,12 +66,12 @@ const PUBLIC_PATHS = [
   '/privacy/en',
 ];
 
-const PROMPT_MANAGER_BASE_PATH = '/prompts';
-const PROMPT_MANAGER_ADMIN_PATH = '/prompts/admin';
-const PROMPT_MANAGER_REQUEST_ACCESS_PATH = '/prompts/request-access';
-const PROMPT_MANAGER_API_PATH = '/api/prompts';
+const PROMPT_LIBRARY_BASE_PATH = '/prompts';
+const PROMPT_LIBRARY_ADMIN_PATH = '/prompts/admin';
+const PROMPT_LIBRARY_REQUEST_ACCESS_PATH = '/prompts/request-access';
+const PROMPT_LIBRARY_API_PATH = '/api/prompts';
 
-const TEXT_PROMPT_MANAGER_DISABLED = 'Prompt Manager is not available.';
+const TEXT_PROMPT_LIBRARY_DISABLED = 'Prompt Library is not available.';
 
 function normalisePath(pathname: string): string {
   if (!pathname.endsWith('/') || pathname === '/') {
@@ -80,32 +80,32 @@ function normalisePath(pathname: string): string {
   return pathname.replace(/\/+$/, '') || '/';
 }
 
-function isPromptManagerAdminRoute(pathname: string): boolean {
+function isPromptLibraryAdminRoute(pathname: string): boolean {
   const normalised = normalisePath(pathname);
   return (
-    normalised === PROMPT_MANAGER_ADMIN_PATH ||
-    normalised.startsWith(`${PROMPT_MANAGER_ADMIN_PATH}/`)
+    normalised === PROMPT_LIBRARY_ADMIN_PATH ||
+    normalised.startsWith(`${PROMPT_LIBRARY_ADMIN_PATH}/`)
   );
 }
 
-function isPromptManagerRoute(pathname: string): boolean {
+function isPromptLibraryRoute(pathname: string): boolean {
   const normalised = normalisePath(pathname);
-  if (isPromptManagerAdminRoute(normalised)) {
+  if (isPromptLibraryAdminRoute(normalised)) {
     return true;
   }
   // Exclude request-access page from access checks
-  if (normalised === PROMPT_MANAGER_REQUEST_ACCESS_PATH) {
+  if (normalised === PROMPT_LIBRARY_REQUEST_ACCESS_PATH) {
     return false;
   }
   return (
-    normalised === PROMPT_MANAGER_BASE_PATH ||
-    normalised.startsWith(`${PROMPT_MANAGER_BASE_PATH}/`) ||
-    normalised.startsWith(PROMPT_MANAGER_API_PATH)
+    normalised === PROMPT_LIBRARY_BASE_PATH ||
+    normalised.startsWith(`${PROMPT_LIBRARY_BASE_PATH}/`) ||
+    normalised.startsWith(PROMPT_LIBRARY_API_PATH)
   );
 }
 
-function promptManagerFlagDisabledResponse(): Response {
-  return new Response(TEXT_PROMPT_MANAGER_DISABLED, {
+function promptLibraryFlagDisabledResponse(): Response {
+  return new Response(TEXT_PROMPT_LIBRARY_DISABLED, {
     status: 404,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
@@ -160,40 +160,40 @@ const validateRequest = defineMiddleware(
       }
 
       const pathname = url.pathname;
-      const flagEnabled = ensurePromptManagerEnabled();
-      const isPromptRoute = isPromptManagerRoute(pathname);
-      const isAdminRoute = isPromptManagerAdminRoute(pathname);
+      const flagEnabled = ensurePromptLibraryEnabled();
+      const isPromptRoute = isPromptLibraryRoute(pathname);
+      const isAdminRoute = isPromptLibraryAdminRoute(pathname);
 
       if (isPromptRoute) {
         const requestedOrganizationSlug = url.searchParams.get('organization');
-        locals.promptManager = {
+        locals.promptLibrary = {
           organizations: [],
           activeOrganization: null,
           flagEnabled,
         };
 
         if (!flagEnabled) {
-          return promptManagerFlagDisabledResponse();
+          return promptLibraryFlagDisabledResponse();
         }
 
-        const context = await buildPromptManagerContext({
+        const context = await buildPromptLibraryContext({
           supabase,
           userId: user.id,
           requestedSlug: requestedOrganizationSlug,
         });
 
-        locals.promptManager.organizations = context.organizations;
-        locals.promptManager.activeOrganization = context.activeOrganization;
+        locals.promptLibrary.organizations = context.organizations;
+        locals.promptLibrary.activeOrganization = context.activeOrganization;
 
-        if (!hasPromptManagerAccess(context.organizations)) {
-          return redirect(PROMPT_MANAGER_REQUEST_ACCESS_PATH);
+        if (!hasPromptLibraryAccess(context.organizations)) {
+          return redirect(PROMPT_LIBRARY_REQUEST_ACCESS_PATH);
         }
 
-        if (isAdminRoute && !hasPromptManagerAdminAccess(context.organizations)) {
+        if (isAdminRoute && !hasPromptLibraryAdminAccess(context.organizations)) {
           const targetSlug = context.activeOrganization?.slug;
           const targetPath = targetSlug
-            ? `${PROMPT_MANAGER_BASE_PATH}?organization=${encodeURIComponent(targetSlug)}`
-            : PROMPT_MANAGER_BASE_PATH;
+            ? `${PROMPT_LIBRARY_BASE_PATH}?organization=${encodeURIComponent(targetSlug)}`
+            : PROMPT_LIBRARY_BASE_PATH;
 
           return redirect(targetPath);
         }

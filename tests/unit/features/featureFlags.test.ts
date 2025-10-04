@@ -20,42 +20,42 @@ describe('featureFlags', () => {
     vi.resetModules();
     resetEnv();
     mutableEnv.PUBLIC_ENV_NAME = 'local';
-    mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = 'false';
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'false';
+    mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED = 'false';
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'false';
   });
 
   it('disables prompt manager by default', async () => {
-    const { isPromptManagerEnabled } = await import('@/features/featureFlags');
-    expect(isPromptManagerEnabled()).toBe(false);
+    const { isPromptLibraryEnabled } = await import('@/features/featureFlags');
+    expect(isPromptLibraryEnabled()).toBe(false);
   });
 
-  it('enables prompt manager when PUBLIC_PROMPT_MANAGER_ENABLED=1', async () => {
-    mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = '1';
-    const { isPromptManagerEnabled } = await import('@/features/featureFlags');
-    expect(isPromptManagerEnabled()).toBe(true);
+  it('enables prompt manager when PUBLIC_PROMPT_LIBRARY_ENABLED=1', async () => {
+    mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED = '1';
+    const { isPromptLibraryEnabled } = await import('@/features/featureFlags');
+    expect(isPromptLibraryEnabled()).toBe(true);
   });
 
   it('can disable prompt manager explicitly via override', async () => {
-    mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = 'true';
-    const { isPromptManagerEnabled } = await import('@/features/featureFlags');
-    expect(isPromptManagerEnabled()).toBe(true);
+    mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED = 'true';
+    const { isPromptLibraryEnabled } = await import('@/features/featureFlags');
+    expect(isPromptLibraryEnabled()).toBe(true);
 
     vi.resetModules();
-    mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED = 'off';
-    const { isPromptManagerEnabled: reloadIsPromptManagerEnabled } = await import('@/features/featureFlags');
+    mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED = 'off';
+    const { isPromptLibraryEnabled: reloadIsPromptManagerEnabled } = await import('@/features/featureFlags');
     expect(reloadIsPromptManagerEnabled()).toBe(false);
   });
 
-  it('respects PROMPT_MANAGER_ENABLED env override on local', async () => {
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    mutableEnv.PROMPT_MANAGER_ENABLED = 'true';
-    const { isPromptManagerEnabled } = await import('@/features/featureFlags');
-    expect(isPromptManagerEnabled()).toBe(true);
+  it('respects PROMPT_LIBRARY_ENABLED env override on local', async () => {
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    mutableEnv.PROMPT_LIBRARY_ENABLED = 'true';
+    const { isPromptLibraryEnabled } = await import('@/features/featureFlags');
+    expect(isPromptLibraryEnabled()).toBe(true);
   });
 
   it('exposes prompt manager flag inside getAllFeatureFlags', async () => {
-    const { getAllFeatureFlags, PROMPT_MANAGER_ENABLED } = await import('@/features/featureFlags');
+    const { getAllFeatureFlags, PROMPT_LIBRARY_ENABLED } = await import('@/features/featureFlags');
     const flags = getAllFeatureFlags();
-    expect(flags[PROMPT_MANAGER_ENABLED]).toBe(false);
+    expect(flags[PROMPT_LIBRARY_ENABLED]).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { removeUserFromOrganization } from '@/services/prompt-manager/invites';
+import { removeUserFromOrganization } from '@/services/prompt-library/invites';
 
 /**
  * DELETE /api/prompts/admin/invites/[id]/users/[userId]
@@ -7,7 +7,7 @@ import { removeUserFromOrganization } from '@/services/prompt-manager/invites';
  */
 export const DELETE: APIRoute = async ({ params, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -15,7 +15,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     // Check if user is an admin
-    if (locals.promptManager.activeOrganization.role !== 'admin') {
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +41,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
       .eq('id', id)
       .single();
 
-    if (!invite || invite.organization_id !== locals.promptManager.activeOrganization.id) {
+    if (!invite || invite.organization_id !== locals.promptLibrary.activeOrganization.id) {
       return new Response(
         JSON.stringify({ error: 'Invite not found or unauthorized', code: 'NOT_FOUND' }),
         {

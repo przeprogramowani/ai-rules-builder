@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { getSegments, createSegment } from '@/services/prompt-manager/promptCollectionService';
+import { getSegments, createSegment } from '@/services/prompt-library/promptCollectionService';
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -51,7 +51,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { validateInviteToken } from '@/services/prompt-manager/invites';
+import { validateInviteToken } from '@/services/prompt-library/invites';
 
 export const prerender = false;
 

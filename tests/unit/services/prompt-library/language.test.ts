@@ -6,7 +6,7 @@ import {
   loadLanguagePreference,
   saveLanguagePreference,
   type Language,
-} from '@/services/prompt-manager/language';
+} from '@/services/prompt-library/language';
 import type { Prompt } from '@/store/promptsStore';
 
 describe('language utilities', () => {

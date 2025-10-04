@@ -8,7 +8,7 @@ import {
   listOrganizationInvites,
   revokeInvite,
   getInviteStats,
-} from '@/services/prompt-manager/invites';
+} from '@/services/prompt-library/invites';
 import type { OrganizationInvite } from '@/types/invites';
 import { INVITE_ERROR_MESSAGES } from '@/types/invites';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';

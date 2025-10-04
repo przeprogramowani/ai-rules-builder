@@ -5,13 +5,13 @@ import {
   getSegments,
   createCollection,
   createSegment,
-} from '@/services/prompt-manager/promptCollectionService';
+} from '@/services/prompt-library/promptCollectionService';
 import type {
   PromptCollection,
   PromptSegment,
   CreateCollectionInput,
   CreateSegmentInput,
-} from '@/services/prompt-manager/types';
+} from '@/services/prompt-library/types';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import {

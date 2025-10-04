@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
-import { updatePrompt, deletePrompt, getPrompt } from '@/services/prompt-manager/promptService';
-import type { UpdatePromptInput } from '@/services/prompt-manager/types';
+import { updatePrompt, deletePrompt, getPrompt } from '@/services/prompt-library/promptService';
+import type { UpdatePromptInput } from '@/services/prompt-library/types';
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +22,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const result = await getPrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {
@@ -53,7 +53,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +71,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       );
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const body = (await request.json()) as UpdatePromptInput;
 
     const result = await updatePrompt(locals.supabase, promptId, organizationId, body);
@@ -104,7 +104,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
 export const DELETE: APIRoute = async ({ params, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -122,7 +122,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const result = await deletePrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {

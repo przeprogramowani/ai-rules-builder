@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseAdminInstance } from '../../../db/supabase.client';
 import { isFeatureEnabled } from '../../../features/featureFlags';
 import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVersion';
-import { redeemInvite } from '../../../services/prompt-manager/invites';
+import { redeemInvite } from '../../../services/prompt-library/invites';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled

@@ -6,7 +6,7 @@ import { SearchBar } from '../ui/SearchBar';
 import { PromptsList } from './PromptsList';
 import { PromptDetail } from './PromptDetail';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { loadLanguagePreference } from '../../services/prompt-manager/language';
+import { loadLanguagePreference } from '../../services/prompt-library/language';
 import { parsePromptParams, hasValidParams } from '../../utils/urlParams';
 
 export const PromptsBrowser: React.FC = () => {

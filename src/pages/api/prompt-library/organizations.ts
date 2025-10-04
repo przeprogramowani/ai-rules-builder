@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { isFeatureEnabled } from '../../../features/featureFlags';
-import { fetchUserOrganizations } from '../../../services/prompt-manager/organizations';
+import { fetchUserOrganizations } from '../../../services/prompt-library/organizations';
 
 export const prerender = false;
 
@@ -10,8 +10,8 @@ export const prerender = false;
  */
 export const GET: APIRoute = async ({ locals }) => {
   // Check if prompt manager feature is enabled
-  if (!isFeatureEnabled('promptManager')) {
-    return new Response(JSON.stringify({ error: 'Prompt Manager feature is disabled' }), {
+  if (!isFeatureEnabled('promptLibrary')) {
+    return new Response(JSON.stringify({ error: 'Prompt Library feature is disabled' }), {
       status: 404,
       headers: { 'Content-Type': 'application/json' },
     });

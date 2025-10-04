@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { PromptCard } from './PromptCard';
-import { hasPolishVersion } from '../../services/prompt-manager/language';
+import { hasPolishVersion } from '../../services/prompt-library/language';
 
 export const PromptsList: React.FC = () => {
   const { prompts, isLoading, error, preferredLanguage } = usePromptsStore();

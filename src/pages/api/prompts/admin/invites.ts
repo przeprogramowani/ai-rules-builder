@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import {
   createOrganizationInvite,
   listOrganizationInvites,
-} from '@/services/prompt-manager/invites';
+} from '@/services/prompt-library/invites';
 import type { CreateInviteParams } from '@/types/invites';
 
 /**
@@ -12,7 +12,7 @@ import type { CreateInviteParams } from '@/types/invites';
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Middleware ensures user and promptManager context exist
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -20,14 +20,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Check if user is an admin
-    if (locals.promptManager.activeOrganization.role !== 'admin') {
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const userId = locals.user.id;
     const supabase = locals.supabase;
 
@@ -122,7 +122,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
  */
 export const GET: APIRoute = async ({ url, locals }) => {
   try {
-    if (!locals.user || !locals.promptManager?.activeOrganization) {
+    if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -130,14 +130,14 @@ export const GET: APIRoute = async ({ url, locals }) => {
     }
 
     // Check if user is an admin
-    if (locals.promptManager.activeOrganization.role !== 'admin') {
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const organizationId = locals.promptManager.activeOrganization.id;
+    const organizationId = locals.promptLibrary.activeOrganization.id;
     const supabase = locals.supabase;
 
     const invites = await listOrganizationInvites(supabase, organizationId);

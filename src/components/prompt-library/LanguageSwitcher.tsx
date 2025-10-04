@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePromptsStore } from '../../store/promptsStore';
-import type { Language } from '../../services/prompt-manager/language';
+import type { Language } from '../../services/prompt-library/language';
 
 export const LanguageSwitcher: React.FC = () => {
   const preferredLanguage = usePromptsStore((state) => state.preferredLanguage);

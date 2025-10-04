@@ -3,19 +3,19 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/db/database.types';
 import {
-  buildPromptManagerContext,
-  ensurePromptManagerEnabled,
-  hasPromptManagerAccess,
-  hasPromptManagerAdminAccess,
-  shouldAllowPromptManagerAccess,
-  shouldAllowPromptManagerAdminAccess,
-} from '@/services/prompt-manager/access';
+  buildPromptLibraryContext,
+  ensurePromptLibraryEnabled,
+  hasPromptLibraryAccess,
+  hasPromptLibraryAdminAccess,
+  shouldAllowPromptLibraryAccess,
+  shouldAllowPromptLibraryAdminAccess,
+} from '@/services/prompt-library/access';
 import {
   fetchOrganizationBySlug,
   fetchUserOrganizations,
   selectActiveOrganization,
   type OrganizationMembership,
-} from '@/services/prompt-manager/organizations';
+} from '@/services/prompt-library/organizations';
 
 type MutableEnv = Record<string, unknown>;
 
@@ -179,8 +179,8 @@ describe('prompt manager access helpers', () => {
     vi.restoreAllMocks();
     resetEnv();
     mutableEnv.PUBLIC_ENV_NAME = 'local';
-    delete mutableEnv.PUBLIC_PROMPT_MANAGER_ENABLED;
-    delete mutableEnv.PROMPT_MANAGER_ENABLED;
+    delete mutableEnv.PUBLIC_PROMPT_LIBRARY_ENABLED;
+    delete mutableEnv.PROMPT_LIBRARY_ENABLED;
   });
 
   afterEach(() => {
@@ -210,7 +210,7 @@ describe('prompt manager access helpers', () => {
       error: null,
     });
 
-    const context = await buildPromptManagerContext({
+    const context = await buildPromptLibraryContext({
       supabase: stub.client,
       userId: 'user-123',
       requestedSlug: 'ORG-2',
@@ -224,7 +224,7 @@ describe('prompt manager access helpers', () => {
     const memberships: OrganizationMembership[] = [
       { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
     ];
-    expect(hasPromptManagerAccess(memberships)).toBe(true);
+    expect(hasPromptLibraryAccess(memberships)).toBe(true);
   });
 
   it('detects admin membership correctly', () => {
@@ -232,7 +232,7 @@ describe('prompt manager access helpers', () => {
       { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
       { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
     ];
-    expect(hasPromptManagerAdminAccess(memberships)).toBe(true);
+    expect(hasPromptLibraryAdminAccess(memberships)).toBe(true);
   });
 
   it('respects feature flag overrides when checking access', () => {
@@ -240,8 +240,8 @@ describe('prompt manager access helpers', () => {
       { id: 'org-1', slug: 'org-1', name: 'Org One', role: 'member' },
     ];
 
-    expect(shouldAllowPromptManagerAccess(memberships, { promptManager: true })).toBe(true);
-    expect(shouldAllowPromptManagerAccess(memberships, { promptManager: false })).toBe(false);
+    expect(shouldAllowPromptLibraryAccess(memberships, { promptLibrary: true })).toBe(true);
+    expect(shouldAllowPromptLibraryAccess(memberships, { promptLibrary: false })).toBe(false);
   });
 
   it('respects flag overrides for admin access checks', () => {
@@ -249,13 +249,13 @@ describe('prompt manager access helpers', () => {
       { id: 'org-2', slug: 'org-2', name: 'Org Two', role: 'admin' },
     ];
 
-    expect(shouldAllowPromptManagerAdminAccess(memberships, { promptManager: true })).toBe(true);
-    expect(shouldAllowPromptManagerAdminAccess(memberships, { promptManager: false })).toBe(false);
+    expect(shouldAllowPromptLibraryAdminAccess(memberships, { promptLibrary: true })).toBe(true);
+    expect(shouldAllowPromptLibraryAdminAccess(memberships, { promptLibrary: false })).toBe(false);
   });
 
-  it('mirrors feature flag state via ensurePromptManagerEnabled', () => {
-    expect(ensurePromptManagerEnabled()).toBe(true);
-    expect(ensurePromptManagerEnabled({ promptManager: false })).toBe(false);
+  it('mirrors feature flag state via ensurePromptLibraryEnabled', () => {
+    expect(ensurePromptLibraryEnabled()).toBe(true);
+    expect(ensurePromptLibraryEnabled({ promptLibrary: false })).toBe(false);
   });
 });
 
