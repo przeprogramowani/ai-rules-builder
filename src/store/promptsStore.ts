@@ -655,7 +655,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
     const orgId = filters.organizationId || activeOrganization?.id;
     if (!orgId) {
-      set({ adminPrompts: [] });
+      set({ adminPrompts: [], isLoading: false });
       return;
     }
 

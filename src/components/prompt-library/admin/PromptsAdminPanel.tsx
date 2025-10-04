@@ -66,7 +66,7 @@ export const PromptsAdminPanel: React.FC<PromptsAdminPanelProps> = ({ showInvite
   // Fetch all segments for the active organization (in parallel for better performance)
   useEffect(() => {
     const loadAllSegments = async () => {
-      await Promise.all(collections.map((collection) => fetchSegments(collection.id)));
+      await Promise.all(collections.map((collection) => fetchSegments(collection.id, true)));
     };
 
     if (collections.length > 0) {

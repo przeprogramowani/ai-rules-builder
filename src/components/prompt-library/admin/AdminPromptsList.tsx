@@ -41,7 +41,7 @@ export const AdminPromptsList: React.FC<AdminPromptsListProps> = ({
     );
   }
 
-  if (prompts.length === 0) {
+  if (prompts.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
         <div className="text-gray-400">No prompts found</div>
