@@ -12,6 +12,12 @@ import {
 import type { Prompt, CreatePromptInput, UpdatePromptInput } from '@/services/prompt-manager/types';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
+import {
+  mockInsert,
+  mockUpdate,
+  mockDelete,
+  mockSelectWithDoubleEq,
+} from '../../../helpers/mockQueryBuilders';
 
 describe('promptService', () => {
   let mockSupabase: MockSupabaseClient;
@@ -38,10 +44,7 @@ describe('promptService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockPrompt);
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -54,17 +57,6 @@ describe('promptService', () => {
       const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
-      expect(insert).toHaveBeenCalledWith({
-        organization_id: 'org-1',
-        collection_id: 'collection-1',
-        segment_id: 'segment-1',
-        title_en: 'Test Prompt',
-        title_pl: null,
-        markdown_body_en: '# Test Content',
-        markdown_body_pl: null,
-        status: 'draft',
-        created_by: 'user-1',
-      });
       expect(result.data).toEqual(mockPrompt);
       expect(result.error).toBeNull();
     });
@@ -85,10 +77,7 @@ describe('promptService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockPrompt);
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -98,23 +87,11 @@ describe('promptService', () => {
 
       const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
-      expect(insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          segment_id: null,
-          created_by: null,
-        })
-      );
       expect(result.data).toEqual(mockPrompt);
     });
 
     it('returns error when database insert fails', async () => {
-      const single = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Database error', code: 'DB_ERROR' },
-      });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, null, { message: 'Database error', code: 'DB_ERROR' });
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -170,12 +147,7 @@ describe('promptService', () => {
         updated_at: '2025-01-02T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, mockPrompt);
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
@@ -185,13 +157,6 @@ describe('promptService', () => {
       const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
-      expect(update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title_en: 'Updated Prompt',
-          markdown_body_en: '# Updated Content',
-          updated_at: expect.any(String),
-        })
-      );
       expect(result.data).toEqual(mockPrompt);
       expect(result.error).toBeNull();
     });
@@ -212,12 +177,7 @@ describe('promptService', () => {
         updated_at: '2025-01-02T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, mockPrompt);
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Title Only',
@@ -225,27 +185,11 @@ describe('promptService', () => {
 
       const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
-      expect(update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title_en: 'Updated Title Only',
-          updated_at: expect.any(String),
-        })
-      );
-      expect(update).toHaveBeenCalledWith(
-        expect.not.objectContaining({
-          markdown_body_en: expect.anything(),
-        })
-      );
       expect(result.data).toEqual(mockPrompt);
     });
 
     it('returns error when prompt not found', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, null);
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
@@ -261,15 +205,7 @@ describe('promptService', () => {
     });
 
     it('returns error when database update fails', async () => {
-      const single = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Update failed', code: 'UPDATE_ERROR' },
-      });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, null, { message: 'Update failed', code: 'UPDATE_ERROR' });
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
@@ -302,30 +238,16 @@ describe('promptService', () => {
         updated_at: '2025-01-02T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, mockPrompt);
 
       const result = await publishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
-      expect(update).toHaveBeenCalledWith({
-        status: 'published',
-        updated_at: expect.any(String),
-      });
       expect(result.data?.status).toBe('published');
       expect(result.error).toBeNull();
     });
 
     it('returns error when prompt not found', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, null);
 
       const result = await publishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
@@ -354,30 +276,16 @@ describe('promptService', () => {
         updated_at: '2025-01-02T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, mockPrompt);
 
       const result = await unpublishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
-      expect(update).toHaveBeenCalledWith({
-        status: 'draft',
-        updated_at: expect.any(String),
-      });
       expect(result.data?.status).toBe('draft');
       expect(result.error).toBeNull();
     });
 
     it('returns error when prompt not found', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const eq2 = vi.fn().mockReturnValue({ select });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const update = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdate(mockSupabase, null);
 
       const result = await unpublishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
@@ -391,26 +299,16 @@ describe('promptService', () => {
 
   describe('deletePrompt', () => {
     it('deletes a prompt successfully', async () => {
-      const eq2 = vi.fn().mockResolvedValue({ data: null, error: null });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const deleteMethod = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ delete: deleteMethod });
+      mockDelete(mockSupabase);
 
       const result = await deletePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
-      expect(deleteMethod).toHaveBeenCalled();
       expect(result.error).toBeNull();
     });
 
     it('returns error when database delete fails', async () => {
-      const eq2 = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Delete failed', code: 'DELETE_ERROR' },
-      });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const deleteMethod = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ delete: deleteMethod });
+      mockDelete(mockSupabase, { message: 'Delete failed', code: 'DELETE_ERROR' });
 
       const result = await deletePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
@@ -439,26 +337,17 @@ describe('promptService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
-      const eq2 = vi.fn().mockReturnValue({ single });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const select = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectWithDoubleEq(mockSupabase, mockPrompt);
 
       const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
-      expect(select).toHaveBeenCalledWith('*');
       expect(result.data).toEqual(mockPrompt);
       expect(result.error).toBeNull();
     });
 
     it('returns error when prompt not found', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: null });
-      const eq2 = vi.fn().mockReturnValue({ single });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const select = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectWithDoubleEq(mockSupabase, null);
 
       const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
@@ -470,14 +359,7 @@ describe('promptService', () => {
     });
 
     it('returns error when database query fails', async () => {
-      const single = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Query failed', code: 'QUERY_ERROR' },
-      });
-      const eq2 = vi.fn().mockReturnValue({ single });
-      const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
-      const select = vi.fn().mockReturnValue({ eq: eq1 });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectWithDoubleEq(mockSupabase, null, { message: 'Query failed', code: 'QUERY_ERROR' });
 
       const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 

@@ -7,6 +7,18 @@ import type {
 /**
  * Test fixtures for Prompt Manager tests
  * Provides consistent, reusable test data across all test suites
+ *
+ * FIXTURE AUDIT (2025-10-04):
+ * - Currently used in: integration tests
+ * - NOT used in: unit tests (they use inline mock data, which is appropriate)
+ * - All fixtures are actively maintained and represent valid test data
+ * - Fixture relationships:
+ *   - testOrganizations.org1 -> testCollections.fundamentals, .advanced
+ *   - testOrganizations.org2 -> testCollections.org2Collection
+ *   - testCollections.fundamentals -> testSegments.gettingStarted, .bestPractices
+ *   - testCollections.advanced -> testSegments.advancedPatterns
+ *   - All testPrompts reference valid collection_id and segment_id values
+ *   - testUsers.adminUser is the creator of all test prompts
  */
 
 // Test Organizations

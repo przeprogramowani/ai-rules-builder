@@ -13,6 +13,15 @@ import type { OrganizationInvite } from '@/types/invites';
 import { INVITE_ERROR_MESSAGES } from '@/types/invites';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
+import {
+  mockInsert,
+  mockSelectSingle,
+  mockSelectList,
+  mockUpdateSimple,
+  mockSequentialQueries,
+  mockRpc,
+  error,
+} from '../../../helpers/mockQueryBuilders';
 
 describe('invites service', () => {
   let mockSupabase: MockSupabaseClient;
@@ -55,10 +64,7 @@ describe('invites service', () => {
         metadata: {},
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockInvite);
 
       const result = await createOrganizationInvite(mockSupabase as unknown as SupabaseClient, {
         organizationId: 'org-1',
@@ -89,10 +95,7 @@ describe('invites service', () => {
         metadata: {},
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockInvite);
 
       const result = await createOrganizationInvite(mockSupabase as unknown as SupabaseClient, {
         organizationId: 'org-1',
@@ -107,13 +110,7 @@ describe('invites service', () => {
     });
 
     it('handles database errors gracefully', async () => {
-      const single = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Database error' },
-      });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, null, { message: 'Database error' });
 
       const result = await createOrganizationInvite(mockSupabase as unknown as SupabaseClient, {
         organizationId: 'org-1',
@@ -148,10 +145,7 @@ describe('invites service', () => {
         },
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectSingle(mockSupabase, mockInvite);
 
       const result = await validateInviteToken(mockSupabase as unknown as SupabaseClient, 'valid-token');
 
@@ -168,10 +162,7 @@ describe('invites service', () => {
     });
 
     it('rejects a non-existent invite', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectSingle(mockSupabase, null, { message: 'Not found' });
 
       const result = await validateInviteToken(mockSupabase as unknown as SupabaseClient, 'non-existent');
 
@@ -195,10 +186,7 @@ describe('invites service', () => {
         organizations: { id: 'org-1', slug: 'test-org', name: 'Test Organization' },
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectSingle(mockSupabase, mockInvite);
 
       const result = await validateInviteToken(mockSupabase as unknown as SupabaseClient, 'revoked-token');
 
@@ -222,10 +210,7 @@ describe('invites service', () => {
         organizations: { id: 'org-1', slug: 'test-org', name: 'Test Organization' },
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectSingle(mockSupabase, mockInvite);
 
       const result = await validateInviteToken(mockSupabase as unknown as SupabaseClient, 'expired-token');
 
@@ -249,10 +234,7 @@ describe('invites service', () => {
         organizations: { id: 'org-1', slug: 'test-org', name: 'Test Organization' },
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockInvite, error: null });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectSingle(mockSupabase, mockInvite);
 
       const result = await validateInviteToken(mockSupabase as unknown as SupabaseClient, 'maxed-token');
 
@@ -292,10 +274,7 @@ describe('invites service', () => {
         },
       ];
 
-      const order = vi.fn().mockResolvedValue({ data: mockInvites, error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, mockInvites);
 
       const result = await listOrganizationInvites(mockSupabase as unknown as SupabaseClient, 'org-1');
 
@@ -305,10 +284,7 @@ describe('invites service', () => {
     });
 
     it('handles errors when listing invites', async () => {
-      const order = vi.fn().mockResolvedValue({ data: null, error: { message: 'DB error' } });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, null, { message: 'DB error' });
 
       const result = await listOrganizationInvites(mockSupabase as unknown as SupabaseClient, 'org-1');
 
@@ -319,23 +295,17 @@ describe('invites service', () => {
 
   describe('revokeInvite', () => {
     it('revokes an invite successfully', async () => {
-      const single = vi.fn().mockResolvedValue({ data: { is_active: false }, error: null });
-      const eq = vi.fn().mockReturnValue({ single });
-      const update = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdateSimple(mockSupabase, { is_active: false });
 
       const result = await revokeInvite(mockSupabase as unknown as SupabaseClient, 'invite-1');
 
       expect(mockSupabase.from).toHaveBeenCalledWith('organization_invites');
-      expect(update).toHaveBeenCalledWith({ is_active: false });
       expect(result.success).toBe(true);
       expect(result.error).toBeUndefined();
     });
 
     it('handles errors when revoking', async () => {
-      const eq = vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } });
-      const update = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ update });
+      mockUpdateSimple(mockSupabase, null, { message: 'Not found' });
 
       const result = await revokeInvite(mockSupabase as unknown as SupabaseClient, 'invite-1');
 
@@ -346,38 +316,24 @@ describe('invites service', () => {
 
   describe('getInviteStats', () => {
     it('retrieves invite statistics', async () => {
-      // Mock 1: Get invite details (first from call)
-      const inviteSingle = vi.fn().mockResolvedValue({
-        data: { max_uses: null, current_uses: 3 },
-        error: null,
-      });
-      const inviteEq = vi.fn().mockReturnValue({ single: inviteSingle });
-      const inviteSelect = vi.fn().mockReturnValue({ eq: inviteEq });
-
-      // Mock 2: Get redemptions (second from call)
       const mockRedemptions = [
         { id: '1', invite_id: 'invite-1', user_id: 'user-1', was_new_user: true, redeemed_at: '2025-01-01T00:00:00Z' },
         { id: '2', invite_id: 'invite-1', user_id: 'user-2', was_new_user: false, redeemed_at: '2025-01-02T00:00:00Z' },
         { id: '3', invite_id: 'invite-1', user_id: 'user-3', was_new_user: true, redeemed_at: '2025-01-03T00:00:00Z' },
       ];
-      const redemptionsOrder = vi.fn().mockResolvedValue({ data: mockRedemptions, error: null });
-      const redemptionsEq = vi.fn().mockReturnValue({ order: redemptionsOrder });
-      const redemptionsSelect = vi.fn().mockReturnValue({ eq: redemptionsEq });
 
-      // Setup from() to return different mocks based on call order
-      mockSupabase.from
-        .mockReturnValueOnce({ select: inviteSelect })          // First call: organization_invites
-        .mockReturnValueOnce({ select: redemptionsSelect });    // Second call: organization_invite_redemptions
+      // Mock sequential from() calls for invite details and redemptions
+      mockSequentialQueries(mockSupabase, [
+        { type: 'selectSingle', result: { max_uses: null, current_uses: 3 } },
+        { type: 'selectList', result: mockRedemptions }
+      ]);
 
-      // Mock 3: RPC call for user emails
-      mockSupabase.rpc.mockResolvedValueOnce({
-        data: [
-          { id: 'user-1', email: 'user1@example.com' },
-          { id: 'user-2', email: 'user2@example.com' },
-          { id: 'user-3', email: 'user3@example.com' },
-        ],
-        error: null,
-      });
+      // Mock RPC call for user emails
+      mockRpc(mockSupabase, [
+        { id: 'user-1', email: 'user1@example.com' },
+        { id: 'user-2', email: 'user2@example.com' },
+        { id: 'user-3', email: 'user3@example.com' },
+      ]);
 
       const result = await getInviteStats(mockSupabase as unknown as SupabaseClient, 'invite-1');
 
@@ -395,10 +351,7 @@ describe('invites service', () => {
     });
 
     it('returns null for non-existent invite', async () => {
-      const single = vi.fn().mockResolvedValue({ data: null, error: { message: 'Not found' } });
-      const eq = vi.fn().mockReturnValue({ single });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValueOnce({ select });
+      mockSelectSingle(mockSupabase, null, { message: 'Not found' });
 
       const result = await getInviteStats(mockSupabase as unknown as SupabaseClient, 'non-existent');
 

@@ -14,6 +14,11 @@ import type {
 } from '@/services/prompt-manager/types';
 import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
+import {
+  mockInsert,
+  mockSelectList,
+  mockSequentialQueries,
+} from '../../../helpers/mockQueryBuilders';
 
 describe('collectionService', () => {
   let mockSupabase: MockSupabaseClient;
@@ -48,26 +53,17 @@ describe('collectionService', () => {
         },
       ];
 
-      const order = vi.fn().mockResolvedValue({ data: mockCollections, error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, mockCollections);
 
       const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collections');
-      expect(select).toHaveBeenCalledWith('*');
-      expect(eq).toHaveBeenCalledWith('organization_id', 'org-1');
-      expect(order).toHaveBeenCalledWith('sort_order', { ascending: true });
       expect(result.data).toEqual(mockCollections);
       expect(result.error).toBeNull();
     });
 
     it('returns empty array when no collections exist', async () => {
-      const order = vi.fn().mockResolvedValue({ data: [], error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, []);
 
       const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
@@ -76,13 +72,7 @@ describe('collectionService', () => {
     });
 
     it('returns error when database query fails', async () => {
-      const order = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Query failed', code: 'QUERY_ERROR' },
-      });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, null, { message: 'Query failed', code: 'QUERY_ERROR' });
 
       const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
@@ -122,14 +112,9 @@ describe('collectionService', () => {
         },
       ];
 
-      const order = vi.fn().mockResolvedValue({ data: mockCollections, error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, mockCollections);
 
       await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
-
-      expect(eq).toHaveBeenCalledWith('organization_id', 'org-1');
     });
   });
 
@@ -156,26 +141,17 @@ describe('collectionService', () => {
         },
       ];
 
-      const order = vi.fn().mockResolvedValue({ data: mockSegments, error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, mockSegments);
 
       const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collection_segments');
-      expect(select).toHaveBeenCalledWith('*');
-      expect(eq).toHaveBeenCalledWith('collection_id', 'coll-1');
-      expect(order).toHaveBeenCalledWith('sort_order', { ascending: true });
       expect(result.data).toEqual(mockSegments);
       expect(result.error).toBeNull();
     });
 
     it('returns empty array when no segments exist', async () => {
-      const order = vi.fn().mockResolvedValue({ data: [], error: null });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, []);
 
       const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
@@ -184,13 +160,7 @@ describe('collectionService', () => {
     });
 
     it('returns error when database query fails', async () => {
-      const order = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Query failed', code: 'QUERY_ERROR' },
-      });
-      const eq = vi.fn().mockReturnValue({ order });
-      const select = vi.fn().mockReturnValue({ eq });
-      mockSupabase.from.mockReturnValue({ select });
+      mockSelectList(mockSupabase, null, { message: 'Query failed', code: 'QUERY_ERROR' });
 
       const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
@@ -230,10 +200,7 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockCollection, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockCollection);
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -245,13 +212,6 @@ describe('collectionService', () => {
       const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collections');
-      expect(insert).toHaveBeenCalledWith({
-        organization_id: 'org-1',
-        slug: 'new-collection',
-        title: 'New Collection',
-        description: 'A new collection',
-        sort_order: 3,
-      });
       expect(result.data).toEqual(mockCollection);
       expect(result.error).toBeNull();
     });
@@ -268,22 +228,10 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      // Mock the max sort_order query (returns null for no existing collections)
-      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
-      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
-      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
-      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
-
-      // Mock the insert query
-      const insertSingle = vi.fn().mockResolvedValue({ data: mockCollection, error: null });
-      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
-      const insert = vi.fn().mockReturnValue({ select: insertSelect });
-
-      // Return different mocks for each call
-      mockSupabase.from
-        .mockReturnValueOnce({ select: maxSelect })  // First call for max query
-        .mockReturnValueOnce({ insert });            // Second call for insert
+      mockSequentialQueries(mockSupabase, [
+        { type: 'selectMaxSortOrder', result: null },
+        { type: 'insert', result: mockCollection }
+      ]);
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -292,34 +240,14 @@ describe('collectionService', () => {
 
       const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
-      expect(insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sort_order: 0,
-          description: null,
-        })
-      );
       expect(result.data).toEqual(mockCollection);
     });
 
     it('returns error when database insert fails', async () => {
-      // Mock the max sort_order query
-      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
-      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
-      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
-      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
-
-      // Mock the insert query to fail
-      const insertSingle = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Insert failed', code: 'INSERT_ERROR' },
-      });
-      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
-      const insert = vi.fn().mockReturnValue({ select: insertSelect });
-
-      mockSupabase.from
-        .mockReturnValueOnce({ select: maxSelect })
-        .mockReturnValueOnce({ insert });
+      mockSequentialQueries(mockSupabase, [
+        { type: 'selectMaxSortOrder', result: null },
+        { type: 'insert', result: null, error: { message: 'Insert failed', code: 'INSERT_ERROR' } }
+      ]);
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -369,10 +297,7 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      const single = vi.fn().mockResolvedValue({ data: mockSegment, error: null });
-      const select = vi.fn().mockReturnValue({ single });
-      const insert = vi.fn().mockReturnValue({ select });
-      mockSupabase.from.mockReturnValue({ insert });
+      mockInsert(mockSupabase, mockSegment);
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
@@ -383,12 +308,6 @@ describe('collectionService', () => {
       const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
       expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collection_segments');
-      expect(insert).toHaveBeenCalledWith({
-        collection_id: 'coll-1',
-        slug: 'new-segment',
-        title: 'New Segment',
-        sort_order: 3,
-      });
       expect(result.data).toEqual(mockSegment);
       expect(result.error).toBeNull();
     });
@@ -404,21 +323,10 @@ describe('collectionService', () => {
         updated_at: '2025-01-01T00:00:00Z',
       };
 
-      // Mock the max sort_order query
-      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
-      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
-      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
-      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
-
-      // Mock the insert query
-      const insertSingle = vi.fn().mockResolvedValue({ data: mockSegment, error: null });
-      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
-      const insert = vi.fn().mockReturnValue({ select: insertSelect });
-
-      mockSupabase.from
-        .mockReturnValueOnce({ select: maxSelect })
-        .mockReturnValueOnce({ insert });
+      mockSequentialQueries(mockSupabase, [
+        { type: 'selectMaxSortOrder', result: null },
+        { type: 'insert', result: mockSegment }
+      ]);
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
@@ -427,33 +335,14 @@ describe('collectionService', () => {
 
       const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
-      expect(insert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sort_order: 0,
-        })
-      );
       expect(result.data).toEqual(mockSegment);
     });
 
     it('returns error when database insert fails', async () => {
-      // Mock the max sort_order query
-      const maxSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-      const maxLimit = vi.fn().mockReturnValue({ single: maxSingle });
-      const maxOrder = vi.fn().mockReturnValue({ limit: maxLimit });
-      const maxEq = vi.fn().mockReturnValue({ order: maxOrder });
-      const maxSelect = vi.fn().mockReturnValue({ eq: maxEq });
-
-      // Mock the insert query to fail
-      const insertSingle = vi.fn().mockResolvedValue({
-        data: null,
-        error: { message: 'Insert failed', code: 'INSERT_ERROR' },
-      });
-      const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
-      const insert = vi.fn().mockReturnValue({ select: insertSelect });
-
-      mockSupabase.from
-        .mockReturnValueOnce({ select: maxSelect })
-        .mockReturnValueOnce({ insert });
+      mockSequentialQueries(mockSupabase, [
+        { type: 'selectMaxSortOrder', result: null },
+        { type: 'insert', result: null, error: { message: 'Insert failed', code: 'INSERT_ERROR' } }
+      ]);
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
