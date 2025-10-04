@@ -17,7 +17,8 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 - **Build AI Rules:** Create customized rule sets for different editors (Copilot, Cursor, Windsurf)
 - **Export Options:** Easily copy to clipboard or download as markdown files
 - **Smart Import:** Automatically generate rules by dropping package.json or requirements.txt files
-- **Editor Integration:** Provides programmatic access to rules via an [MCP Server](./mcp-server/README.md) for integration with AI assistants in editors like Cursor.
+- **Editor Integration:** Provides programmatic access to rules via an [MCP Server](./mcp-server/README.md) for integration with AI assistants in editors like Cursor
+
 
 ## Getting Started
 
@@ -55,9 +56,10 @@ Create so called "rules for AI" written in Markdown, used by tools such as GitHu
 
 3. Verify Supabase is running
 
-   ```bash
-   supabase status
-   ```
+ ```bash
+  supabase status
+  ```
+
 
 ## Dotenv
 

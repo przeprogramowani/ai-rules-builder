@@ -65,6 +65,10 @@
   .animate-fade-out {
     animation: fadeOut 0.2s ease-out forwards;
   }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 /* Dark mode scrollbar styles to match the dark theme UI */

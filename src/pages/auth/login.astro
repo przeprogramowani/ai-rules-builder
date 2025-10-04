@@ -12,6 +12,9 @@ if (!isFeatureEnabled('auth')) {
   return Astro.redirect('/');
 }
 
+// Extract invite token from query params if present
+const inviteToken = Astro.url.searchParams.get('invite');
+
 // Check if user is already logged in
 const supabase = createSupabaseServerInstance({
   cookies: Astro.cookies,
@@ -21,6 +24,11 @@ const supabase = createSupabaseServerInstance({
 const {
   data: { user },
 } = await supabase.auth.getUser();
+
+// If user is already logged in and has invite token, redirect to invite page
+if (user && inviteToken) {
+  return Astro.redirect(`/invites/${inviteToken}`);
+}
 
 // If user is already logged in, redirect to home page
 if (user) {
@@ -32,7 +40,11 @@ if (user) {
   <div class="flex flex-col h-screen max-h-screen bg-gray-950">
     <main class="flex-grow">
       <AuthLayout title="Welcome back" subtitle="Sign in to your account to continue">
-        <LoginForm client:only="react" cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY} />
+        <LoginForm
+          client:only="react"
+          cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY}
+          inviteToken={inviteToken}
+        />
       </AuthLayout>
     </main>
   </div>

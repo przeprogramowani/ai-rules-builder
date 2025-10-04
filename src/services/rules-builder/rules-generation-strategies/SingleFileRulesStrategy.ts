@@ -1,7 +1,13 @@
 import type { RulesGenerationStrategy } from '../RulesGenerationStrategy.ts';
 import { Layer, Library, Stack } from '../../../data/dictionaries.ts';
 import type { RulesContent } from '../RulesBuilderTypes.ts';
-import { getRulesForLibrary } from '../../../data/rules.ts';
+import {
+  createProjectMarkdown,
+  createEmptyStateMarkdown,
+  getProjectMetadata,
+  renderLibrarySection,
+  iterateLayersStacksLibraries,
+} from '../markdown-builders/index.ts';
 
 /**
  * Strategy for single-file rules generation
@@ -14,15 +20,13 @@ export class SingleFileRulesStrategy implements RulesGenerationStrategy {
     stacksByLayer: Record<Layer, Stack[]>,
     librariesByStack: Record<Stack, Library[]>,
   ): RulesContent[] {
-    const projectMarkdown = `# AI Rules for ${projectName}\n\n${projectDescription}\n\n`;
-    const noSelectedLibrariesMarkdown = `---\n\n👈 Use the Rule Builder on the left or drop dependency file here`;
-    const projectLabel = 'Project',
-      projectFileName = 'project.mdc';
+    const projectMarkdown = createProjectMarkdown(projectName, projectDescription);
+    const { label: projectLabel, fileName: projectFileName } = getProjectMetadata();
 
     let markdown = projectMarkdown;
 
     if (selectedLibraries.length === 0) {
-      markdown += noSelectedLibrariesMarkdown;
+      markdown += createEmptyStateMarkdown();
       return [{ markdown, label: projectLabel, fileName: projectFileName }];
     }
 
@@ -35,35 +39,34 @@ export class SingleFileRulesStrategy implements RulesGenerationStrategy {
     librariesByStack: Record<Stack, Library[]>,
   ): string {
     let markdown = '';
+    let currentLayer = '';
+    let currentStack = '';
 
-    // Generate content for each layer and its stacks
-    Object.entries(stacksByLayer).forEach(([layer, stacks]) => {
-      markdown += `## ${layer}\n\n`;
+    iterateLayersStacksLibraries({
+      stacksByLayer,
+      librariesByStack,
+      onLibrary: (layer, stack, library) => {
+        const includeLayerHeader = layer !== currentLayer;
+        const includeStackHeader = stack !== currentStack;
 
-      stacks.forEach((stack) => {
-        markdown += `### Guidelines for ${stack}\n\n`;
-
-        const libraries = librariesByStack[stack];
-        if (libraries) {
-          libraries.forEach((library) => {
-            markdown += `#### ${library}\n\n`;
-
-            // Get specific rules for this library
-            const libraryRules = getRulesForLibrary(library);
-            if (libraryRules.length > 0) {
-              libraryRules.forEach((rule) => {
-                markdown += `- ${rule}\n`;
-              });
-            } else {
-              markdown += `- Use ${library} according to best practices\n`;
-            }
-
+        if (includeLayerHeader) {
+          currentLayer = layer;
+        }
+        if (includeStackHeader) {
+          currentStack = stack;
+          if (!includeLayerHeader && currentStack) {
             markdown += '\n';
-          });
+          }
         }
 
-        markdown += '\n';
-      });
+        markdown += renderLibrarySection({
+          layer,
+          stack,
+          library,
+          includeLayerHeader,
+          includeStackHeader,
+        });
+      },
     });
 
     return markdown;

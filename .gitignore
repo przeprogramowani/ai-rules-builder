@@ -35,3 +35,6 @@ playwright-report/index.html
 # Generated data files
 src/data/preparedRules.json
 mcp-server/src/preparedRules.json
+
+# Codex MCP settings
+codex.context7.toml

@@ -10,9 +10,10 @@ import { useCaptcha } from '../../hooks/useCaptcha';
 
 interface LoginFormProps {
   cfCaptchaSiteKey: string;
+  inviteToken?: string | null;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { login, error: apiError, isLoading } = useAuth();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
 
@@ -30,7 +31,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
         throw new Error('Captcha verification failed');
       }
       await login(data);
-      window.location.href = '/';
+
+      // Redirect to invite page if invite token is present
+      if (inviteToken) {
+        window.location.href = `/invites/${inviteToken}`;
+      } else {
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error(error);
     }

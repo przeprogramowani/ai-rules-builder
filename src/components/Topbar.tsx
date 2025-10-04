@@ -1,8 +1,9 @@
 import { WandSparkles } from 'lucide-react';
-import DependencyUploader from './rule-parser/DependencyUploader';
 import { useAuthStore } from '../store/authStore';
+import { usePromptsStore } from '../store/promptsStore';
 import { useEffect } from 'react';
 import LoginButton from './auth/LoginButton';
+import NavigationDropdown from './NavigationDropdown';
 
 interface TopbarProps {
   title?: string;
@@ -14,6 +15,7 @@ interface TopbarProps {
 
 export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarProps) {
   const { setUser } = useAuthStore();
+  const { organizations, fetchOrganizations } = usePromptsStore();
 
   // Initialize auth store with user data from server
   useEffect(() => {
@@ -21,6 +23,24 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
       setUser(initialUser);
     }
   }, [initialUser, setUser]);
+
+  // Fetch organizations to check admin access
+  useEffect(() => {
+    if (initialUser) {
+      fetchOrganizations();
+    }
+  }, [initialUser, fetchOrganizations]);
+
+  // Check if user is admin
+  const isAdmin = organizations.some((org) => org.role === 'admin');
+  const hasPromptAccess = organizations.length > 0;
+
+  // Get current path for active state
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+
+  // Count available navigation items
+  const availableNavItems = 1 + (hasPromptAccess ? 1 : 0) + (isAdmin ? 1 : 0);
+  const showNavigation = availableNavItems > 1;
 
   return (
     <header className="sticky top-0 z-10 w-full bg-gray-900 border-b border-gray-800 p-3 px-4 md:p-4 md:px-6 shadow-md">
@@ -35,9 +55,15 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
         </a>
 
         <div className="flex flex-row items-center space-x-4">
-          <div className="w-auto">
-            <DependencyUploader />
-          </div>
+          {/* Navigation Dropdown */}
+          {initialUser && showNavigation && (
+            <NavigationDropdown
+              isAdmin={isAdmin}
+              hasPromptAccess={hasPromptAccess}
+              currentPath={currentPath}
+            />
+          )}
+
           <LoginButton />
         </div>
       </div>

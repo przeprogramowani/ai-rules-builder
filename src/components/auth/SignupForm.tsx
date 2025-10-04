@@ -10,9 +10,10 @@ import { useCaptcha } from '../../hooks/useCaptcha';
 
 interface SignupFormProps {
   cfCaptchaSiteKey: string;
+  inviteToken?: string;
 }
 
-export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey }) => {
+export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { signup, error: apiError, isLoading } = useAuth();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
   const {
@@ -28,7 +29,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey }) => {
       if (!isCaptchaVerified) {
         throw new Error('Captcha verification failed');
       }
-      await signup(data);
+      const result = await signup(data, inviteToken);
+
+      // If invite token was used and we got organization info, redirect to prompts
+      if (result?.organization?.slug) {
+        window.location.href = `/prompts?organization=${result.organization.slug}`;
+      }
     } catch (error) {
       console.error(error);
     }
