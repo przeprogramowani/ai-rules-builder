@@ -10,12 +10,14 @@ import { checkRateLimit, setRateLimitCookie } from '../services/rateLimiter';
 
 // Define rate limit configurations: path -> seconds
 const RATE_LIMIT_CONFIG: { [path: string]: number } = {
-  '/api/auth/login': 10,
+  '/api/auth/login': 3,
   '/api/auth/logout': 10,
   '/api/auth/signup': 60,
   '/api/auth/reset-password': 60,
   '/api/auth/update-password': 60,
   '/api/upload-dependencies': 5,
+  '/api/invites/validate': 3,
+  '/api/invites/redeem': 3,
 };
 
 const rateLimiter = defineMiddleware(async ({ cookies, url }, next) => {
@@ -59,6 +61,7 @@ const PUBLIC_PATHS = [
   '/api/auth/verify-reset-token',
   '/api/captcha/verify',
   '/api/upload-dependencies',
+  '/api/invites/validate',
   '/privacy/pl',
   '/privacy/en',
 ];
@@ -135,7 +138,7 @@ const validateRequest = defineMiddleware(
       }
 
       // Skip auth check for public paths
-      if (PUBLIC_PATHS.includes(url.pathname)) {
+      if (PUBLIC_PATHS.includes(url.pathname) || url.pathname.startsWith('/invites/')) {
         console.log('Skipping auth check for public path:', url.pathname);
         return next();
       }

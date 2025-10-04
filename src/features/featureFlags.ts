@@ -11,15 +11,22 @@ export type Env = 'local' | 'integration' | 'prod';
 /**
  * Available feature flags in the application
  */
-export type FeatureFlag = 'auth' | 'collections' | 'authOnUI' | 'promptManager';
+export type FeatureFlag = 'auth' | 'collections' | 'authOnUI' | 'promptManager' | 'orgInvites';
 export const PROMPT_MANAGER_ENABLED: FeatureFlag = 'promptManager';
+export const ORG_INVITES_ENABLED: FeatureFlag = 'orgInvites';
 type FeatureConfig = {
   [E in Env]: {
     [K in FeatureFlag]: boolean;
   };
 };
 
-const FEATURE_KEYS: FeatureFlag[] = ['auth', 'collections', 'authOnUI', PROMPT_MANAGER_ENABLED];
+const FEATURE_KEYS: FeatureFlag[] = [
+  'auth',
+  'collections',
+  'authOnUI',
+  PROMPT_MANAGER_ENABLED,
+  ORG_INVITES_ENABLED,
+];
 
 const featureFlags: FeatureConfig = {
   local: {
@@ -27,18 +34,21 @@ const featureFlags: FeatureConfig = {
     collections: true,
     authOnUI: true,
     [PROMPT_MANAGER_ENABLED]: true,
+    [ORG_INVITES_ENABLED]: true,
   },
   integration: {
     auth: true,
     collections: true,
     authOnUI: true,
     [PROMPT_MANAGER_ENABLED]: false,
+    [ORG_INVITES_ENABLED]: true,
   },
   prod: {
     auth: true,
     collections: true,
     authOnUI: true,
     [PROMPT_MANAGER_ENABLED]: false,
+    [ORG_INVITES_ENABLED]: false,
   },
 };
 

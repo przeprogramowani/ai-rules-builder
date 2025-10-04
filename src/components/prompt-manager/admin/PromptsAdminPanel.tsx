@@ -8,8 +8,13 @@ import PromptEditorDialog from './PromptEditorDialog';
 import DeletionDialog from '../../rule-collections/DeletionDialog';
 import { Dropdown } from '../../ui/Dropdown';
 import { SearchBar } from '../../ui/SearchBar';
+import AdminTabs from './AdminTabs';
 
-export const PromptsAdminPanel: React.FC = () => {
+interface PromptsAdminPanelProps {
+  showInvites?: boolean;
+}
+
+export const PromptsAdminPanel: React.FC<PromptsAdminPanelProps> = ({ showInvites = false }) => {
   // Store state - using individual selectors for better type safety
   const adminPrompts = usePromptsStore((state) => state.adminPrompts ?? []);
   const isLoading = usePromptsStore((state) => state.isLoading);
@@ -180,9 +185,12 @@ export const PromptsAdminPanel: React.FC = () => {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Prompts Admin Panel</h1>
-        <p className="text-gray-400">Manage your organization's prompt templates</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
+        <p className="text-gray-400">Manage your organization's prompts and invites</p>
       </div>
+
+      {/* Admin Tabs */}
+      <AdminTabs activeTab="prompts" showInvites={showInvites} />
 
       {/* Organization Selector and Create Button */}
       <div className="flex items-center justify-between gap-4 mb-6">

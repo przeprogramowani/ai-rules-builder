@@ -44,12 +44,15 @@ export const authService = {
     return handleResponse(response);
   },
 
-  signup: async (formData: SignupFormData): Promise<{ user: User }> => {
+  signup: async (
+    formData: SignupFormData,
+    inviteToken?: string,
+  ): Promise<{ user: User; organization?: { id: string; slug: string; name: string } }> => {
     const { email, password, privacyPolicyConsent } = formData;
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, privacyPolicyConsent }),
+      body: JSON.stringify({ email, password, privacyPolicyConsent, inviteToken }),
     });
     return handleResponse(response);
   },
