@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { Dropdown, type DropdownOption } from '../ui/Dropdown';
 
 export const PromptFilters: React.FC = () => {
-  const { collections, segments, selectedCollectionId, selectedSegmentId, setFilters, prompts } =
-    usePromptsStore();
+  const {
+    collections,
+    segments,
+    selectedCollectionId,
+    selectedSegmentId,
+    setFilters,
+    prompts,
+    isLoading,
+  } = usePromptsStore();
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   // Create collection options with "All" option
   const collectionOptions: DropdownOption<string | null>[] = [
@@ -33,6 +45,21 @@ export const PromptFilters: React.FC = () => {
   const handleSegmentChange = (segmentId: string | null) => {
     setFilters(selectedCollectionId, segmentId);
   };
+
+  // Show skeleton during hydration
+  if (!hasHydrated || (collections.length === 0 && isLoading)) {
+    return (
+      <div className="flex flex-wrap gap-4 mb-6 justify-between items-end">
+        <div className="flex gap-4 flex-wrap">
+          <div className="min-w-[200px] animate-pulse">
+            <div className="h-5 w-20 bg-gray-700 rounded mb-2" />
+            <div className="h-[42px] w-[200px] bg-gray-700 rounded" />
+          </div>
+        </div>
+        <div className="h-5 w-16 bg-gray-700 rounded animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap gap-4 mb-6 justify-between items-end">

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { PromptCard } from './PromptCard';
 import { hasPolishVersion } from '../../services/prompt-library/language';
 
 export const PromptsList: React.FC = () => {
   const { prompts, isLoading, error, preferredLanguage } = usePromptsStore();
+  const [hasHydrated, setHasHydrated] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  // Show skeleton during hydration or loading
+  if (!hasHydrated || isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-400">Loading prompts...</div>

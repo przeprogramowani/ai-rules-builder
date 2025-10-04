@@ -1,7 +1,7 @@
 import { WandSparkles } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { usePromptsStore } from '../store/promptsStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import LoginButton from './auth/LoginButton';
 import NavigationDropdown from './NavigationDropdown';
 
@@ -15,7 +15,13 @@ interface TopbarProps {
 
 export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarProps) {
   const { setUser } = useAuthStore();
-  const { organizations, fetchOrganizations } = usePromptsStore();
+  const { organizations, fetchOrganizations, isLoading } = usePromptsStore();
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  // Mark as hydrated after first client-side mount
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   // Initialize auth store with user data from server
   useEffect(() => {
@@ -42,6 +48,9 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
   const availableNavItems = 1 + (hasPromptAccess ? 1 : 0) + (isAdmin ? 1 : 0);
   const showNavigation = availableNavItems > 1;
 
+  // Don't show navigation until hydrated and data loaded
+  const shouldShowNavigation = hasHydrated && !isLoading && showNavigation;
+
   return (
     <header className="sticky top-0 z-10 w-full bg-gray-900 border-b border-gray-800 p-3 px-4 md:p-4 md:px-6 shadow-md">
       <div className="flex flex-row justify-between items-center">
@@ -56,12 +65,22 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
 
         <div className="flex flex-row items-center space-x-4">
           {/* Navigation Dropdown */}
-          {initialUser && showNavigation && (
-            <NavigationDropdown
-              isAdmin={isAdmin}
-              hasPromptAccess={hasPromptAccess}
-              currentPath={currentPath}
-            />
+          {initialUser && (
+            <>
+              {shouldShowNavigation ? (
+                <NavigationDropdown
+                  isAdmin={isAdmin}
+                  hasPromptAccess={hasPromptAccess}
+                  currentPath={currentPath}
+                />
+              ) : !hasHydrated || isLoading ? (
+                <div className="flex items-center gap-2 px-3 py-2 animate-pulse">
+                  <div className="size-4 bg-gray-700 rounded" />
+                  <div className="hidden md:block h-4 w-24 bg-gray-700 rounded" />
+                  <div className="size-3 bg-gray-700 rounded" />
+                </div>
+              ) : null}
+            </>
           )}
 
           <LoginButton />
