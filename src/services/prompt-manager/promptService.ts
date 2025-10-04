@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/db/supabase-admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   Prompt,
   CreatePromptInput,
@@ -11,11 +11,12 @@ import type {
  * Create a new draft prompt
  */
 export async function createPrompt(
+  supabase: SupabaseClient,
   organizationId: string,
   data: CreatePromptInput,
 ): Promise<ServiceResult<Prompt>> {
   try {
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .insert({
         organization_id: organizationId,
@@ -51,6 +52,7 @@ export async function createPrompt(
  * Update an existing prompt
  */
 export async function updatePrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
   data: UpdatePromptInput,
@@ -67,7 +69,7 @@ export async function updatePrompt(
     if (data.collection_id !== undefined) updateData.collection_id = data.collection_id;
     if (data.segment_id !== undefined) updateData.segment_id = data.segment_id;
 
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .update(updateData)
       .eq('id', promptId)
@@ -102,11 +104,12 @@ export async function updatePrompt(
  * Publish a prompt (change status to published)
  */
 export async function publishPrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
 ): Promise<ServiceResult<Prompt>> {
   try {
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .update({
         status: 'published',
@@ -144,11 +147,12 @@ export async function publishPrompt(
  * Unpublish a prompt (revert status to draft)
  */
 export async function unpublishPrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
 ): Promise<ServiceResult<Prompt>> {
   try {
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .update({
         status: 'draft',
@@ -186,11 +190,12 @@ export async function unpublishPrompt(
  * Delete a prompt
  */
 export async function deletePrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
 ): Promise<ServiceResult<void>> {
   try {
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('prompts')
       .delete()
       .eq('id', promptId)
@@ -216,11 +221,12 @@ export async function deletePrompt(
  * Get a single prompt by ID
  */
 export async function getPrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
 ): Promise<ServiceResult<Prompt>> {
   try {
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .select('*')
       .eq('id', promptId)
@@ -254,11 +260,12 @@ export async function getPrompt(
  * List prompts with optional filtering
  */
 export async function listPrompts(
+  supabase: SupabaseClient,
   organizationId: string,
   filters?: PromptFilters,
 ): Promise<ServiceResult<Prompt[]>> {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('prompts')
       .select('*')
       .eq('organization_id', organizationId)
@@ -305,10 +312,11 @@ export async function listPrompts(
  * Members can only see published prompts
  */
 export async function listPublishedPrompts(
+  supabase: SupabaseClient,
   organizationId: string,
   filters?: Omit<PromptFilters, 'status'>,
 ): Promise<ServiceResult<Prompt[]>> {
-  return listPrompts(organizationId, { ...filters, status: 'published' });
+  return listPrompts(supabase, organizationId, { ...filters, status: 'published' });
 }
 
 /**
@@ -316,11 +324,12 @@ export async function listPublishedPrompts(
  * Returns 404 if prompt is not published or doesn't belong to organization
  */
 export async function getPublishedPrompt(
+  supabase: SupabaseClient,
   promptId: string,
   organizationId: string,
 ): Promise<ServiceResult<Prompt>> {
   try {
-    const { data: prompt, error } = await supabaseAdmin
+    const { data: prompt, error } = await supabase
       .from('prompts')
       .select('*')
       .eq('id', promptId)

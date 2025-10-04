@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   getCollections,
   getSegments,
@@ -11,18 +12,14 @@ import type {
   CreateCollectionInput,
   CreateSegmentInput,
 } from '@/services/prompt-manager/types';
-
-// Mock the supabase admin client
-vi.mock('@/db/supabase-admin', () => ({
-  supabaseAdmin: {
-    from: vi.fn(),
-  },
-}));
-
-import { supabaseAdmin } from '@/db/supabase-admin';
+import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
+import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 
 describe('collectionService', () => {
+  let mockSupabase: MockSupabaseClient;
+
   beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
     vi.clearAllMocks();
   });
 
@@ -54,11 +51,11 @@ describe('collectionService', () => {
       const order = vi.fn().mockResolvedValue({ data: mockCollections, error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getCollections('org-1');
+      const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompt_collections');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collections');
       expect(select).toHaveBeenCalledWith('*');
       expect(eq).toHaveBeenCalledWith('organization_id', 'org-1');
       expect(order).toHaveBeenCalledWith('sort_order', { ascending: true });
@@ -70,9 +67,9 @@ describe('collectionService', () => {
       const order = vi.fn().mockResolvedValue({ data: [], error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getCollections('org-1');
+      const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(result.data).toEqual([]);
       expect(result.error).toBeNull();
@@ -85,9 +82,9 @@ describe('collectionService', () => {
       });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getCollections('org-1');
+      const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -100,9 +97,9 @@ describe('collectionService', () => {
       const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getCollections('org-1');
+      const result = await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -128,9 +125,9 @@ describe('collectionService', () => {
       const order = vi.fn().mockResolvedValue({ data: mockCollections, error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      await getCollections('org-1');
+      await getCollections(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(eq).toHaveBeenCalledWith('organization_id', 'org-1');
     });
@@ -162,11 +159,11 @@ describe('collectionService', () => {
       const order = vi.fn().mockResolvedValue({ data: mockSegments, error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getSegments('coll-1');
+      const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompt_collection_segments');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collection_segments');
       expect(select).toHaveBeenCalledWith('*');
       expect(eq).toHaveBeenCalledWith('collection_id', 'coll-1');
       expect(order).toHaveBeenCalledWith('sort_order', { ascending: true });
@@ -178,9 +175,9 @@ describe('collectionService', () => {
       const order = vi.fn().mockResolvedValue({ data: [], error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getSegments('coll-1');
+      const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
       expect(result.data).toEqual([]);
       expect(result.error).toBeNull();
@@ -193,9 +190,9 @@ describe('collectionService', () => {
       });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getSegments('coll-1');
+      const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -208,9 +205,9 @@ describe('collectionService', () => {
       const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getSegments('coll-1');
+      const result = await getSegments(mockSupabase as unknown as SupabaseClient, 'coll-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -236,7 +233,7 @@ describe('collectionService', () => {
       const single = vi.fn().mockResolvedValue({ data: mockCollection, error: null });
       const select = vi.fn().mockReturnValue({ single });
       const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
@@ -245,9 +242,9 @@ describe('collectionService', () => {
         sort_order: 3,
       };
 
-      const result = await createCollection('org-1', input);
+      const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompt_collections');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collections');
       expect(insert).toHaveBeenCalledWith({
         organization_id: 'org-1',
         slug: 'new-collection',
@@ -284,7 +281,7 @@ describe('collectionService', () => {
       const insert = vi.fn().mockReturnValue({ select: insertSelect });
 
       // Return different mocks for each call
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+      mockSupabase.from
         .mockReturnValueOnce({ select: maxSelect })  // First call for max query
         .mockReturnValueOnce({ insert });            // Second call for insert
 
@@ -293,7 +290,7 @@ describe('collectionService', () => {
         title: 'New Collection',
       };
 
-      const result = await createCollection('org-1', input);
+      const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(insert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -320,7 +317,7 @@ describe('collectionService', () => {
       const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
       const insert = vi.fn().mockReturnValue({ select: insertSelect });
 
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+      mockSupabase.from
         .mockReturnValueOnce({ select: maxSelect })
         .mockReturnValueOnce({ insert });
 
@@ -329,7 +326,7 @@ describe('collectionService', () => {
         title: 'New Collection',
       };
 
-      const result = await createCollection('org-1', input);
+      const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -343,14 +340,14 @@ describe('collectionService', () => {
       const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
       const input: CreateCollectionInput = {
         slug: 'new-collection',
         title: 'New Collection',
       };
 
-      const result = await createCollection('org-1', input);
+      const result = await createCollection(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -375,7 +372,7 @@ describe('collectionService', () => {
       const single = vi.fn().mockResolvedValue({ data: mockSegment, error: null });
       const select = vi.fn().mockReturnValue({ single });
       const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
@@ -383,9 +380,9 @@ describe('collectionService', () => {
         sort_order: 3,
       };
 
-      const result = await createSegment('coll-1', input);
+      const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompt_collection_segments');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompt_collection_segments');
       expect(insert).toHaveBeenCalledWith({
         collection_id: 'coll-1',
         slug: 'new-segment',
@@ -419,7 +416,7 @@ describe('collectionService', () => {
       const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
       const insert = vi.fn().mockReturnValue({ select: insertSelect });
 
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+      mockSupabase.from
         .mockReturnValueOnce({ select: maxSelect })
         .mockReturnValueOnce({ insert });
 
@@ -428,7 +425,7 @@ describe('collectionService', () => {
         title: 'New Segment',
       };
 
-      const result = await createSegment('coll-1', input);
+      const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
       expect(insert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -454,7 +451,7 @@ describe('collectionService', () => {
       const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
       const insert = vi.fn().mockReturnValue({ select: insertSelect });
 
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>)
+      mockSupabase.from
         .mockReturnValueOnce({ select: maxSelect })
         .mockReturnValueOnce({ insert });
 
@@ -463,7 +460,7 @@ describe('collectionService', () => {
         title: 'New Segment',
       };
 
-      const result = await createSegment('coll-1', input);
+      const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -477,14 +474,14 @@ describe('collectionService', () => {
       const select = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
       const input: CreateSegmentInput = {
         slug: 'new-segment',
         title: 'New Segment',
       };
 
-      const result = await createSegment('coll-1', input);
+      const result = await createSegment(mockSupabase as unknown as SupabaseClient, 'coll-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({

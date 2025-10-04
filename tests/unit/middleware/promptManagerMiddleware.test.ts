@@ -164,7 +164,8 @@ describe('middleware prompt manager guard', () => {
     const { onRequest } = await loadMiddleware();
     const context = createContext('/prompts');
     const response = await onRequest(context, () => Promise.resolve(new Response('ok')));
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(302);
+    expect(response.headers.get('Location')).toBe('/prompts/request-access');
   });
 
   it('allows prompt route when membership present', async () => {

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   createPrompt,
   updatePrompt,
@@ -10,15 +11,8 @@ import {
 } from '@/services/prompt-manager/promptService';
 import { getCollections, getSegments } from '@/services/prompt-manager/promptCollectionService';
 import type { CreatePromptInput } from '@/services/prompt-manager/types';
-
-// Mock the supabase admin client
-vi.mock('@/db/supabase-admin', () => ({
-  supabaseAdmin: {
-    from: vi.fn(),
-  },
-}));
-
-import { supabaseAdmin } from '@/db/supabase-admin';
+import { createMockSupabaseClient } from '../helpers/mockSupabaseClient';
+import type { MockSupabaseClient } from '../helpers/mockSupabaseClient';
 
 /**
  * Integration test that verifies the complete admin workflow:
@@ -36,8 +30,10 @@ describe('Prompt Admin Flow Integration Test', () => {
   const USER_ID = 'user-admin-1';
 
   let createdPromptId: string;
+  let mockSupabase: MockSupabaseClient;
 
   beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
     vi.clearAllMocks();
     createdPromptId = 'prompt-test-1';
   });
@@ -61,11 +57,11 @@ describe('Prompt Admin Flow Integration Test', () => {
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockResolvedValue({ data: mockCollections, error: null }),
     };
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       select: vi.fn().mockReturnValue(collectionsQueryBuilder),
     });
 
-    const collectionsResult = await getCollections(ORG_ID);
+    const collectionsResult = await getCollections(mockSupabase as unknown as SupabaseClient, ORG_ID);
     expect(collectionsResult.data).toEqual(mockCollections);
     expect(collectionsResult.error).toBeNull();
 
@@ -86,11 +82,11 @@ describe('Prompt Admin Flow Integration Test', () => {
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockResolvedValue({ data: mockSegments, error: null }),
     };
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       select: vi.fn().mockReturnValue(segmentsQueryBuilder),
     });
 
-    const segmentsResult = await getSegments(COLLECTION_ID);
+    const segmentsResult = await getSegments(mockSupabase as unknown as SupabaseClient, COLLECTION_ID);
     expect(segmentsResult.data).toEqual(mockSegments);
     expect(segmentsResult.error).toBeNull();
 
@@ -121,9 +117,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     const createSingle = vi.fn().mockResolvedValue({ data: createdPrompt, error: null });
     const createSelect = vi.fn().mockReturnValue({ single: createSingle });
     const createInsert = vi.fn().mockReturnValue({ select: createSelect });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({ insert: createInsert });
+    mockSupabase.from.mockReturnValueOnce({ insert: createInsert });
 
-    const createResult = await createPrompt(ORG_ID, newPromptInput);
+    const createResult = await createPrompt(mockSupabase as unknown as SupabaseClient, ORG_ID, newPromptInput);
     expect(createResult.data).toEqual(createdPrompt);
     expect(createResult.error).toBeNull();
     expect(createResult.data?.status).toBe('draft');
@@ -141,9 +137,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     const updateEq2 = vi.fn().mockReturnValue({ select: updateSelect });
     const updateEq1 = vi.fn().mockReturnValue({ eq: updateEq2 });
     const update = vi.fn().mockReturnValue({ eq: updateEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({ update });
+    mockSupabase.from.mockReturnValueOnce({ update });
 
-    const updateResult = await updatePrompt(createdPromptId, ORG_ID, {
+    const updateResult = await updatePrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID, {
       title_en: 'Updated Test Prompt',
       markdown_body_en: '# Updated Content\n\nThis is the updated prompt content with more details.',
     });
@@ -163,9 +159,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     const publishEq2 = vi.fn().mockReturnValue({ select: publishSelect });
     const publishEq1 = vi.fn().mockReturnValue({ eq: publishEq2 });
     const publishUpdate = vi.fn().mockReturnValue({ eq: publishEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({ update: publishUpdate });
+    mockSupabase.from.mockReturnValueOnce({ update: publishUpdate });
 
-    const publishResult = await publishPrompt(createdPromptId, ORG_ID);
+    const publishResult = await publishPrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID);
     expect(publishResult.data?.status).toBe('published');
     expect(publishResult.error).toBeNull();
 
@@ -177,11 +173,11 @@ describe('Prompt Admin Flow Integration Test', () => {
       order: vi.fn().mockReturnThis(),
       then: vi.fn((resolve) => resolve({ data: publishedPromptsList, error: null })),
     };
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       select: vi.fn().mockReturnValue(listPublishedQueryBuilder),
     });
 
-    const publishedListResult = await listPrompts(ORG_ID, { status: 'published' });
+    const publishedListResult = await listPrompts(mockSupabase as unknown as SupabaseClient, ORG_ID, { status: 'published' });
     expect(publishedListResult.data).toHaveLength(1);
     expect(publishedListResult.data?.[0].status).toBe('published');
 
@@ -197,11 +193,11 @@ describe('Prompt Admin Flow Integration Test', () => {
     const unpublishEq2 = vi.fn().mockReturnValue({ select: unpublishSelect });
     const unpublishEq1 = vi.fn().mockReturnValue({ eq: unpublishEq2 });
     const unpublishUpdate = vi.fn().mockReturnValue({ eq: unpublishEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       update: unpublishUpdate,
     });
 
-    const unpublishResult = await unpublishPrompt(createdPromptId, ORG_ID);
+    const unpublishResult = await unpublishPrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID);
     expect(unpublishResult.data?.status).toBe('draft');
     expect(unpublishResult.error).toBeNull();
 
@@ -210,9 +206,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     const getEq2 = vi.fn().mockReturnValue({ single: getSingle });
     const getEq1 = vi.fn().mockReturnValue({ eq: getEq2 });
     const getSelect = vi.fn().mockReturnValue({ eq: getEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({ select: getSelect });
+    mockSupabase.from.mockReturnValueOnce({ select: getSelect });
 
-    const getResult = await getPrompt(createdPromptId, ORG_ID);
+    const getResult = await getPrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID);
     expect(getResult.data?.status).toBe('draft');
     expect(getResult.error).toBeNull();
 
@@ -220,11 +216,11 @@ describe('Prompt Admin Flow Integration Test', () => {
     const deleteEq2 = vi.fn().mockResolvedValue({ data: null, error: null });
     const deleteEq1 = vi.fn().mockReturnValue({ eq: deleteEq2 });
     const deleteMethod = vi.fn().mockReturnValue({ eq: deleteEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       delete: deleteMethod,
     });
 
-    const deleteResult = await deletePrompt(createdPromptId, ORG_ID);
+    const deleteResult = await deletePrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID);
     expect(deleteResult.error).toBeNull();
 
     // Step 10: Verify the prompt is deleted (should return not found)
@@ -232,11 +228,11 @@ describe('Prompt Admin Flow Integration Test', () => {
     const getDeletedEq2 = vi.fn().mockReturnValue({ single: getDeletedSingle });
     const getDeletedEq1 = vi.fn().mockReturnValue({ eq: getDeletedEq2 });
     const getDeletedSelect = vi.fn().mockReturnValue({ eq: getDeletedEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+    mockSupabase.from.mockReturnValueOnce({
       select: getDeletedSelect,
     });
 
-    const getDeletedResult = await getPrompt(createdPromptId, ORG_ID);
+    const getDeletedResult = await getPrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, ORG_ID);
     expect(getDeletedResult.data).toBeNull();
     expect(getDeletedResult.error).toEqual({
       message: 'Prompt not found',
@@ -252,9 +248,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     const getEq2 = vi.fn().mockReturnValue({ single: getSingle });
     const getEq1 = vi.fn().mockReturnValue({ eq: getEq2 });
     const getSelect = vi.fn().mockReturnValue({ eq: getEq1 });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select: getSelect });
+    mockSupabase.from.mockReturnValue({ select: getSelect });
 
-    const result = await getPrompt(createdPromptId, WRONG_ORG_ID);
+    const result = await getPrompt(mockSupabase as unknown as SupabaseClient, createdPromptId, WRONG_ORG_ID);
     expect(result.data).toBeNull();
     expect(result.error).toEqual({
       message: 'Prompt not found',
@@ -270,9 +266,9 @@ describe('Prompt Admin Flow Integration Test', () => {
     });
     const createSelect = vi.fn().mockReturnValue({ single: createSingle });
     const createInsert = vi.fn().mockReturnValue({ select: createSelect });
-    (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert: createInsert });
+    mockSupabase.from.mockReturnValue({ insert: createInsert });
 
-    const createResult = await createPrompt(ORG_ID, {
+    const createResult = await createPrompt(mockSupabase as unknown as SupabaseClient, ORG_ID, {
       title_en: 'Test',
       collection_id: 'non-existent-collection',
       markdown_body_en: 'Content',

@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ locals }) => {
     }
 
     const organizationId = locals.promptManager.activeOrganization.id;
-    const result = await getCollections(organizationId);
+    const result = await getCollections(locals.supabase, organizationId);
 
     if (result.error) {
       return new Response(
@@ -88,7 +88,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const organizationId = locals.promptManager.activeOrganization.id;
-    const result = await createCollection(organizationId, { title, description, slug });
+    const result = await createCollection(locals.supabase, organizationId, {
+      title,
+      description,
+      slug,
+    });
 
     if (result.error) {
       return new Response(

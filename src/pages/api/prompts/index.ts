@@ -74,7 +74,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 
   // Fetch published prompts
-  const result = await listPublishedPrompts(organizationId, filters);
+  const result = await listPublishedPrompts(locals.supabase, organizationId, filters);
 
   if (result.error) {
     return new Response(JSON.stringify({ error: result.error.message }), {

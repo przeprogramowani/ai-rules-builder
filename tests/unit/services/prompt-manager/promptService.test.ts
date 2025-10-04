@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   createPrompt,
   updatePrompt,
@@ -9,40 +10,14 @@ import {
   listPrompts,
 } from '@/services/prompt-manager/promptService';
 import type { Prompt, CreatePromptInput, UpdatePromptInput } from '@/services/prompt-manager/types';
-
-// Mock the supabase admin client
-vi.mock('@/db/supabase-admin', () => ({
-  supabaseAdmin: {
-    from: vi.fn(),
-  },
-}));
-
-import { supabaseAdmin } from '@/db/supabase-admin';
-
-type QueryBuilder = {
-  insert: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-  select: ReturnType<typeof vi.fn>;
-  eq: ReturnType<typeof vi.fn>;
-  single: ReturnType<typeof vi.fn>;
-  order: ReturnType<typeof vi.fn>;
-};
-
-function createQueryBuilder(result: { data: unknown; error: unknown }): QueryBuilder {
-  const single = vi.fn().mockResolvedValue(result);
-  const order = vi.fn().mockResolvedValue(result);
-  const eq = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single }) }), select: vi.fn().mockReturnValue({ single }), single });
-  const select = vi.fn().mockReturnValue({ eq, single, order });
-  const insert = vi.fn().mockReturnValue({ select });
-  const update = vi.fn().mockReturnValue({ eq });
-  const deleteMethod = vi.fn().mockReturnValue({ eq });
-
-  return { insert, update, delete: deleteMethod, select, eq, single, order };
-}
+import { createMockSupabaseClient } from '../../../helpers/mockSupabaseClient';
+import type { MockSupabaseClient } from '../../../helpers/mockSupabaseClient';
 
 describe('promptService', () => {
+  let mockSupabase: MockSupabaseClient;
+
   beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
     vi.clearAllMocks();
   });
 
@@ -66,7 +41,7 @@ describe('promptService', () => {
       const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
       const select = vi.fn().mockReturnValue({ single });
       const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -76,9 +51,9 @@ describe('promptService', () => {
         created_by: 'user-1',
       };
 
-      const result = await createPrompt('org-1', input);
+      const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
       expect(insert).toHaveBeenCalledWith({
         organization_id: 'org-1',
         collection_id: 'collection-1',
@@ -113,7 +88,7 @@ describe('promptService', () => {
       const single = vi.fn().mockResolvedValue({ data: mockPrompt, error: null });
       const select = vi.fn().mockReturnValue({ single });
       const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -121,7 +96,7 @@ describe('promptService', () => {
         markdown_body_en: '# Test Content',
       };
 
-      const result = await createPrompt('org-1', input);
+      const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(insert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -139,7 +114,7 @@ describe('promptService', () => {
       });
       const select = vi.fn().mockReturnValue({ single });
       const insert = vi.fn().mockReturnValue({ select });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -147,7 +122,7 @@ describe('promptService', () => {
         markdown_body_en: '# Test Content',
       };
 
-      const result = await createPrompt('org-1', input);
+      const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -160,7 +135,7 @@ describe('promptService', () => {
       const insert = vi.fn().mockImplementation(() => {
         throw new Error('Unexpected error');
       });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ insert });
+      mockSupabase.from.mockReturnValue({ insert });
 
       const input: CreatePromptInput = {
         title_en: 'Test Prompt',
@@ -168,7 +143,7 @@ describe('promptService', () => {
         markdown_body_en: '# Test Content',
       };
 
-      const result = await createPrompt('org-1', input);
+      const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -200,16 +175,16 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
         markdown_body_en: '# Updated Content',
       };
 
-      const result = await updatePrompt('prompt-1', 'org-1', input);
+      const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
       expect(update).toHaveBeenCalledWith(
         expect.objectContaining({
           title_en: 'Updated Prompt',
@@ -242,13 +217,13 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Title Only',
       };
 
-      const result = await updatePrompt('prompt-1', 'org-1', input);
+      const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
       expect(update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -270,13 +245,13 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
       };
 
-      const result = await updatePrompt('prompt-1', 'org-1', input);
+      const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -294,13 +269,13 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
       const input: UpdatePromptInput = {
         title_en: 'Updated Prompt',
       };
 
-      const result = await updatePrompt('prompt-1', 'org-1', input);
+      const result = await updatePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1', input);
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -332,9 +307,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
-      const result = await publishPrompt('prompt-1', 'org-1');
+      const result = await publishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(update).toHaveBeenCalledWith({
         status: 'published',
@@ -350,9 +325,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
-      const result = await publishPrompt('prompt-1', 'org-1');
+      const result = await publishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -384,9 +359,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
-      const result = await unpublishPrompt('prompt-1', 'org-1');
+      const result = await unpublishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(update).toHaveBeenCalledWith({
         status: 'draft',
@@ -402,9 +377,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ select });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const update = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ update });
+      mockSupabase.from.mockReturnValue({ update });
 
-      const result = await unpublishPrompt('prompt-1', 'org-1');
+      const result = await unpublishPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -419,11 +394,11 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockResolvedValue({ data: null, error: null });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const deleteMethod = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ delete: deleteMethod });
+      mockSupabase.from.mockReturnValue({ delete: deleteMethod });
 
-      const result = await deletePrompt('prompt-1', 'org-1');
+      const result = await deletePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
       expect(deleteMethod).toHaveBeenCalled();
       expect(result.error).toBeNull();
     });
@@ -435,9 +410,9 @@ describe('promptService', () => {
       });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const deleteMethod = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ delete: deleteMethod });
+      mockSupabase.from.mockReturnValue({ delete: deleteMethod });
 
-      const result = await deletePrompt('prompt-1', 'org-1');
+      const result = await deletePrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -468,11 +443,11 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ single });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const select = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getPrompt('prompt-1', 'org-1');
+      const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
       expect(select).toHaveBeenCalledWith('*');
       expect(result.data).toEqual(mockPrompt);
       expect(result.error).toBeNull();
@@ -483,9 +458,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ single });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const select = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getPrompt('prompt-1', 'org-1');
+      const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -502,9 +477,9 @@ describe('promptService', () => {
       const eq2 = vi.fn().mockReturnValue({ single });
       const eq1 = vi.fn().mockReturnValue({ eq: eq2 });
       const select = vi.fn().mockReturnValue({ eq: eq1 });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await getPrompt('prompt-1', 'org-1');
+      const result = await getPrompt(mockSupabase as unknown as SupabaseClient, 'prompt-1', 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -550,11 +525,11 @@ describe('promptService', () => {
       const order = vi.fn().mockResolvedValue({ data: mockPrompts, error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1');
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1');
 
-      expect(supabaseAdmin.from).toHaveBeenCalledWith('prompts');
+      expect(mockSupabase.from).toHaveBeenCalledWith('prompts');
       expect(select).toHaveBeenCalledWith('*');
       expect(order).toHaveBeenCalledWith('updated_at', { ascending: false });
       expect(result.data).toEqual(mockPrompts);
@@ -587,9 +562,9 @@ describe('promptService', () => {
       };
 
       const select = vi.fn().mockReturnValue(queryBuilder);
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1', { status: 'published' });
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1', { status: 'published' });
 
       expect(result.data).toEqual(mockPrompts);
       expect(result.error).toBeNull();
@@ -606,9 +581,9 @@ describe('promptService', () => {
       };
 
       const select = vi.fn().mockReturnValue(queryBuilder);
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1', { collection_id: 'collection-2' });
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1', { collection_id: 'collection-2' });
 
       expect(result.data).toEqual([]);
       expect(result.error).toBeNull();
@@ -625,9 +600,9 @@ describe('promptService', () => {
       };
 
       const select = vi.fn().mockReturnValue(queryBuilder);
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1', { segment_id: 'segment-2' });
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1', { segment_id: 'segment-2' });
 
       expect(result.data).toEqual([]);
       expect(result.error).toBeNull();
@@ -637,9 +612,9 @@ describe('promptService', () => {
       const order = vi.fn().mockResolvedValue({ data: [], error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1');
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(result.data).toEqual([]);
       expect(result.error).toBeNull();
@@ -652,9 +627,9 @@ describe('promptService', () => {
       });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      const result = await listPrompts('org-1');
+      const result = await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(result.data).toBeNull();
       expect(result.error).toEqual({
@@ -667,9 +642,9 @@ describe('promptService', () => {
       const order = vi.fn().mockResolvedValue({ data: [], error: null });
       const eq = vi.fn().mockReturnValue({ order });
       const select = vi.fn().mockReturnValue({ eq });
-      (supabaseAdmin.from as ReturnType<typeof vi.fn>).mockReturnValue({ select });
+      mockSupabase.from.mockReturnValue({ select });
 
-      await listPrompts('org-1');
+      await listPrompts(mockSupabase as unknown as SupabaseClient, 'org-1');
 
       expect(eq).toHaveBeenCalledWith('organization_id', 'org-1');
     });

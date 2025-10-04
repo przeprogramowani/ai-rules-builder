@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 
   // Fetch collections
-  const result = await getCollections(organizationId);
+  const result = await getCollections(locals.supabase, organizationId);
 
   if (result.error) {
     return new Response(JSON.stringify({ error: result.error.message }), {

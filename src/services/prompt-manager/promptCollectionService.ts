@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/db/supabase-admin';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { slugify } from '@/utils/slugify';
 import type {
   PromptCollection,
@@ -12,10 +12,11 @@ import type {
  * Get all collections for an organization, ordered by sort_order
  */
 export async function getCollections(
+  supabase: SupabaseClient,
   organizationId: string,
 ): Promise<ServiceResult<PromptCollection[]>> {
   try {
-    const { data: collections, error } = await supabaseAdmin
+    const { data: collections, error } = await supabase
       .from('prompt_collections')
       .select('*')
       .eq('organization_id', organizationId)
@@ -41,13 +42,14 @@ export async function getCollections(
  * Get a collection by slug within an organization
  */
 export async function getCollectionBySlug(
+  supabase: SupabaseClient,
   organizationId: string,
   slug: string,
 ): Promise<ServiceResult<PromptCollection>> {
   try {
     const normalizedSlug = slug.trim().toLowerCase();
 
-    const { data: collection, error } = await supabaseAdmin
+    const { data: collection, error } = await supabase
       .from('prompt_collections')
       .select('*')
       .eq('organization_id', organizationId)
@@ -80,9 +82,12 @@ export async function getCollectionBySlug(
 /**
  * Get all segments for a collection, ordered by sort_order
  */
-export async function getSegments(collectionId: string): Promise<ServiceResult<PromptSegment[]>> {
+export async function getSegments(
+  supabase: SupabaseClient,
+  collectionId: string,
+): Promise<ServiceResult<PromptSegment[]>> {
   try {
-    const { data: segments, error } = await supabaseAdmin
+    const { data: segments, error } = await supabase
       .from('prompt_collection_segments')
       .select('*')
       .eq('collection_id', collectionId)
@@ -108,13 +113,14 @@ export async function getSegments(collectionId: string): Promise<ServiceResult<P
  * Get a segment by slug within a collection
  */
 export async function getSegmentBySlug(
+  supabase: SupabaseClient,
   collectionId: string,
   slug: string,
 ): Promise<ServiceResult<PromptSegment>> {
   try {
     const normalizedSlug = slug.trim().toLowerCase();
 
-    const { data: segment, error } = await supabaseAdmin
+    const { data: segment, error } = await supabase
       .from('prompt_collection_segments')
       .select('*')
       .eq('collection_id', collectionId)
@@ -148,6 +154,7 @@ export async function getSegmentBySlug(
  * Create a new collection (admin only)
  */
 export async function createCollection(
+  supabase: SupabaseClient,
   organizationId: string,
   data: CreateCollectionInput,
 ): Promise<ServiceResult<PromptCollection>> {
@@ -158,7 +165,7 @@ export async function createCollection(
     // Calculate sort_order if not provided
     let sortOrder = data.sort_order;
     if (sortOrder === undefined) {
-      const { data: maxResult } = await supabaseAdmin
+      const { data: maxResult } = await supabase
         .from('prompt_collections')
         .select('sort_order')
         .eq('organization_id', organizationId)
@@ -169,7 +176,7 @@ export async function createCollection(
       sortOrder = maxResult ? maxResult.sort_order + 1 : 0;
     }
 
-    const { data: collection, error } = await supabaseAdmin
+    const { data: collection, error } = await supabase
       .from('prompt_collections')
       .insert({
         organization_id: organizationId,
@@ -201,6 +208,7 @@ export async function createCollection(
  * Create a new segment within a collection (admin only)
  */
 export async function createSegment(
+  supabase: SupabaseClient,
   collectionId: string,
   data: CreateSegmentInput,
 ): Promise<ServiceResult<PromptSegment>> {
@@ -211,7 +219,7 @@ export async function createSegment(
     // Calculate sort_order if not provided
     let sortOrder = data.sort_order;
     if (sortOrder === undefined) {
-      const { data: maxResult } = await supabaseAdmin
+      const { data: maxResult } = await supabase
         .from('prompt_collection_segments')
         .select('sort_order')
         .eq('collection_id', collectionId)
@@ -222,7 +230,7 @@ export async function createSegment(
       sortOrder = maxResult ? maxResult.sort_order + 1 : 0;
     }
 
-    const { data: segment, error } = await supabaseAdmin
+    const { data: segment, error } = await supabase
       .from('prompt_collection_segments')
       .insert({
         collection_id: collectionId,

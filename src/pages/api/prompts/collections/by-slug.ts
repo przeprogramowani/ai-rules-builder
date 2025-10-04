@@ -64,7 +64,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 
   // Fetch collection by slug
-  const result = await getCollectionBySlug(orgId, slug);
+  const result = await getCollectionBySlug(locals.supabase, orgId, slug);
 
   if (result.error) {
     const status = result.error.code === 'NOT_FOUND' ? 404 : 500;

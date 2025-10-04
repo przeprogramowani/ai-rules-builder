@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     const organizationId = locals.promptManager.activeOrganization.id;
-    const result = await getPrompt(promptId, organizationId);
+    const result = await getPrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {
       return new Response(
@@ -74,7 +74,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const organizationId = locals.promptManager.activeOrganization.id;
     const body = (await request.json()) as UpdatePromptInput;
 
-    const result = await updatePrompt(promptId, organizationId, body);
+    const result = await updatePrompt(locals.supabase, promptId, organizationId, body);
 
     if (result.error) {
       return new Response(
@@ -123,7 +123,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     const organizationId = locals.promptManager.activeOrganization.id;
-    const result = await deletePrompt(promptId, organizationId);
+    const result = await deletePrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {
       return new Response(

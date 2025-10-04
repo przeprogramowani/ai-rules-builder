@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   createOrganizationInvite,
   validateInviteToken,
@@ -7,6 +8,8 @@ import {
   revokeInvite,
   getInviteStats,
 } from '@/services/prompt-manager/invites';
+import { createMockSupabaseClient } from '../helpers/mockSupabaseClient';
+import type { MockSupabaseClient } from '../helpers/mockSupabaseClient';
 
 /**
  * Integration test that verifies the complete organization invite workflow:
@@ -22,20 +25,15 @@ describe('Organization Invite Flow Integration Test', () => {
   const NEW_USER_ID = 'user-new-1';
   const EXISTING_USER_ID = 'user-existing-1';
 
-  let mockSupabase: any;
+  let mockSupabase: MockSupabaseClient;
   let createdInviteId: string;
   let createdInviteToken: string;
 
   beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
     vi.clearAllMocks();
     createdInviteId = 'invite-test-1';
     createdInviteToken = 'test-invite-token-123';
-
-    // Create a mock Supabase client
-    mockSupabase = {
-      from: vi.fn(),
-      rpc: vi.fn(),
-    };
   });
 
   it('completes the full invite workflow successfully', async () => {
@@ -110,21 +108,10 @@ describe('Organization Invite Flow Integration Test', () => {
     const memberCheckQueryBuilder = {
       eq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
     };
     mockSupabase.from.mockReturnValueOnce({
       select: vi.fn().mockReturnValue(memberCheckQueryBuilder),
-    });
-
-    // Get organization details
-    const orgQueryBuilder = {
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: { id: ORG_ID, slug: 'test-org', name: 'Test Organization' },
-        error: null,
-      }),
-    };
-    mockSupabase.from.mockReturnValueOnce({
-      select: vi.fn().mockReturnValue(orgQueryBuilder),
     });
 
     // Insert new organization member
@@ -137,17 +124,8 @@ describe('Organization Invite Flow Integration Test', () => {
       insert: vi.fn().mockResolvedValue({ data: null, error: null }),
     });
 
-    // Update invite usage count
-    const updateQueryBuilder = {
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: { ...mockCreatedInvite, current_uses: 1 },
-        error: null,
-      }),
-    };
-    mockSupabase.from.mockReturnValueOnce({
-      update: vi.fn().mockReturnValue(updateQueryBuilder),
-    });
+    // Mock RPC for incrementing invite usage (succeeds, so no fallback update needed)
+    mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null });
 
     const redeemResult = await redeemInvite(mockSupabase, {
       token: createdInviteToken,
@@ -156,7 +134,7 @@ describe('Organization Invite Flow Integration Test', () => {
     });
 
     expect(redeemResult.success).toBe(true);
-    expect(redeemResult.organization?.name).toBe('Test Organization');
+    expect(redeemResult.organizationName).toBe('Test Organization');
     expect(redeemResult.alreadyMember).toBe(false);
 
     // Step 3b: Existing user redeems invite (should also work)
@@ -169,10 +147,6 @@ describe('Organization Invite Flow Integration Test', () => {
     });
 
     mockSupabase.from.mockReturnValueOnce({
-      select: vi.fn().mockReturnValue(orgQueryBuilder),
-    });
-
-    mockSupabase.from.mockReturnValueOnce({
       insert: vi.fn().mockResolvedValue({ data: null, error: null }),
     });
 
@@ -180,15 +154,8 @@ describe('Organization Invite Flow Integration Test', () => {
       insert: vi.fn().mockResolvedValue({ data: null, error: null }),
     });
 
-    mockSupabase.from.mockReturnValueOnce({
-      update: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: { ...mockCreatedInvite, current_uses: 2 },
-          error: null,
-        }),
-      }),
-    });
+    // Mock RPC for incrementing invite usage
+    mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null });
 
     const existingUserRedeemResult = await redeemInvite(mockSupabase, {
       token: createdInviteToken,
@@ -199,6 +166,15 @@ describe('Organization Invite Flow Integration Test', () => {
     expect(existingUserRedeemResult.success).toBe(true);
 
     // Step 4: Admin views invite statistics
+    // Mock 1: Get invite details
+    const inviteSingle = vi.fn().mockResolvedValue({
+      data: { max_uses: 50, current_uses: 2 },
+      error: null,
+    });
+    const inviteEq = vi.fn().mockReturnValue({ single: inviteSingle });
+    const inviteSelect = vi.fn().mockReturnValue({ eq: inviteEq });
+
+    // Mock 2: Get redemptions
     const mockRedemptions = [
       {
         id: 'redemption-1',
@@ -215,12 +191,21 @@ describe('Organization Invite Flow Integration Test', () => {
         was_new_user: false,
       },
     ];
+    const redemptionsOrder = vi.fn().mockResolvedValue({ data: mockRedemptions, error: null });
+    const redemptionsEq = vi.fn().mockReturnValue({ order: redemptionsOrder });
+    const redemptionsSelect = vi.fn().mockReturnValue({ eq: redemptionsEq });
 
-    const statsQueryBuilder = {
-      eq: vi.fn().mockResolvedValue({ data: mockRedemptions, error: null }),
-    };
-    mockSupabase.from.mockReturnValueOnce({
-      select: vi.fn().mockReturnValue(statsQueryBuilder),
+    mockSupabase.from
+      .mockReturnValueOnce({ select: inviteSelect })
+      .mockReturnValueOnce({ select: redemptionsSelect });
+
+    // Mock 3: RPC for user emails
+    mockSupabase.rpc.mockResolvedValueOnce({
+      data: [
+        { id: NEW_USER_ID, email: 'newuser@example.com' },
+        { id: EXISTING_USER_ID, email: 'existinguser@example.com' },
+      ],
+      error: null,
     });
 
     const stats = await getInviteStats(mockSupabase, createdInviteId);
@@ -258,24 +243,22 @@ describe('Organization Invite Flow Integration Test', () => {
 
     const listResult = await listOrganizationInvites(mockSupabase, ORG_ID);
 
-    expect(listResult.error).toBeNull();
-    expect(listResult.data).toHaveLength(2);
+    expect(listResult).toHaveLength(2);
+    expect(Array.isArray(listResult)).toBe(true);
 
     // Step 6: Admin revokes the invite
-    const revokeQueryBuilder = {
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: { ...mockCreatedInvite, is_active: false },
-        error: null,
-      }),
-    };
+    const revokeEq = vi.fn().mockResolvedValue({
+      data: { ...mockCreatedInvite, is_active: false },
+      error: null,
+    });
     mockSupabase.from.mockReturnValueOnce({
-      update: vi.fn().mockReturnValue(revokeQueryBuilder),
+      update: vi.fn().mockReturnValue({ eq: revokeEq }),
     });
 
     const revokeResult = await revokeInvite(mockSupabase, createdInviteId);
 
-    expect(revokeResult.error).toBeNull();
+    expect(revokeResult.success).toBe(true);
+    expect(revokeResult.error).toBeUndefined();
 
     // Step 7: Verify revoked invite cannot be validated
     const mockRevokedInvite = {
@@ -407,21 +390,17 @@ describe('Organization Invite Flow Integration Test', () => {
         },
         error: null,
       }),
-    };
-    mockSupabase.from.mockReturnValueOnce({
-      select: vi.fn().mockReturnValue(memberCheckQueryBuilder),
-    });
-
-    // Get organization details
-    const orgQueryBuilder = {
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({
-        data: { id: ORG_ID, slug: 'test-org', name: 'Test Organization' },
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: {
+          user_id: EXISTING_USER_ID,
+          organization_id: ORG_ID,
+          role: 'member',
+        },
         error: null,
       }),
     };
     mockSupabase.from.mockReturnValueOnce({
-      select: vi.fn().mockReturnValue(orgQueryBuilder),
+      select: vi.fn().mockReturnValue(memberCheckQueryBuilder),
     });
 
     const redeemResult = await redeemInvite(mockSupabase, {
@@ -432,6 +411,6 @@ describe('Organization Invite Flow Integration Test', () => {
 
     expect(redeemResult.success).toBe(true);
     expect(redeemResult.alreadyMember).toBe(true);
-    expect(redeemResult.organization?.name).toBe('Test Organization');
+    expect(redeemResult.organizationName).toBe('Test Organization');
   });
 });

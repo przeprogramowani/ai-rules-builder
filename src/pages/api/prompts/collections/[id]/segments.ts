@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ locals, params }) => {
   }
 
   // Fetch segments
-  const result = await getSegments(collectionId);
+  const result = await getSegments(locals.supabase, collectionId);
 
   if (result.error) {
     return new Response(JSON.stringify({ error: result.error.message }), {

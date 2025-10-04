@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const result = await createPrompt(organizationId, {
+    const result = await createPrompt(locals.supabase, organizationId, {
       ...body,
       created_by: userId,
     });
@@ -93,7 +93,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
       filters.search = search;
     }
 
-    const result = await listPrompts(organizationId, filters);
+    const result = await listPrompts(locals.supabase, organizationId, filters);
 
     if (result.error) {
       return new Response(

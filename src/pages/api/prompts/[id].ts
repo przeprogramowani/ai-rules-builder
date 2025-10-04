@@ -63,7 +63,7 @@ export const GET: APIRoute = async ({ locals, params, url }) => {
   }
 
   // Fetch published prompt
-  const result = await getPublishedPrompt(promptId, organizationId);
+  const result = await getPublishedPrompt(locals.supabase, promptId, organizationId);
 
   if (result.error) {
     const status = result.error.code === 'NOT_FOUND' ? 404 : 500;

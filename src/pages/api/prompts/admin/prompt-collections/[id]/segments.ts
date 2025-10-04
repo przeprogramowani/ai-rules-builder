@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    const result = await getSegments(collectionId);
+    const result = await getSegments(locals.supabase, collectionId);
 
     if (result.error) {
       return new Response(
@@ -92,7 +92,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       );
     }
 
-    const result = await createSegment(collectionId, { title, slug });
+    const result = await createSegment(locals.supabase, collectionId, { title, slug });
 
     if (result.error) {
       return new Response(

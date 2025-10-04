@@ -24,7 +24,7 @@ export const PATCH: APIRoute = async ({ params, locals }) => {
     const organizationId = locals.promptManager.activeOrganization.id;
 
     // Get current status
-    const currentPrompt = await getPrompt(promptId, organizationId);
+    const currentPrompt = await getPrompt(locals.supabase, promptId, organizationId);
     if (currentPrompt.error) {
       return new Response(
         JSON.stringify({ error: currentPrompt.error.message, code: currentPrompt.error.code }),
@@ -38,8 +38,8 @@ export const PATCH: APIRoute = async ({ params, locals }) => {
     // Toggle status
     const result =
       currentPrompt.data.status === 'published'
-        ? await unpublishPrompt(promptId, organizationId)
-        : await publishPrompt(promptId, organizationId);
+        ? await unpublishPrompt(locals.supabase, promptId, organizationId)
+        : await publishPrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {
       return new Response(
