@@ -20,8 +20,8 @@ export const LanguageSwitcher: React.FC = () => {
     return (
       <div className="flex items-center gap-2 animate-pulse">
         <div className="h-4 w-16 bg-gray-700 rounded" />
-        <div className="h-[34px] w-12 bg-gray-700 rounded-md" />
-        <div className="h-[34px] w-12 bg-gray-700 rounded-md" />
+        <div className="h-[38px] w-12 bg-gray-700 rounded-md" />
+        <div className="h-[38px] w-12 bg-gray-700 rounded-md" />
       </div>
     );
   }

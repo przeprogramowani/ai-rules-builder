@@ -32,7 +32,7 @@ export default function LoginButton() {
     return (
       <div className="flex items-center space-x-2 px-3 py-2 animate-pulse">
         <div className="size-4 bg-gray-700 rounded" />
-        <div className="hidden md:block h-4 w-12 bg-gray-700 rounded" />
+        <div className="hidden md:block h-5 w-12 bg-gray-700 rounded" />
       </div>
     );
   }

@@ -76,7 +76,7 @@ export default function Topbar({ title = '10xRules.ai', initialUser }: TopbarPro
               ) : !hasHydrated || isLoading ? (
                 <div className="flex items-center gap-2 px-3 py-2 animate-pulse">
                   <div className="size-4 bg-gray-700 rounded" />
-                  <div className="hidden md:block h-4 w-24 bg-gray-700 rounded" />
+                  <div className="hidden md:block h-5 w-24 bg-gray-700 rounded" />
                   <div className="size-3 bg-gray-700 rounded" />
                 </div>
               ) : null}

@@ -28,7 +28,7 @@ export const OrganizationSelector: React.FC = () => {
     return (
       <div className="animate-pulse">
         <div className="h-5 w-24 bg-gray-700 rounded mb-2" />
-        <div className="h-[42px] w-[180px] bg-gray-700 rounded" />
+        <div className="h-[38px] w-[180px] bg-gray-700 rounded" />
       </div>
     );
   }
