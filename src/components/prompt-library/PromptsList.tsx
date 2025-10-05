@@ -4,7 +4,7 @@ import { PromptCard } from './PromptCard';
 import { hasPolishVersion } from '../../services/prompt-library/language';
 
 export const PromptsList: React.FC = () => {
-  const { prompts, isLoading, error, preferredLanguage } = usePromptsStore();
+  const { prompts, isLoading, error, preferredLanguage, collections, segments } = usePromptsStore();
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,36 @@ export const PromptsList: React.FC = () => {
     return hasPolishVersion(prompt); // For Polish, check if translation exists
   });
 
-  if (filteredPrompts.length === 0) {
+  // Sort prompts hierarchically: collection sort_order -> segment sort_order -> prompt id
+  const sortedPrompts = [...filteredPrompts].sort((a, b) => {
+    // Find collections for both prompts
+    const collectionA = collections.find((c) => c.id === a.collection_id);
+    const collectionB = collections.find((c) => c.id === b.collection_id);
+
+    const collectionOrderA = collectionA?.sort_order ?? 0;
+    const collectionOrderB = collectionB?.sort_order ?? 0;
+
+    // First, sort by collection order
+    if (collectionOrderA !== collectionOrderB) {
+      return collectionOrderA - collectionOrderB;
+    }
+
+    // If same collection, sort by segment order
+    const segmentA = segments.find((s) => s.id === a.segment_id);
+    const segmentB = segments.find((s) => s.id === b.segment_id);
+
+    const segmentOrderA = segmentA?.sort_order ?? 0;
+    const segmentOrderB = segmentB?.sort_order ?? 0;
+
+    if (segmentOrderA !== segmentOrderB) {
+      return segmentOrderA - segmentOrderB;
+    }
+
+    // If same segment, sort by prompt sort_order
+    return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+  });
+
+  if (sortedPrompts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <div className="text-gray-400 text-lg mb-2">No prompts found</div>
@@ -71,7 +100,7 @@ export const PromptsList: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {filteredPrompts.map((prompt) => (
+      {sortedPrompts.map((prompt) => (
         <PromptCard key={prompt.id} prompt={prompt} />
       ))}
     </div>

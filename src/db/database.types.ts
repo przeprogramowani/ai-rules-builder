@@ -287,6 +287,7 @@ export type Database = {
           markdown_body_pl: string | null;
           organization_id: string;
           segment_id: string | null;
+          sort_order: number;
           status: string;
           title_en: string;
           title_pl: string | null;
@@ -303,6 +304,7 @@ export type Database = {
           markdown_body_pl?: string | null;
           organization_id: string;
           segment_id?: string | null;
+          sort_order?: number;
           status?: string;
           title_en: string;
           title_pl?: string | null;
@@ -319,6 +321,7 @@ export type Database = {
           markdown_body_pl?: string | null;
           organization_id?: string;
           segment_id?: string | null;
+          sort_order?: number;
           status?: string;
           title_en?: string;
           title_pl?: string | null;
