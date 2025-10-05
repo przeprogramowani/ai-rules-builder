@@ -13,6 +13,14 @@ export const GET: APIRoute = async ({ locals }) => {
       });
     }
 
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const organizationId = locals.promptLibrary.activeOrganization.id;
     const result = await getCollections(locals.supabase, organizationId);
 
@@ -47,6 +55,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }

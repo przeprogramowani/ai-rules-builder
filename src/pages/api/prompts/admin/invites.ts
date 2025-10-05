@@ -4,6 +4,7 @@ import {
   listOrganizationInvites,
 } from '@/services/prompt-library/invites';
 import type { CreateInviteParams } from '@/types/invites';
+import { createAuditContext, logInviteOperation } from '@/utils/auditLog';
 
 /**
  * POST /api/prompts/admin/invites
@@ -70,6 +71,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     };
 
     const result = await createOrganizationInvite(supabase, params);
+    const auditContext = createAuditContext(request, locals);
 
     if (result.error || !result.data) {
       console.error('[invites] CREATE endpoint failed:', {
@@ -78,6 +80,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
         userId,
         params,
       });
+
+      // Log failed operation
+      logInviteOperation(
+        'create',
+        auditContext,
+        organizationId,
+        'unknown',
+        'failure',
+        result.error ?? 'Failed to create invite',
+      );
+
       return new Response(
         JSON.stringify({ error: result.error ?? 'Failed to create invite', code: 'CREATE_FAILED' }),
         {
@@ -86,6 +99,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
         },
       );
     }
+
+    // Log successful operation
+    logInviteOperation('create', auditContext, organizationId, result.data.id, 'success');
 
     // Generate full invite URL
     const baseUrl = new URL(request.url).origin;

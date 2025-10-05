@@ -1,12 +1,21 @@
 import type { APIRoute } from 'astro';
 import { updatePrompt, deletePrompt, getPrompt } from '@/services/prompt-library/promptService';
 import type { UpdatePromptInput } from '@/services/prompt-library/types';
+import { createAuditContext, logPromptOperation } from '@/utils/auditLog';
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
     if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -56,6 +65,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -111,6 +128,14 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
       });
     }
 
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const promptId = params.id;
     if (!promptId) {
       return new Response(
@@ -123,9 +148,20 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     const organizationId = locals.promptLibrary.activeOrganization.id;
+    const auditContext = createAuditContext(request, locals);
     const result = await deletePrompt(locals.supabase, promptId, organizationId);
 
     if (result.error) {
+      // Log failed operation
+      logPromptOperation(
+        'delete',
+        auditContext,
+        organizationId,
+        promptId,
+        'failure',
+        result.error.message,
+      );
+
       return new Response(
         JSON.stringify({ error: result.error.message, code: result.error.code }),
         {
@@ -134,6 +170,9 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         },
       );
     }
+
+    // Log successful operation
+    logPromptOperation('delete', auditContext, organizationId, promptId, 'success');
 
     return new Response(null, {
       status: 204,

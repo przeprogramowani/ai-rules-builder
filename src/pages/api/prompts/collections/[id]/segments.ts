@@ -37,10 +37,26 @@ export const GET: APIRoute = async ({ locals, params }) => {
   }
 
   const collectionId = params.id;
+  const organizationId = locals.promptLibrary.activeOrganization.id;
 
   if (!collectionId) {
     return new Response(JSON.stringify({ error: 'Collection ID is required' }), {
       status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Verify collection belongs to user's organization (fail-fast security check)
+  const { data: collection, error: collectionError } = await locals.supabase
+    .from('prompt_collections')
+    .select('id')
+    .eq('id', collectionId)
+    .eq('organization_id', organizationId)
+    .maybeSingle();
+
+  if (collectionError || !collection) {
+    return new Response(JSON.stringify({ error: 'Collection not found or access denied' }), {
+      status: 403,
       headers: { 'Content-Type': 'application/json' },
     });
   }

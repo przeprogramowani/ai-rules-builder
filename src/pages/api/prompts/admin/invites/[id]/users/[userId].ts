@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { removeUserFromOrganization } from '@/services/prompt-library/invites';
+import { createAuditContext, logMemberOperation } from '@/utils/auditLog';
 
 /**
  * DELETE /api/prompts/admin/invites/[id]/users/[userId]
@@ -52,9 +53,20 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     // Remove the user from the organization
+    const auditContext = createAuditContext(request, locals);
     const result = await removeUserFromOrganization(supabase, invite.organization_id, userId);
 
     if (!result.success) {
+      // Log failed operation
+      logMemberOperation(
+        'remove',
+        auditContext,
+        invite.organization_id,
+        userId,
+        'failure',
+        result.error,
+      );
+
       return new Response(
         JSON.stringify({ error: result.error || 'Failed to remove user', code: 'INTERNAL_ERROR' }),
         {
@@ -63,6 +75,9 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         },
       );
     }
+
+    // Log successful operation
+    logMemberOperation('remove', auditContext, invite.organization_id, userId, 'success');
 
     return new Response(JSON.stringify({ data: { success: true }, error: null }), {
       status: 200,

@@ -260,128 +260,129 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
             e.preventDefault();
             handleSave();
           }}
-          className="space-y-4"
         >
-          <FormInput
-            label="Title (English)"
-            id="title_en"
-            value={titleEn}
-            onChange={(e) => {
-              setTitleEn(e.target.value);
-              if (hasAttemptedSave && validationErrors.titleEn) {
-                setValidationErrors((prev) => ({ ...prev, titleEn: undefined }));
-              }
-            }}
-            error={hasAttemptedSave ? validationErrors.titleEn : undefined}
-            placeholder="Enter prompt title in English"
-          />
-          <FormInput
-            label="Title (Polish)"
-            id="title_pl"
-            value={titlePl}
-            onChange={(e) => setTitlePl(e.target.value)}
-            placeholder="Enter prompt title in Polish"
-          />
-
-          <FormTextarea
-            label="Description (English)"
-            id="description_en"
-            value={descriptionEn}
-            onChange={(e) => setDescriptionEn(e.target.value)}
-            placeholder="Brief description of the prompt in English"
-            rows={3}
-          />
-
-          <FormTextarea
-            label="Description (Polish)"
-            id="description_pl"
-            value={descriptionPl}
-            onChange={(e) => setDescriptionPl(e.target.value)}
-            placeholder="Brief description of the prompt in Polish"
-            rows={3}
-          />
-
-          <div className="space-y-1">
-            <Dropdown
-              label="Collection"
-              options={collectionOptions}
-              value={collectionId}
-              onChange={handleCollectionChange}
-              placeholder="Select collection"
-              renderOption={renderCollectionOption}
-            />
-            {hasAttemptedSave && validationErrors.collectionId && (
-              <p className="text-sm text-red-500 mt-1">{validationErrors.collectionId}</p>
-            )}
-          </div>
-
-          {isCreatingCollection && (
-            <InlineEntityForm
-              type="collection"
-              onSave={handleCreateCollection}
-              onCancel={() => {
-                setIsCreatingCollection(false);
-                setCollectionId('');
+          <div className="space-y-4 px-1">
+            <FormInput
+              label="Title (English)"
+              id="title_en"
+              value={titleEn}
+              onChange={(e) => {
+                setTitleEn(e.target.value);
+                if (hasAttemptedSave && validationErrors.titleEn) {
+                  setValidationErrors((prev) => ({ ...prev, titleEn: undefined }));
+                }
               }}
+              error={hasAttemptedSave ? validationErrors.titleEn : undefined}
+              placeholder="Enter prompt title in English"
             />
-          )}
-
-          <div className="space-y-1">
-            <Dropdown
-              label="Segment"
-              options={segmentOptions}
-              value={segmentId}
-              onChange={handleSegmentChange}
-              placeholder={collectionId ? 'Select segment' : 'Select collection first'}
-              disabled={isSegmentDisabled}
-              renderOption={renderSegmentOption}
+            <FormInput
+              label="Title (Polish)"
+              id="title_pl"
+              value={titlePl}
+              onChange={(e) => setTitlePl(e.target.value)}
+              placeholder="Enter prompt title in Polish"
             />
-            {hasAttemptedSave && validationErrors.segmentId && (
-              <p className="text-sm text-red-500 mt-1">{validationErrors.segmentId}</p>
-            )}
-          </div>
 
-          {isCreatingSegment && collectionId && (
-            <InlineEntityForm
-              type="segment"
-              collectionId={collectionId}
-              onSave={handleCreateSegment}
-              onCancel={() => {
-                setIsCreatingSegment(false);
-                setSegmentId('');
-              }}
+            <FormTextarea
+              label="Description (English)"
+              id="description_en"
+              value={descriptionEn}
+              onChange={(e) => setDescriptionEn(e.target.value)}
+              placeholder="Brief description of the prompt in English"
+              rows={3}
             />
-          )}
 
-          <FormTextarea
-            label="Content (Markdown, English)"
-            id="markdown_body_en"
-            value={markdownBodyEn}
-            onChange={(e) => {
-              setMarkdownBodyEn(e.target.value);
-              if (hasAttemptedSave && validationErrors.markdownBodyEn) {
-                setValidationErrors((prev) => ({ ...prev, markdownBodyEn: undefined }));
-              }
-            }}
-            error={hasAttemptedSave ? validationErrors.markdownBodyEn : undefined}
-            placeholder="Enter prompt content in English markdown format..."
-            rows={10}
-          />
+            <FormTextarea
+              label="Description (Polish)"
+              id="description_pl"
+              value={descriptionPl}
+              onChange={(e) => setDescriptionPl(e.target.value)}
+              placeholder="Brief description of the prompt in Polish"
+              rows={3}
+            />
 
-          <FormTextarea
-            label="Content (Markdown, Polish)"
-            id="markdown_body_pl"
-            value={markdownBodyPl}
-            onChange={(e) => setMarkdownBodyPl(e.target.value)}
-            placeholder="Enter prompt content in Polish markdown format..."
-            rows={10}
-          />
-
-          {error && (
-            <div className="text-red-400 text-sm bg-red-900/20 border border-red-900/50 rounded-md p-3">
-              {error}
+            <div className="space-y-1">
+              <Dropdown
+                label="Collection"
+                options={collectionOptions}
+                value={collectionId}
+                onChange={handleCollectionChange}
+                placeholder="Select collection"
+                renderOption={renderCollectionOption}
+              />
+              {hasAttemptedSave && validationErrors.collectionId && (
+                <p className="text-sm text-red-500 mt-1">{validationErrors.collectionId}</p>
+              )}
             </div>
-          )}
+
+            {isCreatingCollection && (
+              <InlineEntityForm
+                type="collection"
+                onSave={handleCreateCollection}
+                onCancel={() => {
+                  setIsCreatingCollection(false);
+                  setCollectionId('');
+                }}
+              />
+            )}
+
+            <div className="space-y-1">
+              <Dropdown
+                label="Segment"
+                options={segmentOptions}
+                value={segmentId}
+                onChange={handleSegmentChange}
+                placeholder={collectionId ? 'Select segment' : 'Select collection first'}
+                disabled={isSegmentDisabled}
+                renderOption={renderSegmentOption}
+              />
+              {hasAttemptedSave && validationErrors.segmentId && (
+                <p className="text-sm text-red-500 mt-1">{validationErrors.segmentId}</p>
+              )}
+            </div>
+
+            {isCreatingSegment && collectionId && (
+              <InlineEntityForm
+                type="segment"
+                collectionId={collectionId}
+                onSave={handleCreateSegment}
+                onCancel={() => {
+                  setIsCreatingSegment(false);
+                  setSegmentId('');
+                }}
+              />
+            )}
+
+            <FormTextarea
+              label="Content (Markdown, English)"
+              id="markdown_body_en"
+              value={markdownBodyEn}
+              onChange={(e) => {
+                setMarkdownBodyEn(e.target.value);
+                if (hasAttemptedSave && validationErrors.markdownBodyEn) {
+                  setValidationErrors((prev) => ({ ...prev, markdownBodyEn: undefined }));
+                }
+              }}
+              error={hasAttemptedSave ? validationErrors.markdownBodyEn : undefined}
+              placeholder="Enter prompt content in English markdown format..."
+              rows={10}
+            />
+
+            <FormTextarea
+              label="Content (Markdown, Polish)"
+              id="markdown_body_pl"
+              value={markdownBodyPl}
+              onChange={(e) => setMarkdownBodyPl(e.target.value)}
+              placeholder="Enter prompt content in Polish markdown format..."
+              rows={10}
+            />
+
+            {error && (
+              <div className="text-red-400 text-sm bg-red-900/20 border border-red-900/50 rounded-md p-3">
+                {error}
+              </div>
+            )}
+          </div>
         </form>
       </ConfirmDialogContent>
       <ConfirmDialogActions>

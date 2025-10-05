@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createPrompt, listPrompts } from '@/services/prompt-library/promptService';
 import type { CreatePromptInput, PromptFilters } from '@/services/prompt-library/types';
+import { createAuditContext, logPromptOperation } from '@/utils/auditLog';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
@@ -8,6 +9,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -36,7 +45,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
       created_by: userId,
     });
 
+    const auditContext = createAuditContext(request, locals);
+
     if (result.error) {
+      // Log failed operation
+      logPromptOperation(
+        'create',
+        auditContext,
+        organizationId,
+        'unknown',
+        'failure',
+        result.error.message,
+      );
+
       return new Response(
         JSON.stringify({ error: result.error.message, code: result.error.code }),
         {
@@ -45,6 +66,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
         },
       );
     }
+
+    // Log successful operation
+    logPromptOperation('create', auditContext, organizationId, result.data!.id, 'success');
 
     return new Response(JSON.stringify({ data: result.data, error: null }), {
       status: 201,
@@ -67,6 +91,14 @@ export const GET: APIRoute = async ({ url, locals }) => {
     if (!locals.user || !locals.promptLibrary?.activeOrganization) {
       return new Response(JSON.stringify({ error: 'Unauthorized', code: 'UNAUTHORIZED' }), {
         status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify admin role (defense-in-depth)
+    if (locals.promptLibrary.activeOrganization.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
+        status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
