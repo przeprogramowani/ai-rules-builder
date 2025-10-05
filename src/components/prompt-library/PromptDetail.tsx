@@ -167,7 +167,7 @@ export const PromptDetail: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
           <MarkdownRenderer
             content={markdownBody}
             className="mt-0"

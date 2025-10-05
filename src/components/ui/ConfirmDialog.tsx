@@ -78,7 +78,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ isOpen, onClose, c
     >
       <div
         ref={dialogRef}
-        className="bg-gray-900 rounded-lg shadow-lg w-[calc(100vw-2rem)] max-w-7xl mx-4 p-4 focus:outline-none animate-fade-in"
+        className="bg-gray-900 rounded-lg shadow-lg w-[calc(100vw-2rem)] max-w-7xl max-h-[90vh] mx-4 p-4 focus:outline-none animate-fade-in flex flex-col"
         tabIndex={-1}
       >
         <ConfirmDialogContext.Provider value={{ isOpen, onClose }}>
@@ -115,7 +115,7 @@ interface ConfirmDialogContentProps {
 }
 
 export const ConfirmDialogContent: React.FC<ConfirmDialogContentProps> = ({ children }) => {
-  return <div className="text-gray-300 mb-6">{children}</div>;
+  return <div className="text-gray-300 mb-6 overflow-y-auto flex-1 min-h-0">{children}</div>;
 };
 
 interface ConfirmDialogActionsProps {
