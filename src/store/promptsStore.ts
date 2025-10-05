@@ -240,8 +240,10 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
         collections,
       });
 
-      // Fetch segments for all collections so they're available for display (skip loading toggle)
-      await Promise.all(collections.map((collection) => get().fetchSegments(collection.id, true)));
+      // Fetch segments for all collections sequentially to avoid race condition
+      for (const collection of collections) {
+        await get().fetchSegments(collection.id, true);
+      }
 
       // Fetch prompts for the organization (skip loading toggle and skip if in deep-link mode)
       if (!skipPromptFetch) {
