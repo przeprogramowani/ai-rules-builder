@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { X, Share2, Check } from 'lucide-react';
 import { usePromptsStore } from '../../store/promptsStore';
 import { MarkdownRenderer } from '../ui/MarkdownRenderer';
@@ -17,6 +17,7 @@ export const PromptDetail: React.FC = () => {
   } = usePromptsStore();
   const [language, setLanguage] = useState<'en' | 'pl'>(preferredLanguage);
   const [linkCopied, setLinkCopied] = useState(false);
+  const urlPushedRef = useRef(false);
 
   const selectedPrompt = prompts.find((p) => p.id === selectedPromptId);
 
@@ -47,6 +48,50 @@ export const PromptDetail: React.FC = () => {
     };
   }, [selectedPromptId, preferredLanguage]);
 
+  // Handle browser back/forward navigation (always active)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state?.promptId) {
+        // User navigated forward to a prompt - open it
+        selectPrompt(event.state.promptId);
+        urlPushedRef.current = true;
+      } else {
+        // User navigated back away from prompt - close modal
+        selectPrompt(null);
+        urlPushedRef.current = false;
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [selectPrompt]);
+
+  // Synchronize URL when modal opens
+  useEffect(() => {
+    if (!selectedPrompt || !activeOrganization) return;
+
+    const collection = collections.find((c) => c.id === selectedPrompt.collection_id);
+    const segment = segments.find((s) => s.id === selectedPrompt.segment_id);
+
+    // Build the prompt URL
+    const url = buildPromptUrl({
+      org: activeOrganization.slug,
+      collection: collection?.slug,
+      segment: segment?.slug,
+      prompt: selectedPrompt.id,
+    });
+
+    // Only push state if we're not coming from a popstate event
+    if (!urlPushedRef.current) {
+      window.history.pushState({ promptId: selectedPrompt.id }, '', url);
+      urlPushedRef.current = true;
+      console.log('[PromptDetail] URL updated:', url);
+    }
+  }, [selectedPrompt, activeOrganization, collections, segments]);
+
   if (!selectedPrompt) {
     return null;
   }
@@ -55,6 +100,11 @@ export const PromptDetail: React.FC = () => {
   const segment = segments.find((s) => s.id === selectedPrompt.segment_id);
 
   const handleClose = () => {
+    // If we pushed a URL state, go back in history to restore previous URL
+    if (urlPushedRef.current) {
+      window.history.back();
+      urlPushedRef.current = false;
+    }
     selectPrompt(null);
   };
 
