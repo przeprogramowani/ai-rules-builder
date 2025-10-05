@@ -24,6 +24,8 @@ export async function createPrompt(
         segment_id: data.segment_id ?? null,
         title_en: data.title_en,
         title_pl: data.title_pl ?? null,
+        description_en: data.description_en ?? null,
+        description_pl: data.description_pl ?? null,
         markdown_body_en: data.markdown_body_en,
         markdown_body_pl: data.markdown_body_pl ?? null,
         status: 'draft',
@@ -64,6 +66,8 @@ export async function updatePrompt(
 
     if (data.title_en !== undefined) updateData.title_en = data.title_en;
     if (data.title_pl !== undefined) updateData.title_pl = data.title_pl;
+    if (data.description_en !== undefined) updateData.description_en = data.description_en;
+    if (data.description_pl !== undefined) updateData.description_pl = data.description_pl;
     if (data.markdown_body_en !== undefined) updateData.markdown_body_en = data.markdown_body_en;
     if (data.markdown_body_pl !== undefined) updateData.markdown_body_pl = data.markdown_body_pl;
     if (data.collection_id !== undefined) updateData.collection_id = data.collection_id;
@@ -285,7 +289,7 @@ export async function listPrompts(
 
     if (filters?.search) {
       query = query.or(
-        `title_en.ilike.%${filters.search}%,title_pl.ilike.%${filters.search}%,markdown_body_en.ilike.%${filters.search}%,markdown_body_pl.ilike.%${filters.search}%`,
+        `title_en.ilike.%${filters.search}%,title_pl.ilike.%${filters.search}%,description_en.ilike.%${filters.search}%,description_pl.ilike.%${filters.search}%,markdown_body_en.ilike.%${filters.search}%,markdown_body_pl.ilike.%${filters.search}%`,
       );
     }
 

@@ -58,6 +58,88 @@ export type Database = {
         };
         Relationships: [];
       };
+      organization_invite_redemptions: {
+        Row: {
+          id: string;
+          invite_id: string;
+          redeemed_at: string;
+          user_id: string;
+          was_new_user: boolean;
+        };
+        Insert: {
+          id?: string;
+          invite_id: string;
+          redeemed_at?: string;
+          user_id: string;
+          was_new_user?: boolean;
+        };
+        Update: {
+          id?: string;
+          invite_id?: string;
+          redeemed_at?: string;
+          user_id?: string;
+          was_new_user?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'organization_invite_redemptions_invite_id_fkey';
+            columns: ['invite_id'];
+            isOneToOne: false;
+            referencedRelation: 'organization_invites';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organization_invites: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          current_uses: number;
+          expires_at: string;
+          id: string;
+          is_active: boolean;
+          max_uses: number | null;
+          metadata: Json | null;
+          organization_id: string;
+          role: string;
+          token: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          current_uses?: number;
+          expires_at: string;
+          id?: string;
+          is_active?: boolean;
+          max_uses?: number | null;
+          metadata?: Json | null;
+          organization_id: string;
+          role?: string;
+          token: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          current_uses?: number;
+          expires_at?: string;
+          id?: string;
+          is_active?: boolean;
+          max_uses?: number | null;
+          metadata?: Json | null;
+          organization_id?: string;
+          role?: string;
+          token?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'organization_invites_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       organization_members: {
         Row: {
           created_at: string;
@@ -198,6 +280,8 @@ export type Database = {
           collection_id: string;
           created_at: string;
           created_by: string | null;
+          description_en: string | null;
+          description_pl: string | null;
           id: string;
           markdown_body_en: string;
           markdown_body_pl: string | null;
@@ -212,6 +296,8 @@ export type Database = {
           collection_id: string;
           created_at?: string;
           created_by?: string | null;
+          description_en?: string | null;
+          description_pl?: string | null;
           id?: string;
           markdown_body_en: string;
           markdown_body_pl?: string | null;
@@ -226,6 +312,8 @@ export type Database = {
           collection_id?: string;
           created_at?: string;
           created_by?: string | null;
+          description_en?: string | null;
+          description_pl?: string | null;
           id?: string;
           markdown_body_en?: string;
           markdown_body_pl?: string | null;
@@ -289,7 +377,21 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      get_user_emails: {
+        Args: { user_ids: string[] };
+        Returns: {
+          email: string;
+          id: string;
+        }[];
+      };
+      increment_invite_usage: {
+        Args: { invite_id: string };
+        Returns: undefined;
+      };
+      is_org_admin: {
+        Args: { org_id: string; user_id: string };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;

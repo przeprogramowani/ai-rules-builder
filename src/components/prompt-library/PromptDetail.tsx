@@ -93,6 +93,10 @@ export const PromptDetail: React.FC = () => {
     language === 'pl' && selectedPrompt.title_pl
       ? selectedPrompt.title_pl
       : selectedPrompt.title_en;
+  const description =
+    language === 'pl' && selectedPrompt.description_pl
+      ? selectedPrompt.description_pl
+      : selectedPrompt.description_en;
   const markdownBody =
     language === 'pl' && selectedPrompt.markdown_body_pl
       ? selectedPrompt.markdown_body_pl
@@ -148,6 +152,9 @@ export const PromptDetail: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Description */}
+            {description && <p className="text-sm text-gray-400 mt-2 italic">{description}</p>}
           </div>
 
           <button

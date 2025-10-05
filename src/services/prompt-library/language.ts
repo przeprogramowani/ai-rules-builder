@@ -19,6 +19,16 @@ export const getLocalizedBody = (prompt: Prompt, lang: Language): string => {
 };
 
 /**
+ * Get the localized description for a prompt, with fallback to English
+ */
+export const getLocalizedDescription = (prompt: Prompt, lang: Language): string => {
+  if (lang === 'pl' && prompt.description_pl) {
+    return prompt.description_pl;
+  }
+  return prompt.description_en || '';
+};
+
+/**
  * Check if a prompt has a complete Polish translation (both title and body)
  */
 export const hasPolishVersion = (prompt: Prompt): boolean => {

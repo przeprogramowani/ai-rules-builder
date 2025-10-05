@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getLocalizedTitle,
   getLocalizedBody,
+  getLocalizedDescription,
   hasPolishVersion,
   loadLanguagePreference,
   saveLanguagePreference,
-  type Language,
 } from '@/services/prompt-library/language';
 import type { Prompt } from '@/store/promptsStore';
 
@@ -143,6 +143,63 @@ describe('language utilities', () => {
       const result = getLocalizedBody(prompt as Prompt, 'en');
 
       expect(result).toBe('# English Content');
+    });
+  });
+
+  describe('getLocalizedDescription', () => {
+    it('returns English description when language is "en"', () => {
+      const prompt: Partial<Prompt> = {
+        description_en: 'English description',
+        description_pl: 'Polish description',
+      } as Prompt;
+
+      const result = getLocalizedDescription(prompt as Prompt, 'en');
+
+      expect(result).toBe('English description');
+    });
+
+    it('returns Polish description when language is "pl" and available', () => {
+      const prompt: Partial<Prompt> = {
+        description_en: 'English description',
+        description_pl: 'Polish description',
+      } as Prompt;
+
+      const result = getLocalizedDescription(prompt as Prompt, 'pl');
+
+      expect(result).toBe('Polish description');
+    });
+
+    it('falls back to English when Polish description is not available', () => {
+      const prompt: Partial<Prompt> = {
+        description_en: 'English description',
+        description_pl: null,
+      } as Prompt;
+
+      const result = getLocalizedDescription(prompt as Prompt, 'pl');
+
+      expect(result).toBe('English description');
+    });
+
+    it('returns empty string when no descriptions are available', () => {
+      const prompt: Partial<Prompt> = {
+        description_en: null,
+        description_pl: null,
+      } as Prompt;
+
+      const result = getLocalizedDescription(prompt as Prompt, 'en');
+
+      expect(result).toBe('');
+    });
+
+    it('falls back to English when Polish description is empty string', () => {
+      const prompt: Partial<Prompt> = {
+        description_en: 'English description',
+        description_pl: '',
+      } as Prompt;
+
+      const result = getLocalizedDescription(prompt as Prompt, 'pl');
+
+      expect(result).toBe('English description');
     });
   });
 

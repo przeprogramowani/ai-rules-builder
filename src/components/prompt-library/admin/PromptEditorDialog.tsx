@@ -35,6 +35,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
   const [markdownBodyEn, setMarkdownBodyEn] = useState('');
   const [titlePl, setTitlePl] = useState('');
   const [markdownBodyPl, setMarkdownBodyPl] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
+  const [descriptionPl, setDescriptionPl] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [segmentId, setSegmentId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -58,6 +60,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
       setMarkdownBodyEn(initialData.markdown_body_en);
       setTitlePl(initialData.title_pl || '');
       setMarkdownBodyPl(initialData.markdown_body_pl || '');
+      setDescriptionEn(initialData.description_en || '');
+      setDescriptionPl(initialData.description_pl || '');
       setCollectionId(initialData.collection_id);
       setSegmentId(initialData.segment_id || '');
 
@@ -70,6 +74,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
       setMarkdownBodyEn('');
       setTitlePl('');
       setMarkdownBodyPl('');
+      setDescriptionEn('');
+      setDescriptionPl('');
       setCollectionId('');
       setSegmentId('');
     }
@@ -119,6 +125,8 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
         markdown_body_en: markdownBodyEn.trim(),
         title_pl: titlePl.trim(),
         markdown_body_pl: markdownBodyPl.trim(),
+        description_en: descriptionEn.trim(),
+        description_pl: descriptionPl.trim(),
         collection_id: collectionId,
         segment_id: segmentId,
       };
@@ -273,6 +281,24 @@ export const PromptEditorDialog: React.FC<PromptEditorDialogProps> = ({
             value={titlePl}
             onChange={(e) => setTitlePl(e.target.value)}
             placeholder="Enter prompt title in Polish"
+          />
+
+          <FormTextarea
+            label="Description (English)"
+            id="description_en"
+            value={descriptionEn}
+            onChange={(e) => setDescriptionEn(e.target.value)}
+            placeholder="Brief description of the prompt in English"
+            rows={3}
+          />
+
+          <FormTextarea
+            label="Description (Polish)"
+            id="description_pl"
+            value={descriptionPl}
+            onChange={(e) => setDescriptionPl(e.target.value)}
+            placeholder="Brief description of the prompt in Polish"
+            rows={3}
           />
 
           <div className="space-y-1">

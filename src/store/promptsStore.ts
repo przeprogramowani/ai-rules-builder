@@ -19,6 +19,8 @@ export type PromptSegment = Tables<'prompt_collection_segments'>;
 export interface CreatePromptInput {
   title_en: string;
   title_pl?: string | null;
+  description_en?: string | null;
+  description_pl?: string | null;
   collection_id: string;
   segment_id: string;
   markdown_body_en: string;
@@ -28,6 +30,8 @@ export interface CreatePromptInput {
 export interface UpdatePromptInput {
   title_en?: string;
   title_pl?: string | null;
+  description_en?: string | null;
+  description_pl?: string | null;
   collection_id?: string;
   segment_id?: string;
   markdown_body_en?: string;

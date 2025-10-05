@@ -54,11 +54,11 @@ export const AdminPromptCard: React.FC<AdminPromptCardProps> = ({
     onEdit(prompt);
   };
 
-  // Get preview of markdown content (first 150 chars)
-  // Use English version for admin view by default
+  // Get preview - use description if available, otherwise markdown body
   const title = prompt.title_en;
+  const description = prompt.description_en;
   const body = prompt.markdown_body_en;
-  const preview = body.slice(0, 150) + (body.length > 150 ? '...' : '');
+  const preview = description || body.slice(0, 150) + (body.length > 150 ? '...' : '');
 
   const isPublished = prompt.status === 'published';
 

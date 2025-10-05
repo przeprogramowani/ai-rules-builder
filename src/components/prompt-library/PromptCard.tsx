@@ -1,7 +1,11 @@
 import React from 'react';
 import type { Prompt } from '../../store/promptsStore';
 import { usePromptsStore } from '../../store/promptsStore';
-import { getLocalizedTitle, getLocalizedBody } from '../../services/prompt-library/language';
+import {
+  getLocalizedTitle,
+  getLocalizedBody,
+  getLocalizedDescription,
+} from '../../services/prompt-library/language';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -24,11 +28,11 @@ export const PromptCard: React.FC<PromptCardProps> = ({ prompt }) => {
     }
   };
 
-  // Truncate markdown body for preview (first 150 characters)
   // Use user's preferred language with fallback to English
   const title = getLocalizedTitle(prompt, preferredLanguage);
+  const description = getLocalizedDescription(prompt, preferredLanguage);
   const body = getLocalizedBody(prompt, preferredLanguage);
-  const preview = body.substring(0, 150) + (body.length > 150 ? '...' : '');
+  const preview = description || body.substring(0, 150) + (body.length > 150 ? '...' : '');
 
   return (
     <div

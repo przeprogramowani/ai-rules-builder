@@ -128,6 +128,42 @@ describe('promptService', () => {
         code: 'INTERNAL_ERROR',
       });
     });
+
+    it('creates prompt with both EN and PL descriptions', async () => {
+      const mockPrompt: Prompt = {
+        id: 'prompt-3',
+        organization_id: 'org-1',
+        collection_id: 'collection-1',
+        segment_id: null,
+        title_en: 'Test Prompt',
+        title_pl: 'Test Prompt PL',
+        description_en: 'English description',
+        description_pl: 'Polish description',
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: '# Testowa Zawartość',
+        status: 'draft',
+        created_by: null,
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+      };
+
+      mockInsert(mockSupabase, mockPrompt);
+
+      const input: CreatePromptInput = {
+        title_en: 'Test Prompt',
+        title_pl: 'Test Prompt PL',
+        description_en: 'English description',
+        description_pl: 'Polish description',
+        collection_id: 'collection-1',
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: '# Testowa Zawartość',
+      };
+
+      const result = await createPrompt(mockSupabase as unknown as SupabaseClient, 'org-1', input);
+
+      expect(result.data).toEqual(mockPrompt);
+      expect(result.error).toBeNull();
+    });
   });
 
   describe('updatePrompt', () => {
@@ -218,6 +254,43 @@ describe('promptService', () => {
         message: 'Update failed',
         code: 'UPDATE_ERROR',
       });
+    });
+
+    it('updates prompt descriptions', async () => {
+      const mockUpdatedPrompt: Prompt = {
+        id: 'prompt-1',
+        organization_id: 'org-1',
+        collection_id: 'collection-1',
+        segment_id: null,
+        title_en: 'Test Prompt',
+        title_pl: null,
+        description_en: 'Updated description',
+        description_pl: 'Zaktualizowany opis',
+        markdown_body_en: '# Test Content',
+        markdown_body_pl: null,
+        status: 'draft',
+        created_by: null,
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T12:00:00Z',
+      };
+
+      mockUpdate(mockSupabase, mockUpdatedPrompt);
+
+      const input: UpdatePromptInput = {
+        description_en: 'Updated description',
+        description_pl: 'Zaktualizowany opis',
+      };
+
+      const result = await updatePrompt(
+        mockSupabase as unknown as SupabaseClient,
+        'prompt-1',
+        'org-1',
+        input
+      );
+
+      expect(result.data?.description_en).toBe('Updated description');
+      expect(result.data?.description_pl).toBe('Zaktualizowany opis');
+      expect(result.error).toBeNull();
     });
   });
 

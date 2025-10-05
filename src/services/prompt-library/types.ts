@@ -5,6 +5,8 @@ export interface Prompt {
   segment_id: string | null;
   title_en: string;
   title_pl: string | null;
+  description_en: string | null;
+  description_pl: string | null;
   markdown_body_en: string;
   markdown_body_pl: string | null;
   status: 'draft' | 'published';
@@ -37,6 +39,8 @@ export interface PromptSegment {
 export interface CreatePromptInput {
   title_en: string;
   title_pl?: string | null;
+  description_en?: string | null;
+  description_pl?: string | null;
   collection_id: string;
   segment_id?: string;
   markdown_body_en: string;
@@ -47,6 +51,8 @@ export interface CreatePromptInput {
 export interface UpdatePromptInput {
   title_en?: string;
   title_pl?: string | null;
+  description_en?: string | null;
+  description_pl?: string | null;
   markdown_body_en?: string;
   markdown_body_pl?: string | null;
   collection_id?: string;
