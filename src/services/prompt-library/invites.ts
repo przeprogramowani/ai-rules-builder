@@ -23,19 +23,17 @@ type Supabase = SupabaseClient<Database>;
  * @returns URL-safe base64 encoded token
  */
 export async function generateInviteToken(): Promise<string> {
-  // In browser environment, use Web Crypto API
-  if (typeof window !== 'undefined' && window.crypto) {
-    const buffer = new Uint8Array(32);
-    window.crypto.getRandomValues(buffer);
-    return btoa(String.fromCharCode(...buffer))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-  }
+  // Use Web Crypto API - works in Node.js 16+, Cloudflare Workers, and browsers
+  const buffer = new Uint8Array(32);
+  crypto.getRandomValues(buffer);
 
-  // In Node environment, use crypto module (dynamic import for ES modules)
-  const { randomBytes } = await import('node:crypto');
-  return randomBytes(32).toString('base64url');
+  // Convert to base64url format (URL-safe)
+  const base64 = btoa(String.fromCharCode(...buffer))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+
+  return base64;
 }
 
 /**
