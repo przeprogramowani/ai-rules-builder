@@ -4,6 +4,7 @@ import { getInviteStats } from '@/services/prompt-library/invites';
 /**
  * GET /api/prompts/admin/invites/[id]/stats
  * Get usage statistics for an organization invite
+ * Authorization is enforced at both the API level and database level
  */
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
@@ -14,7 +15,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
-    // Check if user is an admin
+    // Check if user is an admin (defense in depth - also enforced at DB level)
     if (locals.promptLibrary.activeOrganization.role !== 'admin') {
       return new Response(JSON.stringify({ error: 'Admin role required', code: 'FORBIDDEN' }), {
         status: 403,

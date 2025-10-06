@@ -328,11 +328,11 @@ describe('invites service', () => {
         { type: 'selectList', result: mockRedemptions }
       ]);
 
-      // Mock RPC call for user emails
+      // Mock RPC call for user emails (new function returns user_id instead of id)
       mockRpc(mockSupabase, [
-        { id: 'user-1', email: 'user1@example.com' },
-        { id: 'user-2', email: 'user2@example.com' },
-        { id: 'user-3', email: 'user3@example.com' },
+        { user_id: 'user-1', email: 'user1@example.com' },
+        { user_id: 'user-2', email: 'user2@example.com' },
+        { user_id: 'user-3', email: 'user3@example.com' },
       ]);
 
       const result = await getInviteStats(mockSupabase as unknown as SupabaseClient, 'invite-1');

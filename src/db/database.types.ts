@@ -380,11 +380,11 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      get_user_emails: {
-        Args: { user_ids: string[] };
+      get_invite_redemption_emails: {
+        Args: { p_invite_id: string };
         Returns: {
           email: string;
-          id: string;
+          user_id: string;
         }[];
       };
       increment_invite_usage: {

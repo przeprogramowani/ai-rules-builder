@@ -354,6 +354,8 @@ export async function revokeInvite(
 
 /**
  * Get invite usage statistics
+ * @param supabase - Authenticated Supabase client (authorization enforced at DB level)
+ * @param inviteId - The invite ID to get stats for
  */
 export async function getInviteStats(
   supabase: Supabase,
@@ -388,13 +390,14 @@ export async function getInviteStats(
     const newUsers = redemptions?.filter((r) => r.was_new_user).length ?? 0;
     const existingUsers = redemptions?.filter((r) => !r.was_new_user).length ?? 0;
 
-    // Fetch user emails using the database function
-    const userIds = (redemptions ?? []).map((r) => r.user_id);
-
-    // Use RPC to call the get_user_emails function
-    const { data: userEmails, error: emailsError } = await supabase.rpc('get_user_emails', {
-      user_ids: userIds,
-    });
+    // Fetch user emails using secure database function
+    // Authorization is enforced at the database level: only org admins can access
+    const { data: userEmails, error: emailsError } = await supabase.rpc(
+      'get_invite_redemption_emails',
+      {
+        p_invite_id: inviteId,
+      },
+    );
 
     if (emailsError) {
       console.error('[invites] getInviteStats - failed to fetch user emails', emailsError);
@@ -402,7 +405,7 @@ export async function getInviteStats(
 
     // Create a map for quick lookup
     const emailMap = new Map(
-      (userEmails ?? []).map((u: { id: string; email: string }) => [u.id, u.email]),
+      (userEmails ?? []).map((u: { user_id: string; email: string }) => [u.user_id, u.email]),
     );
 
     // Map redemptions to user list

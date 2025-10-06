@@ -199,11 +199,11 @@ describe('Organization Invite Flow Integration Test', () => {
       .mockReturnValueOnce({ select: inviteSelect })
       .mockReturnValueOnce({ select: redemptionsSelect });
 
-    // Mock 3: RPC for user emails
+    // Mock 3: RPC for user emails (new function returns user_id)
     mockSupabase.rpc.mockResolvedValueOnce({
       data: [
-        { id: NEW_USER_ID, email: 'newuser@example.com' },
-        { id: EXISTING_USER_ID, email: 'existinguser@example.com' },
+        { user_id: NEW_USER_ID, email: 'newuser@example.com' },
+        { user_id: EXISTING_USER_ID, email: 'existinguser@example.com' },
       ],
       error: null,
     });
