@@ -8,6 +8,7 @@ import { PromptDetail } from './PromptDetail';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { loadLanguagePreference } from '../../services/prompt-library/language';
 import { parsePromptParams, hasValidParams } from '../../utils/urlParams';
+import { useUrlSync } from '../../hooks/useUrlSync';
 
 export const PromptsBrowser: React.FC = () => {
   const {
@@ -39,6 +40,9 @@ export const PromptsBrowser: React.FC = () => {
       fetchOrganizations();
     }
   }, [fetchOrganizations, setPreferredLanguage, hydrateFromUrl]);
+
+  // Sync URL when filters change (after hydration)
+  useUrlSync();
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

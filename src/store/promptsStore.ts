@@ -63,6 +63,7 @@ interface PromptsState {
   // UI State
   selectedPromptId: string | null;
   isLoading: boolean;
+  isHydrating: boolean;
   error: string | null;
 
   // Language preference
@@ -140,6 +141,7 @@ const initialState = {
   searchQuery: '',
   selectedPromptId: null,
   isLoading: false,
+  isHydrating: false,
   error: null,
   preferredLanguage: 'en' as Language,
 };
@@ -402,12 +404,12 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
     let success = false;
 
     try {
-      set({ isLoading: true, error: null });
+      set({ isLoading: true, isHydrating: true, error: null });
 
       // Step 1: Resolve organization
       if (!params.org) {
         errors.push('No organization specified in URL');
-        set({ isLoading: false });
+        set({ isLoading: false, isHydrating: false });
         return { success: false, errors };
       }
 
@@ -431,7 +433,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
 
       if (!targetOrg) {
         errors.push(`Organization '${params.org}' not found or you don't have access`);
-        set({ isLoading: false });
+        set({ isLoading: false, isHydrating: false });
         return { success: false, errors };
       }
 
@@ -501,7 +503,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
         success = true;
       }
 
-      set({ isLoading: false });
+      set({ isLoading: false, isHydrating: false });
       return { success, errors };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -509,6 +511,7 @@ export const usePromptsStore = create<PromptsState>((set, get) => ({
       set({
         error: errorMessage,
         isLoading: false,
+        isHydrating: false,
       });
       return { success: false, errors };
     }
