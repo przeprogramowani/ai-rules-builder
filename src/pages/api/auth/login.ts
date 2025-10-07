@@ -27,6 +27,73 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     if (error) {
+      // Check if error is due to unconfirmed email
+      if (error.message.toLowerCase().includes('email not confirmed')) {
+        // Auto-resend verification email
+        const requestorIp = request.headers.get('cf-connecting-ip') || '';
+
+        // Check rate limit first
+        const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
+          'check_and_log_verification_request',
+          {
+            p_email: email.toLowerCase(),
+            p_ip_address: requestorIp,
+          },
+        );
+
+        if (rateLimitError) {
+          console.error('Rate limit check error:', rateLimitError);
+          return new Response(
+            JSON.stringify({
+              error:
+                'Your email address has not been verified. Please check your email or request a new verification link.',
+              type: 'email_not_confirmed',
+              email: email,
+            }),
+            { status: 400 },
+          );
+        }
+
+        // Check if rate limited
+        if (rateLimitResult && !rateLimitResult.allowed) {
+          const retryAfter = rateLimitResult.retry_after || 3600;
+          const minutes = Math.ceil(retryAfter / 60);
+
+          return new Response(
+            JSON.stringify({
+              error: `Your email is not verified. We've already sent verification emails recently. You can request another email in ${minutes} minute${minutes > 1 ? 's' : ''}.`,
+              type: 'email_not_confirmed_rate_limited',
+              email: email,
+              retryAfter: retryAfter,
+            }),
+            { status: 400 },
+          );
+        }
+
+        // Send verification email
+        const { error: resendError } = await supabase.auth.resend({
+          type: 'signup',
+          email: email.toLowerCase(),
+          options: {
+            emailRedirectTo: `${new URL(request.url).origin}/auth/login`,
+          },
+        });
+
+        if (resendError) {
+          console.error('Error resending verification email:', resendError);
+        }
+
+        return new Response(
+          JSON.stringify({
+            error:
+              'Your email address has not been verified. We sent you a verification email - please check your inbox.',
+            type: 'email_not_confirmed',
+            email: email,
+          }),
+          { status: 400 },
+        );
+      }
+
       return new Response(JSON.stringify({ error: error.message }), { status: 400 });
     }
 

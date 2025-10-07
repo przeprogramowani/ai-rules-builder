@@ -8,6 +8,20 @@ import type { OrganizationMembership } from './services/prompt-library/access';
 declare global {
   interface Window {
     onloadTurnstileCallback: () => void;
+    turnstile?: {
+      render: (
+        container: HTMLElement | string,
+        options: {
+          sitekey: string;
+          theme?: 'light' | 'dark' | 'auto';
+          callback?: (token: string) => void;
+          'expired-callback'?: () => void;
+          'error-callback'?: () => void;
+        },
+      ) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+    };
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
     clarity: (event: string, enabled?: boolean) => void;

@@ -47,3 +47,24 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
+
+// Resend verification types
+export interface ResendVerificationData {
+  email: string;
+  captchaToken: string;
+}
+
+export interface ResendVerificationResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  type?: 'rate_limit' | 'not_found' | 'already_confirmed';
+  retryAfter?: number;
+}
+
+// Signup error types
+export type SignupError =
+  | { type: 'confirmed_exists'; message: string }
+  | { type: 'unconfirmed_exists'; message: string; email: string }
+  | { type: 'rate_limit'; message: string; retryAfter: number }
+  | { type: 'generic'; message: string };

@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseAdminInstance } from '../../../db/supabase.client';
+import {
+  createSupabaseAdminInstance,
+  createSupabaseServerInstance,
+} from '../../../db/supabase.client';
 import { isFeatureEnabled } from '../../../features/featureFlags';
 import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVersion';
 import { redeemInvite } from '../../../services/prompt-library/invites';
@@ -28,6 +31,54 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
+
+    // Check if user already exists
+    const { data: userData, error: userCheckError } = await supabase.auth.admin.listUsers();
+
+    if (userCheckError) {
+      console.error('Error checking existing users:', userCheckError);
+      return new Response(JSON.stringify({ error: 'Failed to verify user status' }), {
+        status: 500,
+      });
+    }
+
+    const existingUser = userData.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+
+    if (existingUser) {
+      if (existingUser.email_confirmed_at) {
+        // Account exists and is confirmed
+        return new Response(
+          JSON.stringify({
+            error: 'An account with this email already exists. Please log in.',
+            type: 'confirmed_exists',
+          }),
+          { status: 400 },
+        );
+      } else {
+        // Account exists but is not confirmed - resend verification email
+        const supabaseClient = createSupabaseServerInstance({ cookies, headers: request.headers });
+
+        const { error: resendError } = await supabaseClient.auth.resend({
+          type: 'signup',
+          email: email.toLowerCase(),
+          options: {
+            emailRedirectTo: `${new URL(request.url).origin}/auth/login`,
+          },
+        });
+
+        if (resendError) {
+          console.error('Error resending verification email:', resendError);
+        }
+
+        // Return success response (same as new signup) to trigger success UI
+        return new Response(
+          JSON.stringify({
+            user: { id: existingUser.id, email: existingUser.email },
+          }),
+          { status: 200 },
+        );
+      }
+    }
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,

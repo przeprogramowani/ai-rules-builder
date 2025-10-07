@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -7,6 +7,7 @@ import { signupSchema } from '../../types/auth';
 import type { SignupFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 import { useCaptcha } from '../../hooks/useCaptcha';
+import { ResendVerificationButton } from './ResendVerificationButton';
 
 interface SignupFormProps {
   cfCaptchaSiteKey: string;
@@ -16,6 +17,11 @@ interface SignupFormProps {
 export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { signup, error: apiError, isLoading } = useAuth();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const [errorType, setErrorType] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [successEmail, setSuccessEmail] = useState<string | null>(null);
+  const [showApiError, setShowApiError] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -29,7 +35,15 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
       if (!isCaptchaVerified) {
         throw new Error('Captcha verification failed');
       }
+
+      setErrorType(null);
+      setUnverifiedEmail(null);
+      setShowApiError(true);
+
       const result = await signup(data, inviteToken);
+
+      // Store email for resend verification option
+      setSuccessEmail(data.email);
 
       // If invite token was used and we got organization info, redirect to prompts
       if (result?.organization?.slug) {
@@ -37,24 +51,76 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
       }
     } catch (error) {
       console.error(error);
+
+      // Check if error has type information (AuthError)
+      if (error && typeof error === 'object' && 'type' in error) {
+        const authError = error as { type: string; email?: string };
+        setErrorType(authError.type);
+        if (authError.type === 'unconfirmed_exists' && authError.email) {
+          setUnverifiedEmail(authError.email);
+          setShowApiError(true);
+        }
+      }
     }
   };
 
-  if (isSubmitSuccessful) {
+  // Show success message for new signups
+  if (isSubmitSuccessful && successEmail) {
+    return (
+      <div className="space-y-4">
+        {showApiError && (
+          <>
+            <div className="p-3 text-sm text-green-600 bg-green-100 rounded-md dark:bg-green-900/20 dark:text-green-400">
+              Please check your email for a verification link to complete your registration.
+            </div>
+            <div className="text-sm text-gray-400 text-center">Didn't receive the email?</div>
+          </>
+        )}
+        <ResendVerificationButton
+          email={successEmail}
+          cfCaptchaSiteKey={cfCaptchaSiteKey}
+          onMessageChange={(hasMessage) => setShowApiError(!hasMessage)}
+        />
+      </div>
+    );
+  }
+
+  // Show login link for confirmed existing accounts
+  if (errorType === 'confirmed_exists') {
     return (
       <div className="text-center space-y-4">
-        <div className="text-green-400">
-          Please check your email for a verification link to complete your registration.
+        <div className="p-3 text-sm text-red-500 bg-red-100 rounded-md dark:bg-red-900/20">
+          {apiError}
         </div>
         <a
           href="/auth/login"
           className={`
-            inline-block text-blue-400 hover:text-blue-300
+            inline-block w-full py-2 px-4 border border-transparent rounded-md
+            text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
             transition-colors duration-${transitions.duration.medium}
           `}
         >
-          Return to login
+          Go to Login
         </a>
+      </div>
+    );
+  }
+
+  // Show resend verification for unconfirmed accounts
+  if (errorType === 'unconfirmed_exists' && unverifiedEmail) {
+    return (
+      <div className="space-y-4">
+        {showApiError && (
+          <div className="p-3 text-sm text-yellow-600 bg-yellow-100 rounded-md dark:bg-yellow-900/20 dark:text-yellow-400">
+            {apiError}
+          </div>
+        )}
+        <ResendVerificationButton
+          email={unverifiedEmail}
+          cfCaptchaSiteKey={cfCaptchaSiteKey}
+          onMessageChange={(hasMessage) => setShowApiError(!hasMessage)}
+        />
       </div>
     );
   }

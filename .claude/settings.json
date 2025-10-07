@@ -1,5 +1,9 @@
 {
   "permissions": {
+    "ask": [
+      "Bash(npx supabase db reset)",
+      "Bash(supabase db reset)"
+    ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",

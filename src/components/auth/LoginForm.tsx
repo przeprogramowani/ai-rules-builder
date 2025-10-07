@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -7,6 +7,7 @@ import { loginSchema } from '../../types/auth';
 import type { LoginFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 import { useCaptcha } from '../../hooks/useCaptcha';
+import { ResendVerificationButton } from './ResendVerificationButton';
 
 interface LoginFormProps {
   cfCaptchaSiteKey: string;
@@ -16,6 +17,10 @@ interface LoginFormProps {
 export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { login, error: apiError, isLoading } = useAuth();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const [errorType, setErrorType] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [retryAfter, setRetryAfter] = useState<number | null>(null);
+  const [showApiError, setShowApiError] = useState(true);
 
   const {
     register,
@@ -30,6 +35,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteTo
       if (!isCaptchaVerified) {
         throw new Error('Captcha verification failed');
       }
+
+      setErrorType(null);
+      setUnverifiedEmail(null);
+      setRetryAfter(null);
+      setShowApiError(true);
+
       await login(data);
 
       // Redirect to invite page if invite token is present
@@ -40,8 +51,51 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteTo
       }
     } catch (error) {
       console.error(error);
+
+      // Check if error has type information (AuthError)
+      if (error && typeof error === 'object' && 'type' in error) {
+        const authError = error as { type: string; email?: string; retryAfter?: number };
+        setErrorType(authError.type);
+        if (
+          (authError.type === 'email_not_confirmed' ||
+            authError.type === 'email_not_confirmed_rate_limited') &&
+          authError.email
+        ) {
+          setUnverifiedEmail(authError.email);
+          setRetryAfter(authError.retryAfter || null);
+          setShowApiError(true);
+        }
+      }
     }
   };
+
+  // Show resend verification for unconfirmed email (both normal and rate limited)
+  if (
+    (errorType === 'email_not_confirmed' || errorType === 'email_not_confirmed_rate_limited') &&
+    unverifiedEmail
+  ) {
+    return (
+      <div className="space-y-4">
+        {showApiError && (
+          <div
+            className={`p-3 text-sm rounded-md ${
+              errorType === 'email_not_confirmed_rate_limited'
+                ? 'text-orange-600 bg-orange-100 dark:bg-orange-900/20 dark:text-orange-400'
+                : 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400'
+            }`}
+          >
+            {apiError}
+          </div>
+        )}
+        <ResendVerificationButton
+          email={unverifiedEmail}
+          cfCaptchaSiteKey={cfCaptchaSiteKey}
+          initialCountdown={retryAfter || undefined}
+          onMessageChange={(hasMessage) => setShowApiError(!hasMessage)}
+        />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
