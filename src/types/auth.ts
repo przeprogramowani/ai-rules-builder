@@ -48,6 +48,11 @@ export type SignupFormData = z.infer<typeof signupSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 
+// Extended type for password reset flow that includes the token_hash from URL
+export type UpdatePasswordWithTokenFormData = UpdatePasswordFormData & {
+  token_hash: string;
+};
+
 // Resend verification types
 export interface ResendVerificationData {
   email: string;

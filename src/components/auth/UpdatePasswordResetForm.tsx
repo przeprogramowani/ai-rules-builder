@@ -17,7 +17,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
   cfCaptchaSiteKey,
 }) => {
   const { updatePassword, error: apiError, isLoading } = useAuth();
-  const { verificationError, isVerified } = useTokenHashVerification();
+  const { tokenHash, error: tokenError } = useTokenHashVerification();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
 
   const {
@@ -33,17 +33,21 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
       if (!isCaptchaVerified) {
         throw new Error('Captcha verification failed');
       }
-      await updatePassword(data);
+      if (!tokenHash) {
+        throw new Error('Reset token is missing');
+      }
+      // Pass token_hash to updatePassword for atomic verification + update
+      await updatePassword({ ...data, token_hash: tokenHash });
       window.location.href = '/auth/login?message=password-updated';
     } catch (error) {
       console.error(error);
     }
   };
 
-  if (verificationError) {
+  if (tokenError) {
     return (
       <div className="text-center space-y-4">
-        <div className="text-red-500">{verificationError}</div>
+        <div className="text-red-500">{tokenError}</div>
         <a
           href="/auth/reset-password"
           className={`
@@ -53,14 +57,6 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
         >
           Request new password reset
         </a>
-      </div>
-    );
-  }
-
-  if (!isVerified) {
-    return (
-      <div className="text-center">
-        <div className="text-gray-400">Verifying your reset token...</div>
       </div>
     );
   }

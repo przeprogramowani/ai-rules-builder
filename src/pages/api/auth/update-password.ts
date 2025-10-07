@@ -1,24 +1,60 @@
 import type { APIRoute } from 'astro';
+import { createSupabaseAdminInstance } from '@/db/supabase.client';
 
-export const POST: APIRoute = async ({ request, locals }) => {
+/**
+ * Update password endpoint with atomic token verification.
+ * This endpoint verifies the reset token and updates the password in a single operation.
+ */
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const { password, confirmPassword } = (await request.json()) as {
+    const { password, confirmPassword, token_hash } = (await request.json()) as {
       password: string;
       confirmPassword: string;
+      token_hash?: string;
     };
 
+    // Validate inputs
     if (!password || !confirmPassword || password !== confirmPassword) {
       return new Response(JSON.stringify({ error: 'Password and confirm password must match' }), {
         status: 400,
       });
     }
 
-    const { error } = await locals.supabase.auth.updateUser({
+    if (!token_hash) {
+      return new Response(JSON.stringify({ error: 'Reset token is required' }), {
+        status: 400,
+      });
+    }
+
+    // Create admin instance for token verification
+    const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
+
+    // Step 1: Verify the token and establish session
+    const {
+      error: verifyError,
+      data: { user },
+    } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: 'recovery',
+    });
+
+    if (verifyError || !user) {
+      console.error('Token verification failed:', verifyError?.message);
+      return new Response(JSON.stringify({ error: 'Invalid or expired reset token' }), {
+        status: 400,
+      });
+    }
+
+    // Step 2: Update password using the established session
+    const { error: updateError } = await supabase.auth.updateUser({
       password,
     });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    if (updateError) {
+      console.error('Password update failed:', updateError.message);
+      return new Response(JSON.stringify({ error: updateError.message }), {
+        status: 400,
+      });
     }
 
     return new Response(JSON.stringify({ message: 'Password updated successfully' }), {
