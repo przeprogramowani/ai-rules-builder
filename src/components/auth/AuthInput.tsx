@@ -54,6 +54,11 @@ const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
 
     // Method 2: Input event listener (works for most password managers)
     const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+      const value = e.currentTarget.value;
+      if (!value) {
+        autofillDetectedRef.current = false;
+      }
+      lastValueRef.current = value;
       checkAndTriggerAutofill(e.currentTarget);
     };
 
@@ -73,6 +78,8 @@ const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
 
     // Method 4: Focus event (LastPass often autofills on focus)
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      // Update ref before checking
+      lastValueRef.current = e.target.value;
       // Check immediately on focus
       checkAndTriggerAutofill(e.target);
 
@@ -99,6 +106,7 @@ const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
 
     // Method 5: Blur event (some password managers autofill on blur)
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      lastValueRef.current = e.target.value;
       checkAndTriggerAutofill(e.target);
 
       if (inputProps.onBlur) {
