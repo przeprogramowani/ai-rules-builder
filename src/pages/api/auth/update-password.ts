@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Create admin instance for token verification
     const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
 
-    // Step 1: Verify the token and establish session
+    // Step 1: Verify the token and get user data
     const {
       error: verifyError,
       data: { user },
@@ -45,8 +45,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    // Step 2: Update password using the established session
-    const { error: updateError } = await supabase.auth.updateUser({
+    // Step 2: Update password using admin API (bypasses session requirement)
+    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
       password,
     });
 
