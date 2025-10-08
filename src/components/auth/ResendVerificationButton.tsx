@@ -114,32 +114,49 @@ export const ResendVerificationButton: React.FC<ResendVerificationButtonProps> =
           type: 'success',
           text: result.message || 'Verification email sent! Please check your inbox.',
         });
-        // Set countdown to 60 seconds (matches middleware rate limit)
         setCountdown(60);
         setCaptchaToken(null);
 
-        // Reset captcha
         if (widgetIdRef.current && window.turnstile) {
           window.turnstile.reset(widgetIdRef.current);
         }
       } else {
         let errorMessage = result.error || 'Failed to send verification email';
 
-        if (result.type === 'rate_limit') {
-          // Set countdown to the actual retry time from the database rate limiter
-          const retrySeconds = result.retryAfter || 3600;
+        // Handle different error types
+        if (result.type === 'rate_limit' || result.type === 'middleware_rate_limit') {
+          // Set countdown to actual retry time
+          const retrySeconds = result.retryAfter || 60;
           setCountdown(retrySeconds);
 
-          const minutes = Math.ceil(retrySeconds / 60);
-          errorMessage = `Rate limit exceeded. You can request another email in ${minutes} minute${minutes > 1 ? 's' : ''}.`;
+          // User-friendly message with countdown
+          errorMessage =
+            result.type === 'middleware_rate_limit'
+              ? `Please wait before requesting another email. You can try again in a moment.`
+              : result.error || `Rate limit exceeded. Please wait before trying again.`;
 
-          // Don't reset captcha on rate limit, let them keep it
+          // Don't reset captcha for rate limits
+        } else if (result.type === 'service_error') {
+          // Service temporarily unavailable
+          errorMessage = 'Service temporarily unavailable. Please try again in 10 seconds.';
+          setCountdown(10);
+
+          // Don't reset captcha - let them retry with same token
         } else if (result.type === 'already_confirmed') {
           errorMessage = 'Your email is already verified. Please log in.';
+          // Reset captcha for non-retryable errors
+          setCaptchaToken(null);
+          if (widgetIdRef.current && window.turnstile) {
+            window.turnstile.reset(widgetIdRef.current);
+          }
         } else if (result.type === 'not_found') {
           errorMessage = 'No account found with this email. Please sign up first.';
+          setCaptchaToken(null);
+          if (widgetIdRef.current && window.turnstile) {
+            window.turnstile.reset(widgetIdRef.current);
+          }
         } else {
-          // For other errors, reset captcha
+          // Generic error - reset captcha
           setCaptchaToken(null);
           if (widgetIdRef.current && window.turnstile) {
             window.turnstile.reset(widgetIdRef.current);

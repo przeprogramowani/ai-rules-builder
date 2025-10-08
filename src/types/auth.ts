@@ -63,8 +63,14 @@ export interface ResendVerificationResponse {
   success: boolean;
   message?: string;
   error?: string;
-  type?: 'rate_limit' | 'not_found' | 'already_confirmed';
+  type?:
+    | 'rate_limit' // Database rate limiter triggered
+    | 'middleware_rate_limit' // Middleware rate limiter triggered
+    | 'service_error' // Service/database unavailable
+    | 'not_found' // Email not found
+    | 'already_confirmed'; // Email already verified
   retryAfter?: number;
+  developerMessage?: string; // Only in dev mode
 }
 
 // Signup error types

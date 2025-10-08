@@ -40,10 +40,23 @@ const rateLimiter = defineMiddleware(async ({ cookies, url }, next) => {
       setRateLimitCookie(cookies, matchedPath, matchedLimit);
       return next();
     }
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-      status: 429,
-      headers: { 'Content-Type': 'application/json' },
-    });
+
+    // Enhanced rate limit response
+    const retryAfterSeconds = matchedLimit;
+    return new Response(
+      JSON.stringify({
+        error: `Too many requests. Please wait ${retryAfterSeconds} seconds before trying again.`,
+        type: 'middleware_rate_limit',
+        retryAfter: retryAfterSeconds,
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfterSeconds), // HTTP standard header
+        },
+      },
+    );
   }
 
   return next();

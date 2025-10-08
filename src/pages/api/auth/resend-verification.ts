@@ -52,10 +52,38 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
 
     if (rateLimitError) {
-      console.error('Rate limit check error:', rateLimitError);
-      return new Response(JSON.stringify({ error: 'Failed to check rate limit' }), {
-        status: 500,
+      // Detailed logging for developers
+      console.error('Rate limit check error:', {
+        error: rateLimitError,
+        code: rateLimitError.code,
+        message: rateLimitError.message,
+        details: rateLimitError.details,
+        hint: rateLimitError.hint,
       });
+
+      // Check if function doesn't exist (migration not applied)
+      if (rateLimitError.code === '42883' || rateLimitError.message?.includes('function')) {
+        console.warn(
+          '⚠️  Database function "check_and_log_verification_request" not found. ' +
+            'Run: npx supabase db push',
+        );
+      }
+
+      // User-friendly error message
+      return new Response(
+        JSON.stringify({
+          error: 'Service temporarily unavailable. Please try again in a few moments.',
+          type: 'service_error',
+          developerMessage: import.meta.env.DEV ? rateLimitError.message : undefined,
+        }),
+        {
+          status: 503, // Service Unavailable (not Internal Server Error)
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '10', // Suggest retry after 10 seconds
+          },
+        },
+      );
     }
 
     // Check if rate limited
