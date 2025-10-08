@@ -98,3 +98,23 @@
     background: #6b7280; /* gray-500 */
   }
 }
+
+/* Fix 1Password autofill text visibility on dark backgrounds */
+/* Using high specificity without layers to override 1Password's inline styles */
+input[type='text'][data-com-onepassword-filled],
+input[type='email'][data-com-onepassword-filled],
+input[type='password'][data-com-onepassword-filled],
+input[type='text'][data-com-onepassword-filled='light'],
+input[type='email'][data-com-onepassword-filled='light'],
+input[type='password'][data-com-onepassword-filled='light'],
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #e5e7eb !important; /* gray-200 - force light text */
+  color: #e5e7eb !important;
+  caret-color: #e5e7eb !important; /* cursor color */
+  -webkit-box-shadow: 0 0 0 1000px rgba(31, 41, 55, 0.5) inset !important; /* maintain dark background */
+  box-shadow: 0 0 0 1000px rgba(31, 41, 55, 0.5) inset !important;
+  transition: background-color 5000s ease-in-out 0s; /* prevent browser autofill yellow background */
+}
