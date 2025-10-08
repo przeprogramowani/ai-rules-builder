@@ -20,6 +20,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
     register,
     handleSubmit,
     formState: { errors, isSubmitSuccessful },
+    setValue,
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   });
@@ -83,6 +84,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
         autoComplete="email"
         disabled={isLoading}
         {...register('email')}
+        onAutofill={(value) => setValue('email', value, { shouldValidate: true })}
       />
 
       <button

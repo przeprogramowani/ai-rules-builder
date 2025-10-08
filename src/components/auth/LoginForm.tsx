@@ -26,6 +26,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteTo
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -113,6 +114,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteTo
         autoComplete="email"
         disabled={isLoading}
         {...register('email')}
+        onAutofill={(value) => setValue('email', value, { shouldValidate: true })}
       />
 
       <AuthInput
@@ -123,6 +125,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteTo
         autoComplete="current-password"
         disabled={isLoading}
         {...register('password')}
+        onAutofill={(value) => setValue('password', value, { shouldValidate: true })}
       />
 
       <div className="flex items-center justify-between">

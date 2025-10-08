@@ -26,6 +26,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
     register,
     handleSubmit,
     formState: { errors, isSubmitSuccessful },
+    setValue,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
@@ -141,6 +142,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
         autoComplete="email"
         disabled={isLoading}
         {...register('email')}
+        onAutofill={(value) => setValue('email', value, { shouldValidate: true })}
       />
 
       <AuthInput
@@ -151,6 +153,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
         autoComplete="new-password"
         disabled={isLoading}
         {...register('password')}
+        onAutofill={(value) => setValue('password', value, { shouldValidate: true })}
       />
 
       <AuthInput
@@ -161,6 +164,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
         autoComplete="new-password"
         disabled={isLoading}
         {...register('confirmPassword')}
+        onAutofill={(value) => setValue('confirmPassword', value, { shouldValidate: true })}
       />
 
       <div className="space-y-2">

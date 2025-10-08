@@ -24,6 +24,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
     register,
     handleSubmit,
     formState: { errors, isSubmitSuccessful },
+    setValue,
   } = useForm<UpdatePasswordFormData>({
     resolver: zodResolver(updatePasswordSchema),
   });
@@ -94,6 +95,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
         autoComplete="new-password"
         disabled={isLoading}
         {...register('password')}
+        onAutofill={(value) => setValue('password', value, { shouldValidate: true })}
       />
 
       <AuthInput
@@ -104,6 +106,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
         autoComplete="new-password"
         disabled={isLoading}
         {...register('confirmPassword')}
+        onAutofill={(value) => setValue('confirmPassword', value, { shouldValidate: true })}
       />
 
       <button
