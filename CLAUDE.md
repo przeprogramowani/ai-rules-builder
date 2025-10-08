@@ -78,6 +78,7 @@ The application uses Zustand with multiple specialized stores:
 - Supabase integration with TypeScript types in `src/db/database.types.ts`
 - Collections are stored in Supabase with user association
 - Real-time capabilities available but not currently utilized
+- Prefer "supabase migration up" over "supabase db reset" when testing migrations
 
 ### Testing Strategy
 - Unit tests use Vitest with React Testing Library and JSDOM
