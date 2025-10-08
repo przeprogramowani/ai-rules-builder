@@ -2,7 +2,7 @@ import type {
   LoginFormData,
   SignupFormData,
   ResetPasswordFormData,
-  UpdatePasswordWithTokenFormData,
+  UpdatePasswordFormData,
   ResendVerificationData,
   ResendVerificationResponse,
 } from '../types/auth';
@@ -79,11 +79,11 @@ export const authService = {
     return handleResponse(response);
   },
 
-  updatePassword: async (data: UpdatePasswordWithTokenFormData): Promise<{ user: User }> => {
+  updatePassword: async (data: UpdatePasswordFormData): Promise<{ user: User }> => {
     const response = await fetch('/api/auth/update-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data), // Now includes token_hash
+      body: JSON.stringify(data), // No longer includes token_hash (session already established)
     });
     return handleResponse(response);
   },

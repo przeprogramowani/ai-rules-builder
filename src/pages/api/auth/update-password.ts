@@ -1,16 +1,16 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseAdminInstance } from '@/db/supabase.client';
+import { createSupabaseServerInstance } from '@/db/supabase.client';
 
 /**
- * Update password endpoint with atomic token verification.
- * This endpoint verifies the reset token and updates the password in a single operation.
+ * Update password endpoint.
+ * NOTE: The recovery token must be verified FIRST via /api/auth/verify-token
+ * to establish a session. This endpoint then uses that session to update the password.
  */
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const { password, confirmPassword, token_hash } = (await request.json()) as {
+    const { password, confirmPassword } = (await request.json()) as {
       password: string;
       confirmPassword: string;
-      token_hash?: string;
     };
 
     // Validate inputs
@@ -20,42 +20,51 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    if (!token_hash) {
-      return new Response(JSON.stringify({ error: 'Reset token is required' }), {
-        status: 400,
-      });
-    }
+    // Create server instance for user authentication operations
+    const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
 
-    // Create admin instance for token verification
-    const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
+    console.log('[UPDATE-PASSWORD] Starting password update');
 
-    // Step 1: Verify the token and get user data
-    const {
-      error: verifyError,
-      data: { user },
-    } = await supabase.auth.verifyOtp({
-      token_hash,
-      type: 'recovery',
+    // Check that user has an established session (from verify-token endpoint)
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('[UPDATE-PASSWORD] Current session:', {
+      hasSession: !!sessionData.session,
+      userId: sessionData.session?.user?.id,
     });
 
-    if (verifyError || !user) {
-      console.error('Token verification failed:', verifyError?.message);
-      return new Response(JSON.stringify({ error: 'Invalid or expired reset token' }), {
-        status: 400,
-      });
+    if (!sessionData.session) {
+      console.error('[UPDATE-PASSWORD] No active session found');
+      return new Response(
+        JSON.stringify({ error: 'No active session. Please verify your reset token first.' }),
+        {
+          status: 401,
+        },
+      );
     }
 
-    // Step 2: Update password using admin API (bypasses session requirement)
-    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+    // Update password using the established user session
+    const updateResult = await supabase.auth.updateUser({
       password,
     });
 
-    if (updateError) {
-      console.error('Password update failed:', updateError.message);
-      return new Response(JSON.stringify({ error: updateError.message }), {
+    console.log('[UPDATE-PASSWORD] updateUser result:', {
+      hasError: !!updateResult.error,
+      errorMessage: updateResult.error?.message,
+      hasUser: !!updateResult.data?.user,
+      userId: updateResult.data?.user?.id,
+    });
+
+    if (updateResult.error) {
+      console.error('[UPDATE-PASSWORD] Password update failed:', updateResult.error.message);
+      return new Response(JSON.stringify({ error: updateResult.error.message }), {
         status: 400,
       });
     }
+
+    console.log(
+      '[UPDATE-PASSWORD] Password updated successfully for user:',
+      updateResult.data?.user?.email,
+    );
 
     return new Response(JSON.stringify({ message: 'Password updated successfully' }), {
       status: 200,

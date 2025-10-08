@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -19,6 +19,9 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
   const { updatePassword, error: apiError, isLoading } = useAuth();
   const { tokenHash, error: tokenError } = useTokenHashVerification();
   const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const [isVerifyingToken, setIsVerifyingToken] = useState(true);
+  const [tokenVerified, setTokenVerified] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
 
   const {
     register,
@@ -29,16 +32,71 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
     resolver: zodResolver(updatePasswordSchema),
   });
 
+  // Verify token when component mounts to establish session
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!tokenHash) {
+        setIsVerifyingToken(false);
+        return;
+      }
+
+      try {
+        console.log('[UpdatePasswordResetForm] Verifying token...');
+        console.log('[UpdatePasswordResetForm] Token hash:', tokenHash?.substring(0, 30) + '...');
+
+        const response = await fetch('/api/auth/verify-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token_hash: tokenHash }),
+          credentials: 'same-origin',
+        });
+
+        console.log(
+          '[UpdatePasswordResetForm] Response status:',
+          response.status,
+          response.statusText,
+        );
+
+        let data;
+        try {
+          data = await response.json();
+          console.log('[UpdatePasswordResetForm] Response data:', data);
+        } catch (jsonError) {
+          console.error('[UpdatePasswordResetForm] Failed to parse JSON response:', jsonError);
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || `Token verification failed: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        console.log('[UpdatePasswordResetForm] Token verified successfully');
+        setTokenVerified(true);
+      } catch (error) {
+        console.error('[UpdatePasswordResetForm] Token verification error:', error);
+        setVerificationError(
+          error instanceof Error ? error.message : 'Failed to verify reset token',
+        );
+      } finally {
+        setIsVerifyingToken(false);
+      }
+    };
+
+    verifyToken();
+  }, [tokenHash]);
+
   const onSubmit = async (data: UpdatePasswordFormData) => {
     try {
       if (!isCaptchaVerified) {
         throw new Error('Captcha verification failed');
       }
-      if (!tokenHash) {
-        throw new Error('Reset token is missing');
+      if (!tokenVerified) {
+        throw new Error('Reset token not verified');
       }
-      // Pass token_hash to updatePassword for atomic verification + update
-      await updatePassword({ ...data, token_hash: tokenHash });
+      // Call updatePassword without token_hash (session already established)
+      await updatePassword(data);
       window.location.href = '/auth/login?message=password-updated';
     } catch (error) {
       console.error(error);
@@ -58,6 +116,31 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
         >
           Request new password reset
         </a>
+      </div>
+    );
+  }
+
+  if (verificationError) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="text-red-500">{verificationError}</div>
+        <a
+          href="/auth/reset-password"
+          className={`
+            inline-block text-blue-400 hover:text-blue-300
+            transition-colors duration-${transitions.duration.medium}
+          `}
+        >
+          Request new password reset
+        </a>
+      </div>
+    );
+  }
+
+  if (isVerifyingToken) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="text-gray-400">Verifying reset token...</div>
       </div>
     );
   }
