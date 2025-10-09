@@ -129,7 +129,8 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+# Increased from 2 to 5 to align with database rate limit and reduce false positives
+email_sent = 5
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -162,7 +163,8 @@ max_frequency = "1m0s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# Increased to 2 hours to account for email delivery delays and corporate email scanning
+otp_expiry = 7200
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -174,8 +176,12 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+[auth.email.template.confirmation]
+subject = "✨ 10xRules.ai | Confirm your email"
+content_path = "./supabase/emails/confirmation.html"
+
 [auth.email.template.recovery]
-subject = "Confirm your email"
+subject = "Reset your password"
 content_path = "./supabase/emails/recovery.html"
 
 [auth.sms]

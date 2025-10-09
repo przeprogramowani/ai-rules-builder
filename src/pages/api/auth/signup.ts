@@ -62,7 +62,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           type: 'signup',
           email: email.toLowerCase(),
           options: {
-            emailRedirectTo: `${new URL(request.url).origin}/auth/login`,
+            emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
           },
         });
 
@@ -84,7 +84,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${new URL(request.url).origin}/auth/login`,
+        emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
       },
     });
 

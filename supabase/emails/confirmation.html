@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>✨ 10xRules.ai | Reset your password</title>
+    <title>✨ 10xRules.ai | Confirm your email</title>
     <style>
       /* Basic Reset */
       body,
@@ -68,6 +68,12 @@
         margin: 20px 0;
         font-size: 14px;
       }
+      .timestamp {
+        color: #666;
+        font-size: 12px;
+        font-style: italic;
+        margin-top: 10px;
+      }
       .warning {
         background-color: #fff3cd;
         border-left: 4px solid #ffc107;
@@ -90,21 +96,17 @@
     <div class="email-container">
       <div class="content-card">
         <!-- Email Content -->
-        <h1>✨ 10xRules.ai | Reset your password</h1>
+        <h1>✨ 10xRules.ai | Confirm your email</h1>
         <p>Hello,</p>
-        <p>We received a request to reset your password. Click the button below to create a new password:</p>
+        <p>Thank you for signing up! Please confirm your email address by clicking the button below:</p>
 
         <center>
-          <a href="{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}" class="button">Reset Password</a>
+          <a href="{{ .ConfirmationURL }}" class="button">Confirm Email Address</a>
         </center>
-
-        <div class="info-box">
-          <strong>Important:</strong> This password reset link will expire in 2 hours.
-        </div>
 
         <div class="security-notice">
           <strong>🔒 Security Notice:</strong><br>
-          If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+          If you didn't create an account on 10xRules.ai, please ignore this email.
         </div>
 
         <div class="warning">
@@ -112,7 +114,7 @@
           If clicking the button above doesn't work (corporate email security may scan links before you see them),
           please paste the link below into your browser:
           <br>
-          <a href="{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}" style="color: #007bff; word-break: break-all; font-size: 12px;">{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}</a>
+          <a href="{{ .ConfirmationURL }}" style="color: #007bff; word-break: break-all; font-size: 12px;">{{ .ConfirmationURL }}</a>
         </div>
 
         <p>Best regards,<br />10xRules.ai & Przeprogramowani</p>

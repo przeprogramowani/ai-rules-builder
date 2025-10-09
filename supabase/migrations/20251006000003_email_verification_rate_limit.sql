@@ -48,8 +48,8 @@ BEGIN
     WHERE email = LOWER(p_email)
     AND requested_at > NOW() - INTERVAL '1 hour';
 
-    -- Check if rate limit exceeded (max 3 per hour)
-    IF v_recent_count >= 3 THEN
+    -- Check if rate limit exceeded (max 5 per hour)
+    IF v_recent_count >= 5 THEN
         -- Calculate exact retry time: time until oldest request expires (1 hour from oldest request)
         SELECT requested_at
         INTO v_oldest_request_time
