@@ -1,0 +1,63 @@
+---
+import Button from '../ui/Button.astro';
+import { ROUTES, ANCHORS, EXTERNAL_LINKS } from '../../data/landingContent';
+---
+
+<header
+  class="sticky top-0 z-50 w-full bg-gray-950/95 backdrop-blur-sm border-b border-gray-800"
+  role="banner"
+>
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <a
+        href={ROUTES.HOME}
+        class="flex items-center space-x-3 group"
+        aria-label="10xRules.ai - Home"
+      >
+        <span class="text-2xl" aria-hidden="true">✨</span>
+        <h1
+          class="font-mono text-xl font-semibold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent group-hover:from-teal-400 group-hover:to-purple-400 transition-colors duration-300"
+        >
+          10xRules.ai
+        </h1>
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center space-x-8" aria-label="Main navigation">
+        <a href={ANCHORS.FEATURES} class="text-gray-400 hover:text-white transition-colors">
+          Features
+        </a>
+        <a href={ANCHORS.CHOOSE_YOUR_PATH} class="text-gray-400 hover:text-white transition-colors">
+          Paths
+        </a>
+        <a
+          href={EXTERNAL_LINKS.GITHUB}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-gray-400 hover:text-white transition-colors"
+          aria-label="Visit GitHub repository (opens in new tab)"
+        >
+          GitHub
+        </a>
+      </nav>
+
+      <!-- CTA Buttons -->
+      <div class="flex items-center space-x-3">
+        <a
+          href={ROUTES.LOGIN}
+          class="hidden sm:inline-flex text-gray-400 hover:text-white transition-colors px-4 py-2"
+        >
+          Log In
+        </a>
+        <Button
+          href={ROUTES.SIGNUP}
+          variant="primary"
+          class="text-sm magnetic-button final-cta-button"
+        >
+          Get Started
+        </Button>
+      </div>
+    </div>
+  </div>
+</header>

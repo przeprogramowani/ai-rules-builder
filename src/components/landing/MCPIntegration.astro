@@ -1,0 +1,74 @@
+---
+// MCP Server Integration section
+import { GRADIENT_ORB_DELAYS } from '../../data/landingContent';
+---
+
+<section class="relative py-20 px-4">
+  <!-- Gradient mesh background -->
+  <div class="absolute inset-0 gradient-mesh pointer-events-none"></div>
+
+  <!-- Grid pattern background -->
+  <div class="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none"></div>
+
+  <!-- Gradient orb accent -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      class="gradient-orb gradient-orb-purple w-80 h-80 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.MCP_PURPLE};`}
+    >
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <h2 class="text-4xl font-bold text-white text-center mb-6">
+      Programmatic Access via MCP Server
+    </h2>
+
+    <p class="text-xl text-gray-400 text-center mb-12 max-w-3xl mx-auto">
+      Connect your AI assistants directly to both Rules Builder and Prompt Library using the Model
+      Context Protocol (MCP)
+    </p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <!-- Use Case: Rules Builder -->
+      <div class="p-6 bg-gray-900 border border-gray-800 rounded-lg">
+        <h3 class="text-xl font-semibold text-white mb-4">Access Rules Builder</h3>
+        <p class="text-gray-400 mb-4">
+          Fetch frameworks and content programmatically for your AI workflow
+        </p>
+        <ul class="space-y-2 text-gray-400">
+          <li class="flex items-start">
+            <span class="text-teal-500 mr-2">✓</span>
+            <span>List available rule categories</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-teal-500 mr-2">✓</span>
+            <span>Retrieve specific rule content</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Use Case: Prompt Library -->
+      <div class="p-6 bg-gray-900 border border-gray-800 rounded-lg">
+        <h3 class="text-xl font-semibold text-white mb-4">Access Prompt Library</h3>
+        <p class="text-gray-400 mb-4">Retrieve organization prompts for team-wide consistency</p>
+        <ul class="space-y-2 text-gray-400">
+          <li class="flex items-start">
+            <span class="text-teal-500 mr-2">✓</span>
+            <span>Browse organization collections</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-teal-500 mr-2">✓</span>
+            <span>Fetch curated prompts</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="text-center mt-8">
+      <p class="text-gray-400 mb-4">
+        Compatible with Cursor, Claude Desktop, and other MCP-enabled editors
+      </p>
+    </div>
+  </div>
+</section>

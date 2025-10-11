@@ -1,0 +1,25 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary';
+  href: string;
+  class?: string;
+}
+
+const { variant = 'primary', href, class: className = '' } = Astro.props;
+
+const baseStyles =
+  'inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform ';
+
+const variantStyles = {
+  primary:
+    'bg-gradient-to-r from-blue-500 to-teal-500 hover:from-teal-500 hover:to-purple-500 text-white',
+  secondary:
+    'border-2 border-gray-700 hover:border-gray-600 bg-gray-900 hover:bg-gray-800 text-white',
+};
+
+const classes = `${baseStyles} ${variantStyles[variant]} ${className}`;
+---
+
+<a href={href} class={classes}>
+  <slot />
+</a>

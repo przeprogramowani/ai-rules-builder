@@ -1,0 +1,137 @@
+---
+import Button from '../ui/Button.astro';
+import { GRADIENT_ORB_DELAYS, ROUTES, ANCHORS } from '../../data/landingContent';
+import { getTotalLibraryCount } from '../../utils/landingData';
+
+// Editor compatibility list
+const EDITOR_COMPATIBILITY = [
+  { name: 'GitHub Copilot', icon: '🐙' },
+  { name: 'Cursor', icon: '🖱️' },
+  { name: 'Windsurf', icon: '🏄' },
+  { name: 'Claude Code', icon: '🤖' },
+];
+
+const totalFrameworks = getTotalLibraryCount();
+---
+
+<section class="relative py-20 px-4 overflow-hidden">
+  <!-- Animated gradient orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      class="gradient-orb gradient-orb-blue w-96 h-96 -top-48 -left-48"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.HERO_BLUE};`}
+    >
+    </div>
+    <div
+      class="gradient-orb gradient-orb-teal w-[500px] h-[500px] top-20 right-0"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.HERO_TEAL};`}
+    >
+    </div>
+    <div
+      class="gradient-orb gradient-orb-purple w-80 h-80 bottom-0 left-1/3"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.HERO_PURPLE};`}
+    >
+    </div>
+  </div>
+
+  <!-- Grid pattern overlay -->
+  <div class="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <div class="text-center">
+      <!-- Trust Indicator -->
+      <div
+        class="trust-badge inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-full mb-6"
+      >
+        <span class="text-sm text-gray-400">Trusted by 10xDevs community</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+        <span
+          class="headline-line-1 block bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent"
+        >
+          AI Coding Rules
+        </span>
+        <span class="headline-line-2 block text-white">& Team Prompts</span>
+        <span class="headline-line-3 block text-white">in One Platform</span>
+      </h1>
+
+      <!-- Subheadline -->
+      <p
+        class="hero-subheadline text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed"
+      >
+        Build personal AI rules from <span
+          data-count="{totalFrameworks}"
+          data-suffix="+"
+          class="inline-block">{totalFrameworks}+</span
+        > frameworks,<br /> manage shared prompts with your team.
+      </p>
+
+      <!-- CTAs -->
+      <div class="hero-cta-group flex flex-col sm:flex-row gap-4 justify-center mb-12">
+        <Button href={ROUTES.SIGNUP} variant="primary"> Build Rules </Button>
+        <Button href={ANCHORS.CHOOSE_YOUR_PATH} variant="secondary"> Explore Team Library </Button>
+      </div>
+
+      <!-- Editor Compatibility Badges -->
+      <div class="mb-8">
+        <p class="text-sm text-gray-500 mb-4">Compatible with:</p>
+        <div class="flex flex-wrap justify-center gap-4">
+          {
+            EDITOR_COMPATIBILITY.map((editor) => (
+              <div class="editor-badge flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg">
+                <span class="text-xl">{editor.icon}</span>
+                <span class="text-sm text-gray-300">{editor.name}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Value Metrics -->
+      <div class="hero-metrics flex flex-wrap justify-center gap-8 text-center">
+        <div>
+          <div
+            class="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text"
+          >
+            {totalFrameworks}+
+          </div>
+          <div class="text-sm text-gray-500">Frameworks</div>
+        </div>
+        <div class="w-px bg-gray-800"></div>
+        <div>
+          <div
+            class="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text"
+          >
+            Team
+          </div>
+          <div class="text-sm text-gray-500">Collaboration</div>
+        </div>
+        <div class="w-px bg-gray-800"></div>
+        <div>
+          <div
+            class="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text"
+          >
+            Open
+          </div>
+          <div class="text-sm text-gray-500">Source</div>
+        </div>
+      </div>
+
+      <!-- Visual Demo Preview (placeholder for actual screenshot) -->
+      <div class="mt-16 max-w-5xl mx-auto">
+        <div
+          class="demo-image relative rounded-xl overflow-hidden border border-gray-800 shadow-2xl"
+        >
+          <img
+            src="/demo.png"
+            alt="10xRules.ai Rules Builder Demo"
+            class="w-full h-auto"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

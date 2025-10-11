@@ -1,0 +1,214 @@
+/**
+ * Micro-interactions and hover effects
+ * Subtle animations for user feedback
+ */
+
+/* === EDITOR BADGES === */
+
+.editor-badge {
+  transition: all 0.2s ease;
+}
+
+.editor-badge:hover {
+  transform: translateY(-4px) scale(1.05);
+  border-color: rgba(20, 184, 166, 0.5);
+  box-shadow: 0 8px 16px rgba(20, 184, 166, 0.2);
+}
+
+/* === CARDS === */
+
+.before-after-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.before-after-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.solution-card:hover {
+  border-color: rgba(20, 184, 166, 0.6);
+  box-shadow: 0 12px 32px rgba(20, 184, 166, 0.15);
+}
+
+/* === ICONS === */
+
+.emoji-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* .before-after-card:hover .emoji-icon {
+  transform: scale(1.2);
+  animation: bounce 0.6s ease;
+} */
+
+.feature-icon {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === FEATURE ITEMS === */
+
+.feature-item {
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateX(8px);
+}
+
+/* === PATH CARDS === */
+
+.path-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.path-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+.path-card:hover .path-icon {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.path-icon {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.feature-checkmark {
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.path-card:hover .feature-checkmark {
+  transform: scale(1.2);
+  color: rgba(20, 184, 166, 1);
+}
+
+/* === BUTTONS === */
+
+.cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pulse ring effect for CTA buttons */
+.cta-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(59, 130, 246, 0.5);
+  border-radius: inherit;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+.copy-button {
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  transform: scale(1.05);
+  background: rgba(20, 184, 166, 0.1);
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+}
+
+.copy-button.copied {
+  background: rgba(34, 197, 94, 0.2);
+  animation: successPulse 0.6s ease-out;
+}
+
+/* === STEP NUMBERS === */
+
+/* Step numbers no longer pulse - they appear once and stay static */
+
+/* === STEP CARDS STAGGER === */
+
+/* Cards are visible by default (for graceful degradation) */
+.step-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* When container is marked as will-animate, hide cards and prepare for entrance */
+.step-cards-container.will-animate .step-card {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Animate in state with smooth transition */
+.step-card.animate-in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === COMMUNITY AVATARS === */
+
+.contributor-avatar {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.contributor-avatar:hover {
+  transform: scale(1.15) rotate(5deg);
+  border-color: rgba(20, 184, 166, 0.8);
+  box-shadow: 0 8px 16px rgba(20, 184, 166, 0.3);
+  z-index: 10;
+}
+
+/* === FINAL CTA SHIMMER === */
+
+.final-cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.final-cta-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmerSlide 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* === SHIMMER TEXT === */
+
+.total-count {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 1) 0%,
+    rgba(20, 184, 166, 1) 50%,
+    rgba(59, 130, 246, 1) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* === FOCUS STATES === */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.8);
+  outline-offset: 4px;
+  animation: focusPulse 1s ease-in-out infinite;
+}

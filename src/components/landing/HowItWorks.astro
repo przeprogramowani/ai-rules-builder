@@ -1,0 +1,197 @@
+---
+import StepCard from '../ui/StepCard.astro';
+import { ANIMATION_DURATIONS } from '../../data/landingAnimations';
+import { getTotalLibraryCount } from '../../utils/landingData';
+
+// How It Works - Rules Builder steps
+const RULES_BUILDER_STEPS = [
+  {
+    stepNumber: 1,
+    title: 'Select Your Stack',
+    description: `Choose from ${getTotalLibraryCount()}+ frameworks across 6 technology layers`,
+    icon: '🔍',
+  },
+  {
+    stepNumber: 2,
+    title: 'Customize & Import',
+    description: 'Configure rules manually or drop package.json/requirements.txt for smart import',
+    icon: '⚙️',
+  },
+  {
+    stepNumber: 3,
+    title: 'Export Anywhere',
+    description: 'Download as markdown or copy to clipboard for use in any AI-powered editor',
+    icon: '📥',
+  },
+];
+
+// How It Works - Prompt Library steps
+const PROMPT_LIBRARY_STEPS = [
+  {
+    stepNumber: 1,
+    title: 'Organize Content',
+    description: 'Admins create collections and segments to structure team knowledge',
+    icon: '📁',
+  },
+  {
+    stepNumber: 2,
+    title: 'Curate & Publish',
+    description: 'Draft, review, and publish prompts with approval workflow',
+    icon: '✍️',
+  },
+  {
+    stepNumber: 3,
+    title: 'Team Access',
+    description: 'Members browse, filter, and copy curated prompts for consistent AI interactions',
+    icon: '👥',
+  },
+];
+---
+
+<section id="how-it-works" class="py-20 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-4xl font-bold text-white text-center mb-12">How It Works</h2>
+
+    <div class="mb-8">
+      <!-- Tab Buttons -->
+      <div class="flex justify-center gap-4 mb-8">
+        <button
+          id="rules-builder-tab"
+          class="tab-button px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg font-medium transition-all duration-300"
+          data-tab="rules-builder"
+        >
+          Rules Builder
+        </button>
+        <button
+          id="prompt-library-tab"
+          class="tab-button px-6 py-3 bg-gray-900 text-gray-400 rounded-lg font-medium transition-all duration-300 hover:bg-gray-800"
+          data-tab="prompt-library"
+        >
+          Prompt Library
+        </button>
+      </div>
+
+      <!-- Rules Builder Steps -->
+      <div
+        id="rules-builder-content"
+        class="tab-content step-cards-container"
+        data-tab-content="rules-builder"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {
+            RULES_BUILDER_STEPS.map((step, index) => (
+              <div data-step-index={index}>
+                <StepCard
+                  stepNumber={step.stepNumber}
+                  title={step.title}
+                  description={step.description}
+                  icon={step.icon}
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Prompt Library Steps -->
+      <div
+        id="prompt-library-content"
+        class="tab-content step-cards-container hidden"
+        data-tab-content="prompt-library"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {
+            PROMPT_LIBRARY_STEPS.map((step, index) => (
+              <div data-step-index={index}>
+                <StepCard
+                  stepNumber={step.stepNumber}
+                  title={step.title}
+                  description={step.description}
+                  icon={step.icon}
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ HOVER_TRANSITION: ANIMATION_DURATIONS.HOVER_TRANSITION }}>
+  // Tab switching and card animation functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Function to animate step cards with stagger effect
+    function animateStepCards(container) {
+      const cards = container.querySelectorAll('[data-step-index] .step-card');
+
+      // Reset all cards and step numbers
+      cards.forEach((card) => {
+        card.classList.remove('animate-in');
+        const stepNumber = card.querySelector('.step-number');
+        if (stepNumber) {
+          stepNumber.classList.remove('animate-in');
+        }
+      });
+
+      // Mark container as will-animate to hide cards
+      container.classList.add('will-animate');
+      container.classList.remove('animated');
+
+      // Trigger staggered animation after brief delay
+      setTimeout(() => {
+        cards.forEach((card, index) => {
+          setTimeout(() => {
+            card.classList.add('animate-in');
+
+            // Animate step number as well
+            const stepNumber = card.querySelector('.step-number');
+            if (stepNumber) {
+              stepNumber.classList.add('animate-in');
+            }
+
+            // After last card animates, mark container as animated
+            if (index === cards.length - 1) {
+              setTimeout(() => {
+                container.classList.remove('will-animate');
+                container.classList.add('animated');
+              }, 800); // Wait for transition to complete (increased from 600ms)
+            }
+          }, index * 200); // Increased from STAGGER_DELAY (100ms) to 200ms for better visibility
+        });
+      }, 50);
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+
+        // Update button styles
+        tabButtons.forEach((btn) => {
+          if (btn.getAttribute('data-tab') === tabName) {
+            btn.className = `tab-button px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white rounded-lg font-medium transition-all duration-${HOVER_TRANSITION}`;
+          } else {
+            btn.className = `tab-button px-6 py-3 bg-gray-900 text-gray-400 rounded-lg font-medium transition-all duration-${HOVER_TRANSITION} hover:bg-gray-800`;
+          }
+        });
+
+        // Show/hide content and animate cards
+        tabContents.forEach((content) => {
+          if (content.id === `${tabName}-content`) {
+            content.classList.remove('hidden');
+            // Animate cards when tab becomes visible (only if section already scrolled into view)
+            const section = document.querySelector('#how-it-works');
+            if (section && section.classList.contains('step-cards-animated')) {
+              animateStepCards(content);
+            }
+          } else {
+            content.classList.add('hidden');
+          }
+        });
+      });
+    });
+  });
+</script>
