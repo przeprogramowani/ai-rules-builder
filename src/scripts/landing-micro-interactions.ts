@@ -193,23 +193,44 @@ export function initializeStepCardAnimations(): void {
 }
 
 /**
- * Respect prefers-reduced-motion user preference
+ * Check if animations should be disabled for performance
  */
-function respectReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function shouldDisableAnimations(): boolean {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  return isSafari || isMobile || prefersReducedMotion;
 }
 
 /**
  * Initialize all micro-interactions
  */
 export function initializeMicroInteractions(): void {
-  if (respectReducedMotion()) {
-    console.log('Reduced motion preferred - skipping advanced animations');
+  // Always enable essential interactions (copy buttons)
+  initializeCopyButtons();
+
+  // Check if we should disable expensive animations
+  if (shouldDisableAnimations()) {
+    console.log('[Performance] Disabling expensive micro-interactions for better performance');
+
+    // Show step cards immediately without animation
+    const stepCards = document.querySelectorAll('.step-card');
+    stepCards.forEach((card) => {
+      card.classList.remove('will-animate');
+      const stepNumber = card.querySelector('.step-number');
+      if (stepNumber) {
+        stepNumber.classList.add('animate-in');
+      }
+    });
+
     return;
   }
 
+  // Enable all animations on high-performance browsers (Chrome Desktop)
   initializeTabAnimations();
-  initializeCopyButtons();
   initializeMagneticButtons();
   initializeScrollAnimations();
   initializeStepCardAnimations();

@@ -137,7 +137,35 @@ export function initializeLayerCounters(): void {
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    initializeCounters();
-    initializeLayerCounters();
+    // Check if we should disable animations for performance
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const shouldDisableAnimations = isSafari || isMobile || prefersReducedMotion;
+
+    if (shouldDisableAnimations) {
+      // Show final values immediately without animation for better performance
+      const counters = document.querySelectorAll('[data-count]');
+      counters.forEach((counter) => {
+        const element = counter as HTMLElement;
+        const target = element.dataset.count || '0';
+        const suffix = element.dataset.suffix || '';
+        const prefix = element.dataset.prefix || '';
+        element.textContent = `${prefix}${target}${suffix}`;
+      });
+
+      const layerCounts = document.querySelectorAll('.layer-count');
+      layerCounts.forEach((counter) => {
+        const element = counter as HTMLElement;
+        const target = element.dataset.count || '0';
+        element.textContent = target;
+      });
+    } else {
+      // Enable smooth counter animations on high-performance browsers
+      initializeCounters();
+      initializeLayerCounters();
+    }
   });
 }

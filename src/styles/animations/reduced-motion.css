@@ -13,9 +13,9 @@
     scroll-behavior: auto !important;
   }
 
-  /* Disable gradient orb animations */
+  /* Disable gradient orbs entirely - too expensive for reduced motion */
   .gradient-orb {
-    animation: none !important;
+    display: none !important;
   }
 
   /* Disable shimmer effects */

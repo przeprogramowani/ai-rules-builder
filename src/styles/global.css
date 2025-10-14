@@ -116,10 +116,19 @@
   .gradient-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
+    filter: blur(80px); /* Full quality for capable browsers (Chrome Desktop) */
     opacity: 0.3;
     pointer-events: none;
     animation: float 20s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Performance: Disable expensive gradient orbs on Safari, mobile, and reduced motion */
+  /* Gradient orbs with blur + animation are too expensive for these devices/preferences */
+  .is-safari .gradient-orb,
+  .is-mobile .gradient-orb,
+  .prefers-reduced-motion .gradient-orb {
+    display: none; /* Hide entirely for smooth 60fps scrolling */
   }
 
   .gradient-orb-blue {
@@ -154,6 +163,18 @@
       radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
       radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.08) 0px, transparent 50%);
     filter: blur(40px);
+  }
+
+  /* Performance: Simplify background patterns on mobile */
+  .is-mobile .bg-grid-pattern,
+  .is-mobile .bg-dots-pattern {
+    background-image: none;
+    background-color: transparent;
+  }
+
+  .is-mobile .gradient-mesh {
+    filter: none;
+    opacity: 0.3;
   }
 }
 

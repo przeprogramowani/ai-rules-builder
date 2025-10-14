@@ -27,6 +27,22 @@
   }
 }
 
+@keyframes fadeInUpVisible {
+  from {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  1% {
+    visibility: visible;
+  }
+  to {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes scaleInFade {
   from {
     opacity: 0;
