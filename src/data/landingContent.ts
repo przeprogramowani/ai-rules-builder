@@ -28,7 +28,6 @@ export const ANCHORS = {
   MAIN_CONTENT: '#main-content',
   FEATURES: '#features',
   CHOOSE_YOUR_PATH: '#choose-your-path',
-  CONTACT: '#contact',
 } as const;
 
 // External links
@@ -36,6 +35,7 @@ export const EXTERNAL_LINKS = {
   GITHUB: GITHUB_REPO_URL,
   GITHUB_CONTRIBUTING: `${GITHUB_REPO_URL}/blob/main/CONTRIBUTING.md`,
   MCP_DOCS: MCP_DOCS_URL,
+  LIBRARY_FORM: 'https://airtable.com/appBN64leXIbQ1gDe/pagwa0kilsbzLUFBQ/form',
 } as const;
 
 // ============================================================================

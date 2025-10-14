@@ -162,10 +162,6 @@
     opacity: 1;
   }
 
-  .path-card:hover .path-icon {
-    transform: scale(1.2) rotate(5deg);
-  }
-
   .path-card:hover .feature-checkmark {
     transform: scale(1.2);
     color: rgba(20, 184, 166, 1);
@@ -174,7 +170,6 @@
 
 .path-icon {
   display: inline-block;
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
   z-index: 1; /* Ensure icon stays above pseudo-elements */
 }
