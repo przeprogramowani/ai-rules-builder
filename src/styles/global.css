@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
+/* Landing page animations */
+@import './animations/keyframes.css';
+@import './animations/entrances.css';
+@import './animations/micro-interactions.css';
+@import './animations/reduced-motion.css';
+
 @theme {
   --font-mono: 'Noto Sans Mono', monospace;
 }
@@ -50,6 +56,17 @@
     }
   }
 
+  @keyframes scrollFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .animate-accordion-down {
     animation: accordion-down 0.2s ease-out;
   }
@@ -59,15 +76,105 @@
   }
 
   .animate-fade-in {
-    animation: fadeIn 0.2s ease-out forwards;
+    animation: scrollFadeIn 0.8s ease-out forwards;
   }
 
   .animate-fade-out {
     animation: fadeOut 0.2s ease-out forwards;
   }
 
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .animate-on-scroll.animate-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   button {
     cursor: pointer;
+  }
+
+  /* Landing page background patterns and gradients */
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(to right, rgba(75, 85, 99, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(75, 85, 99, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-dots-pattern {
+    background-image: radial-gradient(rgba(75, 85, 99, 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px); /* Full quality for capable browsers (Chrome Desktop) */
+    opacity: 0.3;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Performance: Disable expensive gradient orbs on Safari, mobile, and reduced motion */
+  /* Gradient orbs with blur + animation are too expensive for these devices/preferences */
+  .is-safari .gradient-orb,
+  .is-mobile .gradient-orb,
+  .prefers-reduced-motion .gradient-orb {
+    display: none; /* Hide entirely for smooth 60fps scrolling */
+  }
+
+  .gradient-orb-blue {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0) 70%);
+  }
+
+  .gradient-orb-teal {
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.5) 0%, rgba(20, 184, 166, 0) 70%);
+  }
+
+  .gradient-orb-purple {
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.5) 0%, rgba(168, 85, 247, 0) 70%);
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -30px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(20, 184, 166, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.08) 0px, transparent 50%);
+    filter: blur(40px);
+  }
+
+  /* Performance: Simplify background patterns on mobile */
+  .is-mobile .bg-grid-pattern,
+  .is-mobile .bg-dots-pattern {
+    background-image: none;
+    background-color: transparent;
+  }
+
+  .is-mobile .gradient-mesh {
+    filter: none;
+    opacity: 0.3;
   }
 }
 

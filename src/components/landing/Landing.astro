@@ -1,0 +1,64 @@
+---
+// Main landing page container
+// Imports all section components and stacks them vertically
+import LandingHeader from './LandingHeader.astro';
+import Hero from './Hero.astro';
+import ProblemSolution from './ProblemSolution.astro';
+import HowItWorks from './HowItWorks.astro';
+import FeaturesGrid from './FeaturesGrid.astro';
+import TechStackShowcase from './TechStackShowcase.astro';
+import MCPIntegration from './MCPIntegration.astro';
+import ChooseYourPath from './ChooseYourPath.astro';
+import Community from './Community.astro';
+import FinalCTA from './FinalCTA.astro';
+import { ANCHORS } from '../../data/landingContent';
+---
+
+<div class="w-full bg-gray-950 text-white">
+  <!-- Skip to main content link for accessibility -->
+  <a
+    href={ANCHORS.MAIN_CONTENT}
+    class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-500 focus:text-white focus:rounded-lg"
+  >
+    Skip to main content
+  </a>
+
+  <!-- Landing Header -->
+  <LandingHeader />
+
+  <!-- Hero Section -->
+  <main id="main-content">
+    <Hero />
+
+    <!-- Problem/Solution Section -->
+    <ProblemSolution />
+
+    <!-- How It Works Section -->
+    <HowItWorks />
+
+    <!-- Features Grid Section -->
+    <FeaturesGrid />
+
+    <!-- Tech Stack Coverage Section -->
+    <TechStackShowcase />
+
+    <!-- MCP Integration Section -->
+    <MCPIntegration />
+
+    <!-- Choose Your Path Section -->
+    <ChooseYourPath />
+
+    <!-- Community Section -->
+    <Community />
+
+    <!-- Final CTA Section -->
+    <FinalCTA />
+  </main>
+</div>
+
+<!-- Scroll animations and smooth scrolling -->
+<script src="../../scripts/landing-animations.ts"></script>
+<!-- Number counter animations -->
+<script src="../../scripts/landing-counters.ts"></script>
+<!-- Micro-interactions and hover effects -->
+<script src="../../scripts/landing-micro-interactions.ts"></script>

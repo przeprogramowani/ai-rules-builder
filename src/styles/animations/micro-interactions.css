@@ -1,0 +1,323 @@
+/**
+ * Micro-interactions and hover effects
+ * Subtle animations for user feedback
+ */
+
+/* === EDITOR BADGES === */
+
+.editor-badge {
+  position: relative;
+  transition: all 0.2s ease;
+  contain: layout style paint; /* Isolate layout calculations to prevent parent reflow */
+}
+
+.editor-badge::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, transparent 70%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .editor-badge:hover {
+    transform: translateY(-4px) scale(1.05);
+    border-color: rgba(20, 184, 166, 0.5);
+  }
+
+  .editor-badge:hover::after {
+    opacity: 1;
+  }
+}
+
+/* === CARDS === */
+
+.before-after-card {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.before-after-card::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .before-after-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .before-after-card:hover::after {
+    opacity: 1;
+  }
+}
+
+.solution-card {
+  position: relative;
+}
+
+.solution-card::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 70%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .solution-card:hover {
+    border-color: rgba(20, 184, 166, 0.6);
+  }
+
+  .solution-card:hover::after {
+    opacity: 1;
+  }
+}
+
+/* === ICONS === */
+
+.emoji-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* .before-after-card:hover .emoji-icon {
+  transform: scale(1.2);
+  animation: bounce 0.6s ease;
+} */
+
+.feature-icon {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === FEATURE ITEMS === */
+
+.feature-item {
+  transition: all 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feature-item:hover {
+    transform: translateX(8px);
+  }
+}
+
+/* === PATH CARDS === */
+
+.path-card {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  contain: layout style paint; /* Isolate layout calculations to prevent parent reflow */
+}
+
+/* Ensure all direct children are above the pseudo-elements */
+.path-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.path-card::after {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.4) 0%, transparent 60%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.path-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .path-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+
+  .path-card:hover::after,
+  .path-card:hover::before {
+    opacity: 1;
+  }
+
+  .path-card:hover .feature-checkmark {
+    transform: scale(1.2);
+    color: rgba(20, 184, 166, 1);
+  }
+}
+
+.path-icon {
+  display: inline-block;
+  position: relative;
+  z-index: 1; /* Ensure icon stays above pseudo-elements */
+}
+
+.feature-checkmark {
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+/* === BUTTONS === */
+
+.cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pulse ring effect for CTA buttons */
+.cta-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(59, 130, 246, 0.5);
+  border-radius: inherit;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+.copy-button {
+  transition: all 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copy-button:hover {
+    transform: scale(1.05);
+    background: rgba(20, 184, 166, 0.1);
+  }
+}
+
+.copy-button:active {
+  transform: scale(0.95);
+}
+
+.copy-button.copied {
+  background: rgba(34, 197, 94, 0.2);
+  animation: successPulse 0.6s ease-out;
+}
+
+/* === STEP NUMBERS === */
+
+/* Step numbers no longer pulse - they appear once and stay static */
+
+/* === STEP CARDS STAGGER === */
+
+/* Cards are visible by default (for graceful degradation) */
+.step-card {
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 1rem; /* Reserve space for absolute positioned step number */
+  contain: layout; /* Isolate layout calculations */
+}
+
+/* When container is marked as will-animate, hide cards and prepare for entrance */
+.step-cards-container.will-animate .step-card {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Animate in state with smooth transition */
+.step-card.animate-in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === COMMUNITY AVATARS === */
+
+.contributor-avatar {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.contributor-avatar::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, transparent 70%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contributor-avatar:hover {
+    transform: scale(1.15) rotate(5deg);
+    border-color: rgba(20, 184, 166, 0.8);
+    z-index: 10;
+  }
+
+  .contributor-avatar:hover::after {
+    opacity: 1;
+  }
+}
+
+/* === FINAL CTA SHIMMER === */
+
+.final-cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.final-cta-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmerSlide 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* === SHIMMER TEXT === */
+
+.total-count {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 1) 0%,
+    rgba(20, 184, 166, 1) 50%,
+    rgba(59, 130, 246, 1) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* === FOCUS STATES === */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.8);
+  outline-offset: 4px;
+  animation: focusPulse 1s ease-in-out infinite;
+}

@@ -1,0 +1,177 @@
+---
+// Problem/Solution section configuration
+const PROBLEM_SOLUTION_CONFIG = {
+  headline: 'Stop Fighting Your AI Coding Assistant',
+  subheadline:
+    'Generic AI suggestions waste your time. Get contextual, framework-specific help instead.',
+
+  stories: [
+    {
+      emoji: '🧑‍💻',
+      title: 'For Individual Developers',
+      problem: {
+        badge: 'BEFORE',
+        emoji: '😤',
+        title: 'The Frustration',
+        items: [
+          '"Use useState" when you\'re building with Vue Composition API',
+          'Generic Express.js patterns when you need Fastify best practices',
+          "Wasting time correcting AI that doesn't know your stack",
+        ],
+      },
+      solution: {
+        badge: 'AFTER',
+        emoji: '🚀',
+        title: 'Your AI, Your Way',
+        items: [
+          'AI knows you use Vue 3, Pinia, and TypeScript strict mode',
+          'Suggestions match your exact tech stack from day one',
+          'Import your package.json and get instant context',
+        ],
+      },
+    },
+    {
+      emoji: '👥',
+      title: 'For Development Teams',
+      problem: {
+        badge: 'BEFORE',
+        emoji: '😵‍💫',
+        title: 'The Chaos',
+        items: [
+          'Everyone has different prompts in random Notion docs',
+          'Junior devs reinvent the wheel, seniors copy-paste from Slack',
+          'Code reviews catch AI-generated antipatterns too late',
+        ],
+      },
+      solution: {
+        badge: 'AFTER',
+        emoji: '🎯',
+        title: 'One Source of Truth',
+        items: [
+          'Centralized prompt library with approval workflows',
+          'Junior devs get best practices, seniors maintain standards',
+          'Consistent AI output across the entire team',
+        ],
+      },
+    },
+  ],
+} as const;
+
+const { headline, subheadline, stories } = PROBLEM_SOLUTION_CONFIG;
+
+// Helper to determine card styling based on type and index
+const getCardStyles = (type: 'problem' | 'solution', storyIndex: number) => {
+  if (type === 'problem') {
+    // First story uses red, second uses orange
+    const colorScheme =
+      storyIndex === 0
+        ? {
+            gradient: 'from-red-900/20',
+            border: 'border-red-900/50',
+            badge: 'bg-red-500',
+            titleColor: 'text-red-400',
+          }
+        : {
+            gradient: 'from-orange-900/20',
+            border: 'border-orange-900/50',
+            badge: 'bg-orange-500',
+            titleColor: 'text-orange-400',
+          };
+    return {
+      cardClass: `problem-card before-after-card relative p-8 bg-gradient-to-br ${colorScheme.gradient} to-gray-900 border-2 ${colorScheme.border} rounded-xl`,
+      badgeClass: `absolute -top-3 -left-3 ${colorScheme.badge} text-white text-xs font-bold px-3 py-1 rounded-full`,
+      titleClass: `text-xl font-bold ${colorScheme.titleColor} mb-4`,
+      iconColor: storyIndex === 0 ? 'text-red-500' : 'text-orange-500',
+      iconSymbol: '×',
+    };
+  } else {
+    // First story uses blue-teal, second uses purple-teal
+    const colorScheme =
+      storyIndex === 0
+        ? {
+            gradient: 'from-blue-900/20 via-teal-900/20',
+            badge: 'from-blue-500 to-teal-500',
+            titleGradient: 'from-blue-400 to-teal-400',
+            shadow: 'shadow-teal-500/10',
+          }
+        : {
+            gradient: 'from-purple-900/20 via-teal-900/20',
+            badge: 'from-purple-500 to-teal-500',
+            titleGradient: 'from-purple-400 to-teal-400',
+            shadow: 'shadow-purple-500/10',
+          };
+    return {
+      cardClass: `solution-card before-after-card relative p-8 bg-gradient-to-br ${colorScheme.gradient} to-gray-900 border-2 border-teal-500/50 rounded-xl shadow-lg ${colorScheme.shadow}`,
+      badgeClass: `absolute -top-3 -left-3 bg-gradient-to-r ${colorScheme.badge} text-white text-xs font-bold px-3 py-1 rounded-full`,
+      titleClass: `text-xl font-bold bg-gradient-to-r ${colorScheme.titleGradient} bg-clip-text text-transparent mb-4`,
+      iconColor: 'text-teal-500',
+      iconSymbol: '✓',
+    };
+  }
+};
+---
+
+<section class="relative py-20 px-4">
+  <!-- Gradient mesh background -->
+  <div class="absolute inset-0 gradient-mesh pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <!-- Engaging headline -->
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        {headline}
+      </h2>
+      <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+        {subheadline}
+      </p>
+    </div>
+
+    <!-- Stories -->
+    {
+      stories.map((story, storyIndex) => {
+        const problemStyles = getCardStyles('problem', storyIndex);
+        const solutionStyles = getCardStyles('solution', storyIndex);
+        const isLastStory = storyIndex === stories.length - 1;
+
+        return (
+          <div class={isLastStory ? '' : 'mb-16'}>
+            <div class="flex items-center gap-3 mb-8">
+              <div class="text-4xl">{story.emoji}</div>
+              <h3 class="text-2xl font-bold text-white">{story.title}</h3>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class={problemStyles.cardClass}>
+                <div class={problemStyles.badgeClass}>{story.problem.badge}</div>
+                <div class="emoji-icon text-4xl mb-4">{story.problem.emoji}</div>
+                <h4 class={problemStyles.titleClass}>{story.problem.title}</h4>
+                <div class="space-y-3 text-gray-300">
+                  {story.problem.items.map((item) => (
+                    <p class="flex items-start gap-2">
+                      <span class={problemStyles.iconColor}>{problemStyles.iconSymbol}</span>
+                      <span>{item}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              <div class={solutionStyles.cardClass}>
+                <div class={solutionStyles.badgeClass}>{story.solution.badge}</div>
+                <div class="emoji-icon text-4xl mb-4">{story.solution.emoji}</div>
+                <h4 class={solutionStyles.titleClass}>{story.solution.title}</h4>
+                <div class="space-y-3 text-gray-300">
+                  {story.solution.items.map((item) => (
+                    <p class="flex items-start gap-2">
+                      <span class={solutionStyles.iconColor}>{solutionStyles.iconSymbol}</span>
+                      <span>{item}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })
+    }
+  </div>
+</section>

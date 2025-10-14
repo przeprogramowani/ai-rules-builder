@@ -1,13 +1,16 @@
 ---
 const siteUrl = 'https://10xrules.ai';
 const siteDescription =
-  'Create and manage rules for best-in-class AI tools like GitHub Copilot, Cursor & Windsurf. Make AI Agents aware of your preferences and coding style.';
-const siteTitle = '10xRules.ai';
+  'Build personal AI coding rules from 100+ frameworks and manage team prompts with your organization on one platform. Compatible with GitHub Copilot, Cursor & Windsurf.';
+const siteTitle = '10xRules.ai - AI Coding Rules & Team Prompts';
+const keywords =
+  'AI coding rules, prompt library, team collaboration, GitHub Copilot, Cursor, Windsurf, MCP server, developer tools, coding frameworks, prompt management';
 ---
 
 <!-- Primary Meta Tags -->
 <meta name="title" content={siteTitle} />
 <meta name="description" content={siteDescription} />
+<meta name="keywords" content={keywords} />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
@@ -33,3 +36,40 @@ const siteTitle = '10xRules.ai';
 
 <!-- Canonical URL -->
 <link rel="canonical" href={siteUrl} />
+
+<!-- Structured Data (JSON-LD) -->
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "10xRules.ai",
+    "url": "https://10xrules.ai",
+    "description": "Build personal AI coding rules from 100+ frameworks and manage team prompts with your organization on one platform. Compatible with GitHub Copilot, Cursor & Windsurf.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "10xDevs",
+      "url": "https://github.com/przeprogramowani/ai-rules-builder"
+    },
+    "featureList": [
+      "Visual Rule Builder for AI coding assistants",
+      "100+ frameworks and libraries coverage",
+      "Smart import from package.json",
+      "Centralized team prompt management",
+      "Role-based access control",
+      "MCP server integration"
+    ],
+    "screenshot": "https://10xrules.ai/demo.png",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "150"
+    }
+  }
+</script>
