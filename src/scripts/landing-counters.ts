@@ -3,7 +3,7 @@
  * Animates numbers from 0 to target value with smooth transitions
  */
 
-import { ANIMATION_DURATIONS, OBSERVER_THRESHOLDS, ROOT_MARGINS } from '../data/landingContent';
+import { ANIMATION_DURATIONS, OBSERVER_THRESHOLDS, ROOT_MARGINS } from '../data/landingAnimations';
 
 interface CounterOptions {
   duration?: number;
