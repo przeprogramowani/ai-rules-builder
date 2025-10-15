@@ -103,23 +103,6 @@ const totalFrameworks = getTotalLibraryCount();
         <Button href={ANCHORS.CHOOSE_YOUR_PATH} variant="secondary"> Explore Team Library </Button>
       </div>
 
-      <!-- Editor Compatibility Badges -->
-      <div class="mb-8">
-        <p class="text-sm text-gray-500 mb-4">Compatible with your environment:</p>
-        <div class="flex flex-wrap justify-center gap-4">
-          {
-            EDITOR_COMPATIBILITY.map((editor) => (
-              <div
-                class={`editor-badge flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg lg:min-w-40 ${editor.theme}`}
-              >
-                <img src={editor.iconPath} alt={`${editor.name} icon`} class="size-6" />
-                <span class="text-sm text-gray-300">{editor.name}</span>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-
       <!-- Value Metrics -->
       <div class="hero-metrics flex flex-wrap justify-center gap-8 text-center">
         <div>
@@ -147,6 +130,25 @@ const totalFrameworks = getTotalLibraryCount();
             Open
           </div>
           <div class="text-sm text-gray-500">Source</div>
+        </div>
+      </div>
+
+      <!-- Editor Compatibility Badges -->
+      <div class="mt-8">
+        <p class="text-sm text-gray-500 mb-4 editor-badge-lead">
+          Compatible with your environment:
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          {
+            EDITOR_COMPATIBILITY.map((editor) => (
+              <div
+                class={`editor-badge flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg lg:min-w-40 ${editor.theme}`}
+              >
+                <img src={editor.iconPath} alt={`${editor.name} icon`} class="size-6" />
+                <span class="text-sm text-gray-300">{editor.name}</span>
+              </div>
+            ))
+          }
         </div>
       </div>
 

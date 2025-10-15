@@ -58,6 +58,10 @@
   animation: fadeInUpVisible 0.5s ease-out forwards;
 }
 
+.editor-badge-lead {
+  animation: fadeInUp 1s ease-out 1.3s backwards;
+}
+
 .editor-badge:nth-child(1) {
   animation-delay: 1.3s;
 }
