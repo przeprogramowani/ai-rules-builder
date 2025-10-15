@@ -74,6 +74,10 @@
   animation-delay: 1.75s;
 }
 
+.editor-badge:nth-child(5) {
+  animation-delay: 1.9s;
+}
+
 .hero-metrics {
   animation: fadeInUp 0.6s ease-out 1.5s backwards;
 }

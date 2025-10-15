@@ -2,13 +2,41 @@
 import Button from '../ui/Button.astro';
 import { GRADIENT_ORB_DELAYS, ROUTES, ANCHORS } from '../../data/landingContent';
 import { getTotalLibraryCount } from '../../utils/landingData';
+import { ShieldCheck } from 'lucide-react';
+
+import cursorIcon from '../../assets/hero/icon-cursor.png';
+import copilotIcon from '../../assets/hero/icon-copilot.png';
+import claudeCodeIcon from '../../assets/hero/icon-claude-code.png';
+import jetbrainsAiIcon from '../../assets/hero/icon-jb.png';
+import windsurfIcon from '../../assets/hero/icon-windsurf.png';
 
 // Editor compatibility list
-const EDITOR_COMPATIBILITY = [
-  { name: 'GitHub Copilot', icon: '🐙' },
-  { name: 'Cursor', icon: '🖱️' },
-  { name: 'Windsurf', icon: '🏄' },
-  { name: 'Claude Code', icon: '🤖' },
+const EDITOR_COMPATIBILITY: { name: string; iconPath: string; theme: string }[] = [
+  {
+    name: 'GitHub Copilot',
+    iconPath: copilotIcon.src,
+    theme: 'hover:bg-blue-600/20 hover:border-blue-600 transition-all duration-300',
+  },
+  {
+    name: 'Cursor',
+    iconPath: cursorIcon.src,
+    theme: 'hover:bg-neutral-600/20 hover:border-neutral-600 transition-all duration-300',
+  },
+  {
+    name: 'Windsurf',
+    iconPath: windsurfIcon.src,
+    theme: 'hover:bg-purple-600/20 hover:border-purple-600 transition-all duration-300',
+  },
+  {
+    name: 'Claude Code',
+    iconPath: claudeCodeIcon.src,
+    theme: 'hover:bg-orange-600/20 hover:border-orange-600 transition-all duration-300',
+  },
+  {
+    name: 'JetBrains AI',
+    iconPath: jetbrainsAiIcon.src,
+    theme: 'hover:bg-rose-600/20 hover:border-rose-600 transition-all duration-300',
+  },
 ];
 
 const totalFrameworks = getTotalLibraryCount();
@@ -41,9 +69,14 @@ const totalFrameworks = getTotalLibraryCount();
     <div class="text-center">
       <!-- Trust Indicator -->
       <div
-        class="trust-badge inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-full mb-6"
+        class="trust-badge inline-flex items-center gap-2 px-4 py-2 bg-gray-900/50 border border-gray-800 rounded-full mb-6 text-gray-400"
       >
-        <span class="text-sm text-gray-400">Trusted by 10xDevs community</span>
+        <ShieldCheck className="size-4" />
+        <span class="text-sm"
+          >Trusted by <a href="https://10xdevs.pl" target="_blank" class="hover:text-cyan-500"
+            >10xDevs</a
+          > community</span
+        >
       </div>
 
       <!-- Main Headline -->
@@ -61,27 +94,25 @@ const totalFrameworks = getTotalLibraryCount();
       <p
         class="hero-subheadline text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed"
       >
-        Build personal AI rules from <span
-          data-count="{totalFrameworks}"
-          data-suffix="+"
-          class="inline-block">{totalFrameworks}+</span
-        > frameworks,<br /> manage shared prompts with your team.
+        Make your AI Coding Assistants work the way you want — every time.
       </p>
 
       <!-- CTAs -->
       <div class="hero-cta-group flex flex-col sm:flex-row gap-4 justify-center mb-12">
-        <Button href={ROUTES.SIGNUP} variant="primary"> Build Rules </Button>
+        <Button href={ROUTES.SIGNUP} variant="primary"> Get Started for Free </Button>
         <Button href={ANCHORS.CHOOSE_YOUR_PATH} variant="secondary"> Explore Team Library </Button>
       </div>
 
       <!-- Editor Compatibility Badges -->
       <div class="mb-8">
-        <p class="text-sm text-gray-500 mb-4">Compatible with:</p>
+        <p class="text-sm text-gray-500 mb-4">Compatible with your environment:</p>
         <div class="flex flex-wrap justify-center gap-4">
           {
             EDITOR_COMPATIBILITY.map((editor) => (
-              <div class="editor-badge flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg">
-                <span class="text-xl">{editor.icon}</span>
+              <div
+                class={`editor-badge flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg lg:min-w-40 ${editor.theme}`}
+              >
+                <img src={editor.iconPath} alt={`${editor.name} icon`} class="size-6" />
                 <span class="text-sm text-gray-300">{editor.name}</span>
               </div>
             ))
