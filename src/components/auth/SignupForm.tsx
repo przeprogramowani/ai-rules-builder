@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -22,6 +22,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
   const [showApiError, setShowApiError] = useState(true);
 
+  // FIX 5: Add submission state to prevent double-submit
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submissionInProgressRef = useRef(false);
+
   const {
     register,
     handleSubmit,
@@ -32,6 +36,15 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
   });
 
   const onSubmit = async (data: SignupFormData) => {
+    // FIX 5: PREVENT DOUBLE SUBMIT
+    if (submissionInProgressRef.current) {
+      console.warn('Signup already in progress, ignoring duplicate submission');
+      return;
+    }
+
+    submissionInProgressRef.current = true;
+    setIsSubmitting(true);
+
     try {
       setErrorType(null);
       setUnverifiedEmail(null);
@@ -65,6 +78,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
           setShowApiError(true);
         }
       }
+    } finally {
+      // FIX 5: RELEASE LOCK AFTER DELAY (prevent rapid re-submit)
+      setTimeout(() => {
+        submissionInProgressRef.current = false;
+        setIsSubmitting(false);
+      }, 2000); // 2 second cooldown
     }
   };
 
@@ -202,7 +221,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
 
       <button
         type="submit"
-        disabled={isLoading || isCaptchaLoading}
+        disabled={isLoading || isCaptchaLoading || isSubmitting}
         className={`
           w-full flex justify-center py-2 px-4 border border-transparent rounded-md
           text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
@@ -213,7 +232,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
       >
         {isCaptchaLoading
           ? 'Verifying security...'
-          : isLoading
+          : isLoading || isSubmitting
             ? 'Creating account...'
             : 'Create account'}
       </button>

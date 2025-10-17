@@ -114,6 +114,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       },
     });
 
+    // FIX 6: Log email send for monitoring
+    await supabase
+      .rpc('log_email_send', {
+        p_email: email.toLowerCase(),
+        p_type: 'resend_verification',
+        p_ip_address: requestorIp,
+        p_user_agent: request.headers.get('user-agent'),
+        p_request_path: '/api/auth/resend-verification',
+        p_user_id: null, // We don't have user ID in this endpoint
+        p_status: resendError ? 'failed' : 'sent',
+        p_error_message: resendError?.message || null,
+      })
+      .catch((err) => console.error('Failed to log email send:', err));
+
     // Always return success to prevent email enumeration
     // Even if there was an error, we don't want to reveal whether the email exists
     if (resendError) {

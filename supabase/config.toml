@@ -159,7 +159,9 @@ enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1m0s"
+# FIX 4: Changed from 1m0s to 5m0s to prevent rapid duplicates
+# Aligns with database rate limit (5 per hour = ~12 min average)
+max_frequency = "5m0s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).

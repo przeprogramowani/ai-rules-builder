@@ -8,6 +8,7 @@ import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVers
 import { redeemInvite } from '../../../services/prompt-library/invites';
 import { verifyCaptcha } from '../../../services/captcha';
 import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
+import { createHash } from 'node:crypto';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled
@@ -16,6 +17,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       status: 403,
     });
   }
+
+  // Store email at top level for error handler access
+  let userEmail: string | undefined;
 
   try {
     const { email, password, privacyPolicyConsent, inviteToken, captchaToken } =
@@ -26,6 +30,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         inviteToken?: string;
         captchaToken: string;
       };
+
+    userEmail = email; // Store for error handler
 
     if (!email || !password || !privacyPolicyConsent || !captchaToken) {
       return new Response(
@@ -52,53 +58,112 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
 
-    // Check if user already exists
-    const { data: userData, error: userCheckError } = await supabase.auth.admin.listUsers();
+    // FIX 3: Check for duplicate signup request (prevents network retry duplicates)
+    const captchaHash = createHash('sha256').update(captchaToken).digest('hex');
+    const { data: dedupResult, error: dedupError } = await supabase.rpc('check_signup_duplicate', {
+      p_email: email.toLowerCase(),
+      p_ip_address: requestorIp,
+      p_captcha_hash: captchaHash,
+    });
 
-    if (userCheckError) {
-      console.error('Error checking existing users:', userCheckError);
-      return new Response(JSON.stringify({ error: 'Failed to verify user status' }), {
-        status: 500,
+    if (dedupError) {
+      console.error('Deduplication check error:', dedupError);
+      // Don't block signup if dedup check fails - just log and continue
+    } else if (dedupResult?.is_duplicate) {
+      const secondsAgo = dedupResult.seconds_ago || 0;
+      const remainingSeconds = Math.max(120 - secondsAgo, 0);
+      return new Response(
+        JSON.stringify({
+          error: `Signup request already ${dedupResult.status}. Please wait ${remainingSeconds} seconds before trying again.`,
+          type: 'duplicate_request',
+        }),
+        { status: 429 },
+      );
+    }
+
+    // FIX 2: Use atomic database check to prevent race conditions
+    const { data: signupCheck, error: checkError } = await supabase.rpc('safe_signup_or_resend', {
+      p_email: email.toLowerCase(),
+      p_ip_address: requestorIp,
+    });
+
+    if (checkError) {
+      console.error('Error checking signup eligibility:', checkError);
+      return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
+        status: 503,
       });
     }
 
-    const existingUser = userData.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-
-    if (existingUser) {
-      if (existingUser.email_confirmed_at) {
-        // Account exists and is confirmed
-        return new Response(
-          JSON.stringify({
-            error: 'An account with this email already exists. Please log in.',
-            type: 'confirmed_exists',
-          }),
-          { status: 400 },
-        );
-      } else {
-        // Account exists but is not confirmed - resend verification email
-        const supabaseClient = createSupabaseServerInstance({ cookies, headers: request.headers });
-
-        const { error: resendError } = await supabaseClient.auth.resend({
-          type: 'signup',
-          email: email.toLowerCase(),
-          options: {
-            emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
-          },
-        });
-
-        if (resendError) {
-          console.error('Error resending verification email:', resendError);
-        }
-
-        // Return success response (same as new signup) to trigger success UI
-        return new Response(
-          JSON.stringify({
-            user: { id: existingUser.id, email: existingUser.email },
-          }),
-          { status: 200 },
-        );
-      }
+    // Handle the action returned by the atomic check
+    if (signupCheck.action === 'error') {
+      return new Response(
+        JSON.stringify({
+          error: signupCheck.message,
+          type: signupCheck.type,
+        }),
+        { status: 400 },
+      );
     }
+
+    if (signupCheck.action === 'rate_limited') {
+      const retryAfter = signupCheck.retry_after || 3600;
+      const minutes = Math.ceil(retryAfter / 60);
+      return new Response(
+        JSON.stringify({
+          error: `Verification email already sent recently. Please check your inbox or wait ${minutes} minute${minutes > 1 ? 's' : ''}.`,
+          type: 'rate_limit',
+          retryAfter: retryAfter,
+        }),
+        { status: 429 },
+      );
+    }
+
+    if (signupCheck.action === 'resend') {
+      // User exists but unconfirmed, rate limit passed - resend verification
+      const supabaseClient = createSupabaseServerInstance({ cookies, headers: request.headers });
+
+      const { error: resendError } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email: email.toLowerCase(),
+        options: {
+          emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
+        },
+      });
+
+      if (resendError) {
+        console.error('Error resending verification email:', resendError);
+      }
+
+      // FIX 6: Log email send for monitoring
+      const { error: logError } = await supabase.rpc('log_email_send', {
+        p_email: email.toLowerCase(),
+        p_type: 'resend_verification',
+        p_ip_address: requestorIp,
+        p_user_agent: request.headers.get('user-agent'),
+        p_request_path: '/api/auth/signup',
+        p_user_id: signupCheck.user_id,
+        p_status: resendError ? 'failed' : 'sent',
+        p_error_message: resendError?.message || null,
+      });
+      if (logError) console.error('Failed to log email send:', logError);
+
+      // Mark signup as completed (FIX 3)
+      const { error: statusError } = await supabase.rpc('update_signup_status', {
+        p_email: email.toLowerCase(),
+        p_status: 'completed',
+      });
+      if (statusError) console.error('Failed to update signup status:', statusError);
+
+      // Return success response (same as new signup) to trigger success UI
+      return new Response(
+        JSON.stringify({
+          user: { id: signupCheck.user_id, email: signupCheck.email },
+        }),
+        { status: 200 },
+      );
+    }
+
+    // signupCheck.action === 'create' - proceed with new user creation
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -115,6 +180,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!authData.user) {
       return new Response(JSON.stringify({ error: 'User creation failed' }), { status: 500 });
     }
+
+    // FIX 6: Log email send for new signup
+    const { error: logError2 } = await supabase.rpc('log_email_send', {
+      p_email: email.toLowerCase(),
+      p_type: 'signup_verification',
+      p_ip_address: requestorIp,
+      p_user_agent: request.headers.get('user-agent'),
+      p_request_path: '/api/auth/signup',
+      p_user_id: authData.user.id,
+    });
+    if (logError2) console.error('Failed to log email send:', logError2);
 
     const { error: consentError } = await supabase.from('user_consents').insert({
       user_id: authData.user.id,
@@ -151,9 +227,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     }
 
+    // Mark signup as completed (FIX 3)
+    const { error: statusError2 } = await supabase.rpc('update_signup_status', {
+      p_email: email.toLowerCase(),
+      p_status: 'completed',
+    });
+    if (statusError2) console.error('Failed to update signup status:', statusError2);
+
     return new Response(JSON.stringify({ user: authData.user }), { status: 200 });
   } catch (err) {
     console.error('Signup error:', err);
+
+    // Mark signup as failed (FIX 3) - use stored email variable
+    if (userEmail) {
+      try {
+        const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
+        await supabase.rpc('update_signup_status', {
+          p_email: userEmail.toLowerCase(),
+          p_status: 'failed',
+        });
+      } catch (updateErr) {
+        console.error('Failed to update signup status on error:', updateErr);
+      }
+    }
+
     return new Response(JSON.stringify({ error: 'An unexpected error occurred' }), { status: 500 });
   }
 };
