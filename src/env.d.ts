@@ -14,6 +14,9 @@ declare global {
         options: {
           sitekey: string;
           theme?: 'light' | 'dark' | 'auto';
+          size?: 'compact' | 'normal' | 'flexible';
+          appearance?: 'always' | 'execute' | 'interaction-only';
+          execution?: 'render' | 'execute';
           callback?: (token: string) => void;
           'expired-callback'?: () => void;
           'error-callback'?: () => void;
@@ -21,6 +24,7 @@ declare global {
       ) => string;
       reset: (widgetId: string) => void;
       remove: (widgetId: string) => void;
+      execute: (widgetId: string) => void;
     };
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;

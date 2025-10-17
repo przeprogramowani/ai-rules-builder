@@ -16,7 +16,7 @@ interface SignupFormProps {
 
 export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { signup, error: apiError, isLoading } = useAuth();
-  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const { getCaptchaToken, isLoading: isCaptchaLoading } = useCaptcha(cfCaptchaSiteKey);
   const [errorType, setErrorType] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
@@ -33,15 +33,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      if (!isCaptchaVerified) {
-        throw new Error('Captcha verification failed');
-      }
-
       setErrorType(null);
       setUnverifiedEmail(null);
       setShowApiError(true);
 
-      const result = await signup(data, inviteToken);
+      // Get captcha token when user clicks submit
+      const captchaToken = await getCaptchaToken();
+
+      if (!captchaToken) {
+        throw new Error('Security verification failed. Please try again.');
+      }
+
+      const result = await signup({ ...data, captchaToken }, inviteToken);
 
       // Store email for resend verification option
       setSuccessEmail(data.email);
@@ -199,7 +202,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
 
       <button
         type="submit"
-        disabled={!isCaptchaVerified || isLoading}
+        disabled={isLoading || isCaptchaLoading}
         className={`
           w-full flex justify-center py-2 px-4 border border-transparent rounded-md
           text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
@@ -208,7 +211,11 @@ export const SignupForm: React.FC<SignupFormProps> = ({ cfCaptchaSiteKey, invite
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
       >
-        {isLoading ? 'Creating account...' : 'Create account'}
+        {isCaptchaLoading
+          ? 'Verifying security...'
+          : isLoading
+            ? 'Creating account...'
+            : 'Create account'}
       </button>
 
       <div className="text-center text-sm">

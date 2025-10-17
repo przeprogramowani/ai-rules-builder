@@ -66,11 +66,6 @@ if (user && !error) {
   <div class="flex flex-col h-screen max-h-screen bg-gray-950">
     <main class="flex-grow">
       <AuthLayout
-        title={verificationStatus === 'success'
-          ? 'Email Verified!'
-          : verificationStatus === 'already_confirmed'
-            ? 'Already Verified'
-            : 'Verification Issue'}
         subtitle={verificationStatus === 'success'
           ? 'Welcome to 10xRules.ai'
           : 'We can help you get back on track'}

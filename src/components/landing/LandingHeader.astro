@@ -1,5 +1,6 @@
 ---
 import Button from '../ui/Button.astro';
+import Logo from '../ui/Logo.astro';
 import { ROUTES, ANCHORS, EXTERNAL_LINKS } from '../../data/landingContent';
 ---
 
@@ -10,17 +11,8 @@ import { ROUTES, ANCHORS, EXTERNAL_LINKS } from '../../data/landingContent';
   <div class="max-w-7xl mx-auto px-4 py-4">
     <div class="flex items-center justify-between">
       <!-- Logo -->
-      <a
-        href={ROUTES.HOME}
-        class="flex items-center space-x-3 group"
-        aria-label="10xRules.ai - Home"
-      >
-        <span class="text-2xl" aria-hidden="true">✨</span>
-        <h1
-          class="font-mono text-xl font-semibold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent group-hover:from-teal-400 group-hover:to-purple-400 transition-colors duration-300"
-        >
-          10xRules.ai
-        </h1>
+      <a href={ROUTES.HOME} aria-label="10xRules.ai - Home">
+        <Logo size="md" />
       </a>
 
       <!-- Navigation -->

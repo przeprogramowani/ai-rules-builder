@@ -21,7 +21,7 @@ export default function LoginButton() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       logout();
-      window.location.href = '/auth/login';
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }

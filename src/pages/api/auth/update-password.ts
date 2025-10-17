@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerInstance } from '@/db/supabase.client';
+import { verifyCaptcha } from '@/services/captcha';
+import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
 
 /**
  * Update password endpoint.
@@ -8,16 +10,36 @@ import { createSupabaseServerInstance } from '@/db/supabase.client';
  */
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const { password, confirmPassword } = (await request.json()) as {
+    const { password, confirmPassword, captchaToken } = (await request.json()) as {
       password: string;
       confirmPassword: string;
+      captchaToken: string;
     };
 
     // Validate inputs
-    if (!password || !confirmPassword || password !== confirmPassword) {
-      return new Response(JSON.stringify({ error: 'Password and confirm password must match' }), {
-        status: 400,
-      });
+    if (!password || !confirmPassword || password !== confirmPassword || !captchaToken) {
+      return new Response(
+        JSON.stringify({
+          error: 'Password, confirm password, and captcha token are required and must match',
+        }),
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // Verify captcha on backend
+    const requestorIp = request.headers.get('cf-connecting-ip') || '';
+    const captchaResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken, requestorIp);
+
+    if (!captchaResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Security verification failed. Please try again.',
+          errorCodes: captchaResult['error-codes'],
+        }),
+        { status: 400 },
+      );
     }
 
     // Create server instance for user authentication operations

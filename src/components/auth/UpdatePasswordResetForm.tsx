@@ -18,7 +18,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
 }) => {
   const { updatePassword, error: apiError, isLoading } = useAuth();
   const { tokenHash, error: tokenError } = useTokenHashVerification();
-  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const { getCaptchaToken, isLoading: isCaptchaLoading } = useCaptcha(cfCaptchaSiteKey);
   const [isVerifyingToken, setIsVerifyingToken] = useState(true);
   const [tokenVerified, setTokenVerified] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
@@ -89,14 +89,19 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
 
   const onSubmit = async (data: UpdatePasswordFormData) => {
     try {
-      if (!isCaptchaVerified) {
-        throw new Error('Captcha verification failed');
-      }
       if (!tokenVerified) {
         throw new Error('Reset token not verified');
       }
-      // Call updatePassword without token_hash (session already established)
-      await updatePassword(data);
+
+      // Get captcha token when user clicks submit
+      const captchaToken = await getCaptchaToken();
+
+      if (!captchaToken) {
+        throw new Error('Security verification failed. Please try again.');
+      }
+
+      // Call updatePassword with captcha token (session already established)
+      await updatePassword({ ...data, captchaToken });
       window.location.href = '/auth/login?message=password-updated';
     } catch (error) {
       console.error(error);
@@ -194,7 +199,7 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
 
       <button
         type="submit"
-        disabled={!isCaptchaVerified || isLoading}
+        disabled={isLoading || isCaptchaLoading}
         className={`
           w-full flex justify-center py-2 px-4 border border-transparent rounded-md
           text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
@@ -203,7 +208,11 @@ export const UpdatePasswordResetForm: React.FC<UpdatePasswordResetFormProps> = (
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
       >
-        {isLoading ? 'Updating Password...' : 'Update Password'}
+        {isCaptchaLoading
+          ? 'Verifying security...'
+          : isLoading
+            ? 'Updating Password...'
+            : 'Update Password'}
       </button>
     </form>
   );

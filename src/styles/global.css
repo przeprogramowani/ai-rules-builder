@@ -206,6 +206,10 @@
   }
 }
 
+#cf-captcha-container {
+  display: none;
+}
+
 /* Fix 1Password autofill text visibility on dark backgrounds */
 /* Using high specificity without layers to override 1Password's inline styles */
 input[type='text'][data-com-onepassword-filled],

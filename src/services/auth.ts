@@ -48,7 +48,7 @@ async function handleResponse(response: Response): Promise<{ user: User }> {
 }
 
 export const authService = {
-  login: async (data: LoginFormData): Promise<{ user: User }> => {
+  login: async (data: LoginFormData & { captchaToken: string }): Promise<{ user: User }> => {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -58,19 +58,21 @@ export const authService = {
   },
 
   signup: async (
-    formData: SignupFormData,
+    formData: SignupFormData & { captchaToken: string },
     inviteToken?: string,
   ): Promise<{ user: User; organization?: { id: string; slug: string; name: string } }> => {
-    const { email, password, privacyPolicyConsent } = formData;
+    const { email, password, privacyPolicyConsent, captchaToken } = formData;
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, privacyPolicyConsent, inviteToken }),
+      body: JSON.stringify({ email, password, privacyPolicyConsent, inviteToken, captchaToken }),
     });
     return handleResponse(response);
   },
 
-  resetPassword: async (data: ResetPasswordFormData): Promise<{ user: User }> => {
+  resetPassword: async (
+    data: ResetPasswordFormData & { captchaToken: string },
+  ): Promise<{ user: User }> => {
     const response = await fetch('/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -79,11 +81,13 @@ export const authService = {
     return handleResponse(response);
   },
 
-  updatePassword: async (data: UpdatePasswordFormData): Promise<{ user: User }> => {
+  updatePassword: async (
+    data: UpdatePasswordFormData & { captchaToken: string },
+  ): Promise<{ user: User }> => {
     const response = await fetch('/api/auth/update-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data), // No longer includes token_hash (session already established)
+      body: JSON.stringify(data),
     });
     return handleResponse(response);
   },

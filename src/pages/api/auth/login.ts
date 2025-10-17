@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { isFeatureEnabled } from '@/features/featureFlags';
 import { createSupabaseServerInstance } from '@/db/supabase.client';
+import { verifyCaptcha } from '@/services/captcha';
+import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled
@@ -11,12 +13,33 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   try {
-    const { email, password } = (await request.json()) as { email: string; password: string };
+    const { email, password, captchaToken } = (await request.json()) as {
+      email: string;
+      password: string;
+      captchaToken: string;
+    };
 
-    if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Email and password are required' }), {
-        status: 400,
-      });
+    if (!email || !password || !captchaToken) {
+      return new Response(
+        JSON.stringify({ error: 'Email, password, and captcha token are required' }),
+        {
+          status: 400,
+        },
+      );
+    }
+
+    // Verify captcha on backend
+    const requestorIp = request.headers.get('cf-connecting-ip') || '';
+    const captchaResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken, requestorIp);
+
+    if (!captchaResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Security verification failed. Please try again.',
+          errorCodes: captchaResult['error-codes'],
+        }),
+        { status: 400 },
+      );
     }
 
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });

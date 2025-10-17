@@ -6,6 +6,8 @@ import {
 import { isFeatureEnabled } from '../../../features/featureFlags';
 import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVersion';
 import { redeemInvite } from '../../../services/prompt-library/invites';
+import { verifyCaptcha } from '../../../services/captcha';
+import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled
@@ -16,16 +18,34 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   try {
-    const { email, password, privacyPolicyConsent, inviteToken } = (await request.json()) as {
-      email: string;
-      password: string;
-      privacyPolicyConsent: boolean;
-      inviteToken?: string;
-    };
+    const { email, password, privacyPolicyConsent, inviteToken, captchaToken } =
+      (await request.json()) as {
+        email: string;
+        password: string;
+        privacyPolicyConsent: boolean;
+        inviteToken?: string;
+        captchaToken: string;
+      };
 
-    if (!email || !password || !privacyPolicyConsent) {
+    if (!email || !password || !privacyPolicyConsent || !captchaToken) {
       return new Response(
-        JSON.stringify({ error: 'Email, password, and privacy policy consent are required' }),
+        JSON.stringify({
+          error: 'Email, password, privacy policy consent, and captcha token are required',
+        }),
+        { status: 400 },
+      );
+    }
+
+    // Verify captcha on backend
+    const requestorIp = request.headers.get('cf-connecting-ip') || '';
+    const captchaResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken, requestorIp);
+
+    if (!captchaResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Security verification failed. Please try again.',
+          errorCodes: captchaResult['error-codes'],
+        }),
         { status: 400 },
       );
     }
