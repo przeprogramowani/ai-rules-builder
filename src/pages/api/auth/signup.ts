@@ -92,7 +92,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // FIX 2: Use atomic database check to prevent race conditions
     // Gracefully fall back to old method if function doesn't exist yet
-    let signupCheck: { action: 'create' | 'resend' | 'rate_limited' | 'error' } | null = null;
+    type SignupCheckResult = {
+      action: 'create' | 'resend' | 'rate_limited' | 'error';
+      message?: string;
+      type?: string;
+      retry_after?: number;
+      reason?: string;
+      user_id?: string;
+      email?: string;
+    };
+
+    let signupCheck: SignupCheckResult | null = null;
     try {
       const { data, error: checkError } = await supabase.rpc('safe_signup_or_resend', {
         p_email: email.toLowerCase(),
@@ -107,7 +117,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         // Fall back to old behavior - check user existence manually
         signupCheck = null;
       } else {
-        signupCheck = data;
+        signupCheck = data as SignupCheckResult;
       }
     } catch (checkException) {
       console.error('Atomic check exception (function may not exist yet):', checkException);
