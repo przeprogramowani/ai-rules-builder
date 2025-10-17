@@ -8,7 +8,6 @@ import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVers
 import { redeemInvite } from '../../../services/prompt-library/invites';
 import { verifyCaptcha } from '../../../services/captcha';
 import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
-import { createHash } from 'node:crypto';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   // Check if auth feature is enabled
@@ -61,7 +60,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // FIX 3: Check for duplicate signup request (prevents network retry duplicates)
     // Gracefully handle if function doesn't exist yet (gradual rollout)
     try {
-      const captchaHash = createHash('sha256').update(captchaToken).digest('hex');
+      // Use Web Crypto API (compatible with Cloudflare Workers)
+      const encoder = new TextEncoder();
+      const data = encoder.encode(captchaToken);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const captchaHash = Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+
       const { data: dedupResult, error: dedupError } = await supabase.rpc(
         'check_signup_duplicate',
         {
