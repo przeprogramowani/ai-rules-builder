@@ -59,39 +59,65 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
 
     // FIX 3: Check for duplicate signup request (prevents network retry duplicates)
-    const captchaHash = createHash('sha256').update(captchaToken).digest('hex');
-    const { data: dedupResult, error: dedupError } = await supabase.rpc('check_signup_duplicate', {
-      p_email: email.toLowerCase(),
-      p_ip_address: requestorIp,
-      p_captcha_hash: captchaHash,
-    });
-
-    if (dedupError) {
-      console.error('Deduplication check error:', dedupError);
-      // Don't block signup if dedup check fails - just log and continue
-    } else if (dedupResult?.is_duplicate) {
-      const secondsAgo = dedupResult.seconds_ago || 0;
-      const remainingSeconds = Math.max(120 - secondsAgo, 0);
-      return new Response(
-        JSON.stringify({
-          error: `Signup request already ${dedupResult.status}. Please wait ${remainingSeconds} seconds before trying again.`,
-          type: 'duplicate_request',
-        }),
-        { status: 429 },
+    // Gracefully handle if function doesn't exist yet (gradual rollout)
+    try {
+      const captchaHash = createHash('sha256').update(captchaToken).digest('hex');
+      const { data: dedupResult, error: dedupError } = await supabase.rpc(
+        'check_signup_duplicate',
+        {
+          p_email: email.toLowerCase(),
+          p_ip_address: requestorIp,
+          p_captcha_hash: captchaHash,
+        },
       );
+
+      if (dedupError) {
+        console.error('Deduplication check error (function may not exist yet):', dedupError);
+        // Don't block signup if dedup check fails - just log and continue
+      } else if (dedupResult?.is_duplicate) {
+        const secondsAgo = dedupResult.seconds_ago || 0;
+        const remainingSeconds = Math.max(120 - secondsAgo, 0);
+        return new Response(
+          JSON.stringify({
+            error: `Signup request already ${dedupResult.status}. Please wait ${remainingSeconds} seconds before trying again.`,
+            type: 'duplicate_request',
+          }),
+          { status: 429 },
+        );
+      }
+    } catch (dedupException) {
+      console.error('Deduplication check exception (function may not exist yet):', dedupException);
+      // Continue with signup - better to allow potential duplicate than block legitimate signup
     }
 
     // FIX 2: Use atomic database check to prevent race conditions
-    const { data: signupCheck, error: checkError } = await supabase.rpc('safe_signup_or_resend', {
-      p_email: email.toLowerCase(),
-      p_ip_address: requestorIp,
-    });
-
-    if (checkError) {
-      console.error('Error checking signup eligibility:', checkError);
-      return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
-        status: 503,
+    // Gracefully fall back to old method if function doesn't exist yet
+    let signupCheck: { action: 'create' | 'resend' | 'rate_limited' | 'error' } | null = null;
+    try {
+      const { data, error: checkError } = await supabase.rpc('safe_signup_or_resend', {
+        p_email: email.toLowerCase(),
+        p_ip_address: requestorIp,
       });
+
+      if (checkError) {
+        console.error(
+          'Error checking signup eligibility (function may not exist yet):',
+          checkError,
+        );
+        // Fall back to old behavior - check user existence manually
+        signupCheck = null;
+      } else {
+        signupCheck = data;
+      }
+    } catch (checkException) {
+      console.error('Atomic check exception (function may not exist yet):', checkException);
+      signupCheck = null;
+    }
+
+    // If atomic check failed, fall back to creating user directly
+    if (!signupCheck) {
+      console.log('Falling back to direct user creation (migrations not applied yet)');
+      signupCheck = { action: 'create' };
     }
 
     // Handle the action returned by the atomic check
@@ -134,25 +160,33 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         console.error('Error resending verification email:', resendError);
       }
 
-      // FIX 6: Log email send for monitoring
-      const { error: logError } = await supabase.rpc('log_email_send', {
-        p_email: email.toLowerCase(),
-        p_type: 'resend_verification',
-        p_ip_address: requestorIp,
-        p_user_agent: request.headers.get('user-agent'),
-        p_request_path: '/api/auth/signup',
-        p_user_id: signupCheck.user_id,
-        p_status: resendError ? 'failed' : 'sent',
-        p_error_message: resendError?.message || null,
-      });
-      if (logError) console.error('Failed to log email send:', logError);
+      // FIX 6: Log email send for monitoring (non-blocking)
+      try {
+        const { error: logError } = await supabase.rpc('log_email_send', {
+          p_email: email.toLowerCase(),
+          p_type: 'resend_verification',
+          p_ip_address: requestorIp,
+          p_user_agent: request.headers.get('user-agent'),
+          p_request_path: '/api/auth/signup',
+          p_user_id: signupCheck.user_id,
+          p_status: resendError ? 'failed' : 'sent',
+          p_error_message: resendError?.message || null,
+        });
+        if (logError) console.error('Failed to log email send:', logError);
+      } catch (logException) {
+        console.error('Email logging exception (function may not exist yet):', logException);
+      }
 
-      // Mark signup as completed (FIX 3)
-      const { error: statusError } = await supabase.rpc('update_signup_status', {
-        p_email: email.toLowerCase(),
-        p_status: 'completed',
-      });
-      if (statusError) console.error('Failed to update signup status:', statusError);
+      // Mark signup as completed (FIX 3) (non-blocking)
+      try {
+        const { error: statusError } = await supabase.rpc('update_signup_status', {
+          p_email: email.toLowerCase(),
+          p_status: 'completed',
+        });
+        if (statusError) console.error('Failed to update signup status:', statusError);
+      } catch (statusException) {
+        console.error('Status update exception (function may not exist yet):', statusException);
+      }
 
       // Return success response (same as new signup) to trigger success UI
       return new Response(
@@ -181,16 +215,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: 'User creation failed' }), { status: 500 });
     }
 
-    // FIX 6: Log email send for new signup
-    const { error: logError2 } = await supabase.rpc('log_email_send', {
-      p_email: email.toLowerCase(),
-      p_type: 'signup_verification',
-      p_ip_address: requestorIp,
-      p_user_agent: request.headers.get('user-agent'),
-      p_request_path: '/api/auth/signup',
-      p_user_id: authData.user.id,
-    });
-    if (logError2) console.error('Failed to log email send:', logError2);
+    // FIX 6: Log email send for new signup (non-blocking)
+    try {
+      const { error: logError2 } = await supabase.rpc('log_email_send', {
+        p_email: email.toLowerCase(),
+        p_type: 'signup_verification',
+        p_ip_address: requestorIp,
+        p_user_agent: request.headers.get('user-agent'),
+        p_request_path: '/api/auth/signup',
+        p_user_id: authData.user.id,
+      });
+      if (logError2) console.error('Failed to log email send:', logError2);
+    } catch (logException) {
+      console.error('Email logging exception (function may not exist yet):', logException);
+    }
 
     const { error: consentError } = await supabase.from('user_consents').insert({
       user_id: authData.user.id,
@@ -227,12 +265,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     }
 
-    // Mark signup as completed (FIX 3)
-    const { error: statusError2 } = await supabase.rpc('update_signup_status', {
-      p_email: email.toLowerCase(),
-      p_status: 'completed',
-    });
-    if (statusError2) console.error('Failed to update signup status:', statusError2);
+    // Mark signup as completed (FIX 3) (non-blocking)
+    try {
+      const { error: statusError2 } = await supabase.rpc('update_signup_status', {
+        p_email: email.toLowerCase(),
+        p_status: 'completed',
+      });
+      if (statusError2) console.error('Failed to update signup status:', statusError2);
+    } catch (statusException) {
+      console.error('Status update exception (function may not exist yet):', statusException);
+    }
 
     return new Response(JSON.stringify({ user: authData.user }), { status: 200 });
   } catch (err) {
