@@ -21,42 +21,63 @@ export class MyMCP extends McpAgent {
 		// Register listAvailableRulesTool
 		this.server.tool(
 			listAvailableRulesTool.name,
-            listAvailableRulesTool.description,
-            async () => {
-                const result = await listAvailableRulesTool.execute();
-                return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-            }
+			listAvailableRulesTool.description,
+			async () => {
+				const result = await listAvailableRulesTool.execute();
+				return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+			}
 		);
 
-    const inputSchemaShape = getRuleContentTool.inputSchema instanceof z.ZodObject
-        ? getRuleContentTool.inputSchema.shape
-        : {};
+		const inputSchemaShape = getRuleContentTool.inputSchema instanceof z.ZodObject
+			? getRuleContentTool.inputSchema.shape
+			: {};
 
 		this.server.tool(
 			getRuleContentTool.name,
-            inputSchemaShape,
-            async (args: unknown) => {
-                const parsedArgs = getRuleContentTool.inputSchema.safeParse(args);
-                if (!parsedArgs.success) {
-                    return { content: [{ type: 'text', text: `Invalid input: ${parsedArgs.error.message}`}], isError: true };
-                }
-                const result = await getRuleContentTool.execute(parsedArgs.data);
-                return { content: [{ type: 'text', text: JSON.stringify(result) }] };
-            }
+			inputSchemaShape,
+			async (args: unknown) => {
+				const parsedArgs = getRuleContentTool.inputSchema.safeParse(args);
+				if (!parsedArgs.success) {
+					return { content: [{ type: 'text', text: `Invalid input: ${parsedArgs.error.message}`}], isError: true };
+				}
+				const result = await getRuleContentTool.execute(parsedArgs.data);
+				return { content: [{ type: 'text', text: JSON.stringify(result) }] };
+			}
 		);
 	}
 }
 
-// Utility function to check if Accept header includes SSE
-function acceptsSSE(acceptHeader: string | null): boolean {
-	if (!acceptHeader) return true; // Backwards compatibility
+// Enhanced request validation for SSE endpoints
+// Combines Accept header validation with User-Agent security check
+function validateSSERequest(request: Request): { valid: boolean; error?: string } {
+	// Check Accept header
+	const accept = request.headers.get("accept");
+	if (accept) {
+		const types = accept.split(',').map(t => t.trim().split(';')[0]);
+		const acceptsSSE = types.some(type =>
+			type === 'text/event-stream' ||
+			type === 'text/*' ||
+			type === '*/*'
+		);
+		if (!acceptsSSE) {
+			return {
+				valid: false,
+				error: "Invalid Accept header. Must accept text/event-stream"
+			};
+		}
+	}
+	// Accept missing header for backwards compatibility
 
-	const types = acceptHeader.split(',').map(t => t.trim().split(';')[0]);
-	return types.some(type =>
-		type === 'text/event-stream' ||
-		type === 'text/*' ||
-		type === '*/*'
-	);
+	// Check User-Agent (block empty or suspicious)
+	const userAgent = request.headers.get("user-agent") || "";
+	if (userAgent && userAgent.length < 5) {
+		return {
+			valid: false,
+			error: "Invalid User-Agent header"
+		};
+	}
+
+	return { valid: true };
 }
 
 // Define more specific types for Env and ExecutionContext if known for the environment
@@ -68,12 +89,14 @@ export default {
 		const url = new URL(request.url);
 
 		// Health check endpoint - lightweight, no DO creation, no rate limiting
-		if (url.pathname === "/health") {
+		// Support both /health and / for convenience
+		if (url.pathname === "/health" || url.pathname === "/") {
 			return new Response(JSON.stringify({
 				status: "healthy",
 				version: "1.0.0",
 				timestamp: new Date().toISOString(),
-				service: "10x-rules-mcp-server"
+				service: "10x-rules-mcp-server",
+				endpoints: ["/health", "/sse", "/mcp"]
 			}), {
 				status: 200,
 				headers: {
@@ -118,16 +141,14 @@ export default {
 			}
 		}
 
-		// Accept header validation for SSE endpoints
+		// Enhanced request validation for SSE endpoints
 		if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-			const accept = request.headers.get("accept");
-
-			if (!acceptsSSE(accept)) {
+			const validation = validateSSERequest(request);
+			if (!validation.valid) {
 				return new Response(JSON.stringify({
 					error: "Not Acceptable",
-					message: "This endpoint requires 'Accept: text/event-stream' header",
-					hint: "Use a Server-Sent Events compatible client",
-					received: accept || "(none)"
+					message: validation.error || "Invalid request",
+					hint: "Use a Server-Sent Events compatible client with valid User-Agent"
 				}), {
 					status: 406,
 					headers: {
@@ -137,8 +158,26 @@ export default {
 				});
 			}
 
+			// Extract sessionId for session reuse tracking
+			const sessionId = url.searchParams.get("sessionId");
+
 			// @ts-expect-error - env is not typed
-			return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
+			const response = await MyMCP.serveSSE("/sse").fetch(request, env, ctx);
+
+			// If this is a new session (no sessionId provided), add headers to encourage reuse
+			if (!sessionId && response.status === 200) {
+				const newHeaders = new Headers(response.headers);
+				newHeaders.set("X-Session-Reuse", "Save sessionId from URL and reuse for reconnections");
+				newHeaders.set("X-Session-Info", "Reusing sessions reduces server load");
+
+				return new Response(response.body, {
+					status: response.status,
+					statusText: response.statusText,
+					headers: newHeaders
+				});
+			}
+
+			return response;
 		}
 
 		if (url.pathname === "/mcp") {
@@ -146,6 +185,19 @@ export default {
 			return MyMCP.serve("/mcp").fetch(request, env, ctx);
 		}
 
-		return new Response("Not found", { status: 404 });
+		// Enhanced 404 response with helpful information
+		return new Response(JSON.stringify({
+			error: "Not found",
+			message: "The requested endpoint does not exist",
+			availableEndpoints: [
+				{ path: "/health", method: "GET", description: "Health check endpoint" },
+				{ path: "/", method: "GET", description: "Health check (alias)" },
+				{ path: "/sse", method: "GET", description: "Server-Sent Events MCP endpoint" },
+				{ path: "/mcp", method: "POST", description: "Standard MCP endpoint" }
+			]
+		}), {
+			status: 404,
+			headers: { "Content-Type": "application/json" }
+		});
 	},
 };
