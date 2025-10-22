@@ -48,7 +48,7 @@ export class MyMCP extends McpAgent {
 }
 
 // Enhanced request validation for SSE endpoints
-// Combines Accept header validation with User-Agent security check
+// Validates Accept header and logs suspicious User-Agents (but doesn't block)
 function validateSSERequest(request: Request): { valid: boolean; error?: string } {
 	// Check Accept header
 	const accept = request.headers.get("accept");
@@ -68,13 +68,10 @@ function validateSSERequest(request: Request): { valid: boolean; error?: string 
 	}
 	// Accept missing header for backwards compatibility
 
-	// Check User-Agent (block empty or suspicious)
+	// Log suspicious User-Agents but don't block (MCP clients may not send standard UAs)
 	const userAgent = request.headers.get("user-agent") || "";
 	if (userAgent && userAgent.length < 5) {
-		return {
-			valid: false,
-			error: "Invalid User-Agent header"
-		};
+		console.warn(`Suspicious User-Agent detected: "${userAgent}"`);
 	}
 
 	return { valid: true };
