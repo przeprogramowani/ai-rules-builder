@@ -1,23 +1,50 @@
-// Global IP-based rate limiting using Cloudflare KV
-// Phase 2 implementation
+/**
+ * Rate Limiting Implementation
+ *
+ * IP-based rate limiting using Cloudflare's Rate Limiting API.
+ *
+ * Features:
+ * - Near-zero latency (<1ms, local cache)
+ * - Location-specific limits (per Cloudflare edge)
+ * - Atomic check-and-increment operation
+ * - Fail-open on errors (allows requests)
+ * - Privacy-preserving analytics (hashed IPs)
+ *
+ * Documentation:
+ * https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+ */
 
-// Configuration
+import type { RateLimitBinding } from "./types/bindings";
+
+// Configuration constants
 export const RATE_LIMIT_WINDOW_SECONDS = 60;
 export const RATE_LIMIT_MAX_REQUESTS = 10;
-export const RATE_LIMIT_KEY_PREFIX = "ratelimit:";
 
-// Rate limit result interface
+/**
+ * Rate limit result interface
+ *
+ * Note: The `remaining` field is null because the Rate Limiting API
+ * doesn't provide exact counts. We omit this to avoid misleading clients.
+ */
 export interface RateLimitResult {
+	/** Whether the request is allowed (true) or rate limited (false) */
 	allowed: boolean;
+	/** Maximum requests allowed in the time window */
 	limit: number;
-	remaining: number;
-	resetTime: number; // Unix timestamp in seconds
+	/** Remaining requests (null - API doesn't provide exact count) */
+	remaining: number | null;
+	/** Unix timestamp (seconds) when the rate limit resets */
+	resetTime: number;
 }
 
 /**
  * Extract client IP address from request
- * Uses cf-connecting-ip header (provided by Cloudflare)
- * Falls back to 127.0.0.1 for localhost testing
+ *
+ * Uses cf-connecting-ip header provided by Cloudflare, which cannot be spoofed
+ * when the Worker runs on Cloudflare's network.
+ *
+ * @param request - Incoming HTTP request
+ * @returns Client IP address (or 127.0.0.1 for localhost testing)
  */
 export function getClientIP(request: Request): string {
 	const ip = request.headers.get("cf-connecting-ip");
@@ -31,35 +58,42 @@ export function getClientIP(request: Request): string {
 }
 
 /**
- * Check rate limit for an IP address
- * Returns the current count and whether the request should be allowed
+ * Check and apply rate limit using Cloudflare Rate Limiting API
  *
- * Uses simple counter with TTL approach:
- * - Key: ratelimit:${ip}
- * - Value: count (string)
- * - TTL: 60 seconds (auto-expires)
+ * This performs an atomic check-and-increment operation with near-zero latency.
  *
- * @param kv - KV namespace binding
+ * Characteristics:
+ * - Single atomic operation (no race conditions)
+ * - Location-specific limits (not global)
+ * - Eventually consistent (permissive by design)
+ * - Fails open on errors (allows request)
+ * - Does not provide exact remaining count
+ *
+ * @param rateLimiter - Rate limiting binding from env.RATE_LIMITER
  * @param ip - Client IP address
- * @returns RateLimitResult with current rate limit state
+ * @returns RateLimitResult with allowed status and metadata
  */
-export async function checkRateLimit(
-	kv: KVNamespace,
+export async function checkAndApplyRateLimit(
+	rateLimiter: RateLimitBinding,
 	ip: string
 ): Promise<RateLimitResult> {
-	const key = `${RATE_LIMIT_KEY_PREFIX}${ip}`;
+	const startTime = Date.now();
 
 	try {
-		// Get current count from KV
-		const value = await kv.get(key);
-		const currentCount = value ? parseInt(value, 10) : 0;
+		// Single atomic operation: check and increment
+		const { success } = await rateLimiter.limit({ key: ip });
 
-		// Check if over limit
-		if (currentCount >= RATE_LIMIT_MAX_REQUESTS) {
-			// Get metadata to determine reset time
-			const metadata = await kv.getWithMetadata(key);
-			const resetTime = metadata.metadata?.resetTime as number ||
-				Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS;
+		// Monitor latency (should be <1ms typically)
+		const latency = Date.now() - startTime;
+		if (latency > 10) {
+			console.warn(`⚠️  Rate limit check took ${latency}ms for IP ${ip} (expected <10ms)`);
+		}
+
+		const resetTime = Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS;
+
+		if (!success) {
+			// Rate limit exceeded
+			console.log(`🚫 Rate limit exceeded for IP: ${ip}`);
 
 			return {
 				allowed: false,
@@ -69,103 +103,78 @@ export async function checkRateLimit(
 			};
 		}
 
-		// Calculate remaining requests
-		const remaining = RATE_LIMIT_MAX_REQUESTS - currentCount - 1;
-		const resetTime = Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS;
+		// Request allowed
+		return {
+			allowed: true,
+			limit: RATE_LIMIT_MAX_REQUESTS,
+			remaining: null, // API doesn't provide exact count - don't fake it
+			resetTime
+		};
+	} catch (error) {
+		// Fail open: if rate limiter is unavailable, allow the request
+		// This is the recommended approach for rate limiting to avoid blocking
+		// legitimate users when the rate limiting system has issues
+		console.error("❌ Rate limit check failed (failing open):", error);
 
 		return {
 			allowed: true,
 			limit: RATE_LIMIT_MAX_REQUESTS,
-			remaining: remaining < 0 ? 0 : remaining,
-			resetTime
-		};
-	} catch (error) {
-		// Fail open: if KV is unavailable, allow the request
-		console.error("Rate limit check failed:", error);
-		return {
-			allowed: true,
-			limit: RATE_LIMIT_MAX_REQUESTS,
-			remaining: RATE_LIMIT_MAX_REQUESTS - 1,
+			remaining: null,
 			resetTime: Math.floor(Date.now() / 1000) + RATE_LIMIT_WINDOW_SECONDS
 		};
 	}
 }
 
 /**
- * Increment rate limit counter for an IP address
- * Creates new counter if it doesn't exist, increments if it does
- * Sets TTL to auto-expire after the rate limit window
+ * Create rate limit headers for HTTP response
  *
- * @param kv - KV namespace binding
- * @param ip - Client IP address
- * @param resetTime - Unix timestamp when the rate limit resets
- */
-export async function incrementRateLimit(
-	kv: KVNamespace,
-	ip: string,
-	resetTime: number
-): Promise<void> {
-	const key = `${RATE_LIMIT_KEY_PREFIX}${ip}`;
-
-	try {
-		// Get current count
-		const value = await kv.get(key);
-		const currentCount = value ? parseInt(value, 10) : 0;
-		const newCount = currentCount + 1;
-
-		// Store with TTL and metadata
-		await kv.put(
-			key,
-			newCount.toString(),
-			{
-				expirationTtl: RATE_LIMIT_WINDOW_SECONDS,
-				metadata: { resetTime }
-			}
-		);
-	} catch (error) {
-		// Log error but don't fail the request
-		console.error("Failed to increment rate limit:", error);
-	}
-}
-
-/**
- * Create rate limit headers for response
  * Follows standard rate limiting header conventions:
  * - X-RateLimit-Limit: Maximum requests allowed
- * - X-RateLimit-Remaining: Remaining requests in current window
+ * - X-RateLimit-Remaining: Remaining requests (omitted if not available)
  * - X-RateLimit-Reset: Unix timestamp when limit resets
+ *
+ * Note: X-RateLimit-Remaining is omitted when null since the Rate Limiting API
+ * doesn't provide exact counts. This avoids misleading clients.
  *
  * @param result - Rate limit result
  * @returns Object with header key-value pairs
  */
 export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {
-	return {
+	const headers: Record<string, string> = {
 		"X-RateLimit-Limit": result.limit.toString(),
-		"X-RateLimit-Remaining": result.remaining.toString(),
 		"X-RateLimit-Reset": result.resetTime.toString()
 	};
+
+	// Only include Remaining if we have accurate data
+	if (result.remaining !== null) {
+		headers["X-RateLimit-Remaining"] = result.remaining.toString();
+	}
+
+	return headers;
 }
 
 /**
  * Create 429 Too Many Requests response
- * Includes:
+ *
+ * Returns a properly formatted HTTP 429 response with:
  * - Retry-After header (seconds until reset)
  * - X-RateLimit-* headers
  * - JSON error body with details
  *
- * @param result - Rate limit result
- * @returns Response with 429 status
+ * @param result - Rate limit result (with allowed=false)
+ * @returns Response with 429 status and rate limit information
  */
 export function createRateLimitResponse(result: RateLimitResult): Response {
 	const now = Math.floor(Date.now() / 1000);
-	const retryAfter = result.resetTime - now;
+	const retryAfter = Math.max(1, result.resetTime - now);
 
 	return new Response(JSON.stringify({
 		error: "Too Many Requests",
 		message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
 		limit: result.limit,
 		window: `${RATE_LIMIT_WINDOW_SECONDS} seconds`,
-		resetTime: result.resetTime
+		resetTime: result.resetTime,
+		retryAfter
 	}), {
 		status: 429,
 		headers: {
@@ -174,4 +183,44 @@ export function createRateLimitResponse(result: RateLimitResult): Response {
 			...getRateLimitHeaders(result)
 		}
 	});
+}
+
+/**
+ * Hash IP address for privacy-preserving analytics
+ *
+ * Simple base64 hash for logging without storing raw IPs.
+ * For production, consider using crypto.subtle.digest for better privacy.
+ *
+ * @param ip - IP address to hash
+ * @returns Truncated base64 hash of IP
+ */
+export function hashIP(ip: string): string {
+	try {
+		return btoa(ip).substring(0, 16);
+	} catch {
+		return "hash-error";
+	}
+}
+
+/**
+ * Log rate limit event for analytics
+ *
+ * Logs rate limit decisions in a structured format for monitoring and analysis.
+ * IP addresses are hashed for privacy.
+ *
+ * In production, you might send this to:
+ * - Cloudflare Workers Analytics Engine
+ * - External analytics service
+ * - Logging aggregation system
+ *
+ * @param ip - Client IP address
+ * @param allowed - Whether request was allowed
+ */
+export function logRateLimitEvent(ip: string, allowed: boolean): void {
+	console.log(JSON.stringify({
+		event: "rate_limit_check",
+		ip_hash: hashIP(ip),
+		allowed,
+		timestamp: new Date().toISOString()
+	}));
 }

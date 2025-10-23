@@ -134,7 +134,16 @@ This setup is useful for developing or modifying the MCP server itself.
 
 Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`) to debug tool calls during development.
 
-## 5. Tech Stack
+## 5. Rate Limiting
+
+To ensure fair usage and prevent abuse, this server implements IP-based rate limiting:
+
+- **Limit**: 10 requests per 60 seconds per IP address
+- **Implementation**: Cloudflare Rate Limiting API (local cache, <1ms latency)
+- **Scope**: Location-specific (per Cloudflare edge location)
+- **Behavior**: Returns `429 Too Many Requests` when limit exceeded, with `Retry-After` header
+
+## 6. Tech Stack
 
 - **Runtime**: Cloudflare Workers
 - **Language**: TypeScript
@@ -147,7 +156,7 @@ Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`)
 - **Linting & Formatting**:
     - `biome`: Used for code formatting and linting.
 
-## 6. Getting Started Locally
+## 7. Getting Started Locally
 
 ### Prerequisites
 
@@ -180,7 +189,7 @@ Use the **MCP Inspector** pointed at the local URL (`http://localhost:8787/sse`)
     ```
     The server will typically be available at `http://localhost:8787`. The MCP endpoint is usually `/sse` (e.g., `http://localhost:8787/sse`).
 
-## 7. Available Scripts
+## 8. Available Scripts
 
 The following scripts are available via `npm run <script_name>`:
 
@@ -190,8 +199,41 @@ The following scripts are available via `npm run <script_name>`:
 -   `format`: Formats the codebase using Biome.
 -   `lint:fix`: Lints the code using Biome and attempts to automatically fix issues.
 -   `cf-typegen`: Generates TypeScript types for Cloudflare environment bindings (like KV namespaces, Durable Objects, etc., if configured).
+-   `test`: Runs unit tests with Vitest.
+-   `test:watch`: Runs tests in watch mode (re-run on file changes).
+-   `test:coverage`: Generates test coverage report.
 
-## 8. Deployment
+## 9. Testing
+
+### Unit Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Integration Tests
+
+```bash
+# Start dev server first
+npm run dev
+
+# In another terminal, run integration tests
+./tests/integration/test-rate-limiting.sh
+
+# Or use the quick test for manual verification
+./tests/integration/quick-test.sh
+```
+
+See [tests/README.md](tests/README.md) for comprehensive testing documentation.
+
+## 10. Deployment
 
 This project uses GitHub Actions for Continuous Integration and Continuous Deployment (CI/CD).
 
@@ -210,18 +252,18 @@ For the deployment to succeed, the following secrets must be configured in the G
 -   `CLOUDFLARE_WORKER_TOKEN`: An API token with permissions to deploy Cloudflare Workers.
 -   `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID.
 
-## 9. Planned Features
+## 11. Planned Features
 
 The following features are planned for future development:
 
 -   **Create Cursor Rule Tool:** An MCP tool that allows creating or modifying a Cursor AI rule file directly within the user's host workspace.
 -   **Propose Rule via PR Tool:** An MCP tool enabling users to select a rule or modification from their host environment and automatically create a Pull Request in the main repository to propose adding/updating it.
 
-## 10. Project Status
+## 12. Project Status
 
 -   **Version**: `0.0.1` (as per `package.json`)
 -   **Status**: Initial development.
 
-## 11. License
+## 13. License
 
 AGPL

@@ -29,13 +29,33 @@
 	"observability": {
 		"enabled": true
 	},
-	"kv_namespaces": [
+	/**
+	 * Rate Limiting API Binding
+	 * Docs: https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+	 *
+	 * Provides IP-based rate limiting using Cloudflare's native Rate Limiting API.
+	 *
+	 * Benefits:
+	 * - Near-zero latency (local cache, <1ms)
+	 * - Simple atomic operation (check + increment in one call)
+	 * - No storage costs (included with Workers)
+	 * - Location-specific limits (per Cloudflare edge)
+	 *
+	 * Configuration:
+	 * - namespace_id: Unique identifier (can be any number)
+	 * - limit: 10 requests per IP
+	 * - period: 60 second window
+	 */
+	"ratelimits": [
 		{
-			"binding": "RATE_LIMIT_KV",
-			"id": "8406622125054f128b423970d737d512",
-			"remote": true
+			"binding": "RATE_LIMITER",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
 		}
-	]
+	],
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

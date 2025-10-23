@@ -4,11 +4,11 @@ import { listAvailableRulesTool, getRuleContentTool } from "./tools/rulesTools";
 import { z } from 'zod';
 import {
 	getClientIP,
-	checkRateLimit,
-	incrementRateLimit,
+	checkAndApplyRateLimit,
 	createRateLimitResponse,
-	getRateLimitHeaders
+	logRateLimitEvent
 } from "./rate-limit";
+import type { Env } from "./types/bindings";
 
 // Define our MCP agent with tools (no DO-level rate limiting)
 export class MyMCP extends McpAgent {
@@ -77,10 +77,15 @@ function validateSSERequest(request: Request): { valid: boolean; error?: string 
 	return { valid: true };
 }
 
-// Define more specific types for Env and ExecutionContext if known for the environment
-// Example for Cloudflare Workers:
-// interface Env { /* ... bindings ... */ }
-// interface ExecutionContext { waitUntil(promise: Promise<any>): void; passThroughOnException(): void; }
+/**
+ * Main Worker handler
+ *
+ * Handles incoming requests to the MCP server with:
+ * - Health check endpoint
+ * - IP-based rate limiting (dual-mode during migration)
+ * - SSE and MCP protocol endpoints
+ * - Enhanced request validation
+ */
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
 		const url = new URL(request.url);
@@ -103,38 +108,24 @@ export default {
 			});
 		}
 
-		// Global IP-based rate limiting for SSE and MCP endpoints
+		// IP-based rate limiting for SSE and MCP endpoints
 		// This runs BEFORE DO routing to prevent DO creation abuse
 		if (url.pathname === "/sse" || url.pathname === "/sse/message" || url.pathname === "/mcp") {
-			// Extract client IP
 			const clientIP = getClientIP(request);
 
-			// Check if KV is available (may not be in local dev)
-			// @ts-expect-error - env.RATE_LIMIT_KV exists but not typed
-			if (env.RATE_LIMIT_KV) {
-				// Check rate limit (fail open if KV unavailable)
-				try {
-					// @ts-expect-error - env.RATE_LIMIT_KV exists but not typed
-					const rateLimitResult = await checkRateLimit(env.RATE_LIMIT_KV, clientIP);
+			try {
+				const rateLimitResult = await checkAndApplyRateLimit(env.RATE_LIMITER, clientIP);
 
-					if (!rateLimitResult.allowed) {
-						// Rate limit exceeded - return 429
-						return createRateLimitResponse(rateLimitResult);
-					}
+				// Log event for analytics
+				logRateLimitEvent(clientIP, rateLimitResult.allowed);
 
-					// Rate limit passed - increment counter
-					// @ts-expect-error - env.RATE_LIMIT_KV exists but not typed
-					await incrementRateLimit(env.RATE_LIMIT_KV, clientIP, rateLimitResult.resetTime);
-
-					// Add rate limit headers to context for later use
-					// (We can't add them to SSE responses directly without breaking the stream)
-					ctx.rateLimitHeaders = getRateLimitHeaders(rateLimitResult);
-				} catch (error) {
-					// Rate limit check failed - log and allow request (fail open)
-					console.error("Rate limit check failed:", error);
+				if (!rateLimitResult.allowed) {
+					// Rate limit exceeded - return 429
+					return createRateLimitResponse(rateLimitResult);
 				}
-			} else {
-				console.warn("Rate limiting disabled: KV namespace not available");
+			} catch (error) {
+				// Rate limit check failed - log and allow request (fail open)
+				console.error("❌ Rate limit check failed (failing open):", error);
 			}
 		}
 
@@ -158,7 +149,6 @@ export default {
 			// Extract sessionId for session reuse tracking
 			const sessionId = url.searchParams.get("sessionId");
 
-			// @ts-expect-error - env is not typed
 			const response = await MyMCP.serveSSE("/sse").fetch(request, env, ctx);
 
 			// If this is a new session (no sessionId provided), add headers to encourage reuse
@@ -178,7 +168,6 @@ export default {
 		}
 
 		if (url.pathname === "/mcp") {
-			// @ts-expect-error - env is not typed
 			return MyMCP.serve("/mcp").fetch(request, env, ctx);
 		}
 

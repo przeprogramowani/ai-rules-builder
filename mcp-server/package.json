@@ -8,11 +8,18 @@
     "format": "biome format --write",
     "lint:fix": "biome lint --fix",
     "start": "wrangler dev",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250427.0",
+    "@vitest/ui": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
     "typescript": "^5.5.2",
+    "vitest": "^2.0.0",
     "wrangler": "^4.13.2"
   },
   "dependencies": {
