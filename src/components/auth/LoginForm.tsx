@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { transitions } from '../../styles/theme';
@@ -7,34 +7,99 @@ import { loginSchema } from '../../types/auth';
 import type { LoginFormData } from '../../types/auth';
 import { useAuth } from '../../hooks/useAuth';
 import { useCaptcha } from '../../hooks/useCaptcha';
+import { ResendVerificationButton } from './ResendVerificationButton';
 
 interface LoginFormProps {
   cfCaptchaSiteKey: string;
+  inviteToken?: string | null;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey, inviteToken }) => {
   const { login, error: apiError, isLoading } = useAuth();
-  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const { getCaptchaToken, isLoading: isCaptchaLoading } = useCaptcha(cfCaptchaSiteKey);
+  const [errorType, setErrorType] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [retryAfter, setRetryAfter] = useState<number | null>(null);
+  const [showApiError, setShowApiError] = useState(true);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      if (!isCaptchaVerified) {
-        throw new Error('Captcha verification failed');
+      setErrorType(null);
+      setUnverifiedEmail(null);
+      setRetryAfter(null);
+      setShowApiError(true);
+
+      // Get captcha token when user clicks submit
+      const captchaToken = await getCaptchaToken();
+
+      if (!captchaToken) {
+        throw new Error('Security verification failed. Please try again.');
       }
-      await login(data);
-      window.location.href = '/';
+
+      await login({ ...data, captchaToken });
+
+      // Redirect to invite page if invite token is present
+      if (inviteToken) {
+        window.location.href = `/invites/${inviteToken}`;
+      } else {
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error(error);
+
+      // Check if error has type information (AuthError)
+      if (error && typeof error === 'object' && 'type' in error) {
+        const authError = error as { type: string; email?: string; retryAfter?: number };
+        setErrorType(authError.type);
+        if (
+          (authError.type === 'email_not_confirmed' ||
+            authError.type === 'email_not_confirmed_rate_limited') &&
+          authError.email
+        ) {
+          setUnverifiedEmail(authError.email);
+          setRetryAfter(authError.retryAfter || null);
+          setShowApiError(true);
+        }
+      }
     }
   };
+
+  // Show resend verification for unconfirmed email (both normal and rate limited)
+  if (
+    (errorType === 'email_not_confirmed' || errorType === 'email_not_confirmed_rate_limited') &&
+    unverifiedEmail
+  ) {
+    return (
+      <div className="space-y-4">
+        {showApiError && (
+          <div
+            className={`p-3 text-sm rounded-md ${
+              errorType === 'email_not_confirmed_rate_limited'
+                ? 'text-orange-600 bg-orange-100 dark:bg-orange-900/20 dark:text-orange-400'
+                : 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400'
+            }`}
+          >
+            {apiError}
+          </div>
+        )}
+        <ResendVerificationButton
+          email={unverifiedEmail}
+          cfCaptchaSiteKey={cfCaptchaSiteKey}
+          initialCountdown={retryAfter || undefined}
+          onMessageChange={(hasMessage) => setShowApiError(!hasMessage)}
+        />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -52,6 +117,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
         autoComplete="email"
         disabled={isLoading}
         {...register('email')}
+        onAutofill={(value) => setValue('email', value, { shouldValidate: true })}
       />
 
       <AuthInput
@@ -62,6 +128,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
         autoComplete="current-password"
         disabled={isLoading}
         {...register('password')}
+        onAutofill={(value) => setValue('password', value, { shouldValidate: true })}
       />
 
       <div className="flex items-center justify-between">
@@ -77,7 +144,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
 
       <button
         type="submit"
-        disabled={!isCaptchaVerified || isLoading}
+        disabled={isLoading || isCaptchaLoading}
         className={`
           w-full flex justify-center py-2 px-4 border border-transparent rounded-md
           text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
@@ -86,7 +153,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ cfCaptchaSiteKey }) => {
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
       >
-        {isLoading ? 'Signing in...' : 'Sign in'}
+        {isCaptchaLoading ? 'Verifying security...' : isLoading ? 'Signing in...' : 'Sign in'}
       </button>
 
       <div className="text-center text-sm">

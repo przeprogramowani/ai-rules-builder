@@ -1,0 +1,186 @@
+import React, { useCallback, useMemo, useState } from 'react';
+import { Book, Trash2, Pencil, Save } from 'lucide-react';
+import type { RuleCollection } from '../../types/ruleCollection.types';
+import { useRuleCollectionsStore } from '../../store/ruleCollectionsStore';
+import DeletionDialog from './DeletionDialog';
+
+import SaveRuleCollectionDialog from './SaveRuleCollectionDialog';
+import { useKeyboardActivation } from '../../hooks/useKeyboardActivation';
+
+interface RuleCollectionListEntryProps {
+  collection: RuleCollection;
+  onClick?: (collection: RuleCollection) => void;
+}
+
+export const RuleCollectionListEntry: React.FC<RuleCollectionListEntryProps> = ({
+  collection,
+  onClick,
+}) => {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const selectedCollection = useRuleCollectionsStore((state) => state.selectedCollection);
+  const deleteCollection = useRuleCollectionsStore((state) => state.deleteCollection);
+  const isDirty = useRuleCollectionsStore((state) => state.isDirty);
+  const saveChanges = useRuleCollectionsStore((state) => state.saveChanges);
+  const updateCollection = useRuleCollectionsStore((state) => state.updateCollection);
+  const isSelected = selectedCollection?.id === collection.id;
+
+  const handleClick = () => {
+    onClick?.(collection);
+  };
+
+  const openDeleteDialog = useCallback(() => {
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const openEditDialog = useCallback(() => {
+    setIsEditDialogOpen(true);
+  }, []);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openDeleteDialog();
+  };
+
+  const handleSaveClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setIsSaving(true);
+      await saveChanges();
+    } catch (error) {
+      console.error('Error saving changes:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteCollection(collection.id);
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openEditDialog();
+  };
+
+  const handleEditSave = async (name: string, description: string) => {
+    try {
+      await updateCollection(collection.id, { ...collection, name, description });
+    } catch (error) {
+      console.error('Error updating collection:', error);
+      throw error;
+    }
+  };
+
+  const createIconKeyboardHandler = useKeyboardActivation<HTMLDivElement>({
+    stopPropagation: true,
+  });
+  const handleEditKeyDown = useMemo(
+    () => createIconKeyboardHandler(openEditDialog),
+    [createIconKeyboardHandler, openEditDialog],
+  );
+  const handleDeleteKeyDown = useMemo(
+    () => createIconKeyboardHandler(openDeleteDialog),
+    [createIconKeyboardHandler, openDeleteDialog],
+  );
+
+  return (
+    <>
+      <button
+        data-test-id="collection-entry"
+        onClick={handleClick}
+        className={`w-full text-left p-4 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors group ${
+          isSelected ? 'border border-blue-400/50' : 'border border-transparent'
+        }`}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1">
+            <Book className="size-5 text-blue-400" />
+            <h3
+              data-test-id="collection-entry-name"
+              className={`font-medium transition-colors ${isSelected ? 'text-blue-400' : 'text-white group-hover:text-blue-400'}`}
+            >
+              {collection.name}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <div
+              data-test-id="collection-edit-button"
+              onClick={handleEditClick}
+              role="button"
+              tabIndex={0}
+              className="p-1.5 rounded-md text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 transition-colors cursor-pointer"
+              aria-label={`Edit ${collection.name}`}
+              onKeyDown={handleEditKeyDown}
+            >
+              <Pencil className="size-4" />
+            </div>
+            <div
+              data-test-id="collection-delete-button"
+              onClick={handleDeleteClick}
+              role="button"
+              tabIndex={0}
+              className="p-1.5 rounded-md text-gray-400 hover:text-red-400 hover:bg-gray-700/50 opacity-0 group-hover:opacity-100 cursor-pointer transition-colors"
+              aria-label={`Delete ${collection.name}`}
+              onKeyDown={handleDeleteKeyDown}
+            >
+              <Trash2 className="size-4" />
+            </div>
+          </div>
+        </div>
+        <p
+          data-test-id="collection-entry-description"
+          className="text-sm text-gray-400 line-clamp-2"
+        >
+          {collection.description}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300">
+            {collection.libraries.length} rules
+          </span>
+          {isSelected && isDirty() && (
+            <button
+              data-test-id="collection-save-changes-button"
+              onClick={handleSaveClick}
+              disabled={isSaving}
+              className="text-xs px-3 py-1 rounded-full bg-blue-900/50 text-blue-300 hover:bg-blue-800/50 transition-colors flex items-center"
+            >
+              <Save className="size-4 mr-1" />
+              {isSaving ? 'Saving...' : 'Save changes'}
+            </button>
+          )}
+        </div>
+      </button>
+
+      <DeletionDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        itemName={collection.name}
+        title="Delete Collection"
+      />
+
+      <SaveRuleCollectionDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleEditSave}
+        initialName={collection.name}
+        initialDescription={collection.description || ''}
+      />
+    </>
+  );
+};
+
+export default RuleCollectionListEntry;

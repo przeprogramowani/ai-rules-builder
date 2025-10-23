@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RuleBuilder } from './rule-builder';
 import { RulePreview } from './rule-preview';
-import CollectionsSidebar from './rule-collections/CollectionsSidebar';
+import RuleCollectionsSidebar from './rule-collections/RuleCollectionsSidebar';
 import { MobileNavigation } from './MobileNavigation';
 import { useNavigationStore } from '../store/navigationStore';
 import { isFeatureEnabled } from '../features/featureFlags';
@@ -23,7 +23,7 @@ function RulesPane() {
   return (
     <div className="flex relative flex-col h-full max-h-screen md:flex-row bg-gray-950">
       {isCollectionsEnabled && (
-        <CollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
+        <RuleCollectionsSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
       )}
 
       <div className="flex flex-1 flex-col md:flex-row">

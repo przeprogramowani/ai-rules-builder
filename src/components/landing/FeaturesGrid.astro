@@ -1,0 +1,173 @@
+---
+import { GRADIENT_ORB_DELAYS } from '../../data/landingContent';
+import { getTotalLibraryCount } from '../../utils/landingData';
+
+// Features - Rules Builder
+const RULES_BUILDER_FEATURES = [
+  {
+    icon: '🎨',
+    title: 'Visual Rule Builder',
+    description: 'Intuitive drag-and-drop interface for creating AI rules without writing code',
+  },
+  {
+    icon: '📚',
+    title: `${getTotalLibraryCount()}+ Frameworks & Libraries`,
+    description:
+      'Comprehensive coverage across 6 technology layers: frontend, backend, database, DevOps, testing, and coding practices',
+  },
+  {
+    icon: '📦',
+    title: 'Smart Import',
+    description:
+      'Automatically detect your tech stack by dropping package.json or requirements.txt files',
+  },
+  {
+    icon: '💾',
+    title: 'Flexible Export',
+    description: 'Export as single-file or multi-file markdown optimized for different AI editors',
+  },
+  {
+    icon: '🗂️',
+    title: 'Personal Collections',
+    description: 'Save and manage reusable rule sets for different projects and contexts',
+  },
+];
+
+// Features - Prompt Library
+const PROMPT_LIBRARY_FEATURES = [
+  {
+    icon: '🏢',
+    title: 'Organization Management',
+    description:
+      'Multi-organization support with role-based access control (RBAC) for admins and members',
+  },
+  {
+    icon: '✍️',
+    title: 'Content Curation',
+    description: 'Draft/publish workflow ensures quality and consistency across team prompts',
+  },
+  {
+    icon: '👥',
+    title: 'Member Experience',
+    description: "Browse, filter, and copy prompts from your organization's centralized library",
+  },
+  {
+    icon: '🤝',
+    title: 'Collaboration Tools',
+    description: 'Centralized repository for team knowledge sharing and prompt standardization',
+  },
+];
+
+// Features - Universal
+const UNIVERSAL_FEATURES = [
+  {
+    icon: '🔌',
+    title: 'MCP Server Integration',
+    description:
+      'Programmatic access to both Rules Builder and Prompt Library via Model Context Protocol for AI assistants',
+  },
+];
+---
+
+<section id="features" class="relative py-20 px-4">
+  <!-- Gradient mesh background -->
+  <div class="absolute inset-0 gradient-mesh pointer-events-none"></div>
+
+  <!-- Dots pattern background -->
+  <div class="absolute inset-0 bg-dots-pattern opacity-10 pointer-events-none"></div>
+
+  <!-- Subtle gradient orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      class="gradient-orb gradient-orb-blue w-64 h-64 top-1/4 -left-32"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.FEATURES_BLUE};`}
+    >
+    </div>
+    <div
+      class="gradient-orb gradient-orb-teal w-64 h-64 bottom-1/4 -right-32"
+      style={`animation-delay: ${GRADIENT_ORB_DELAYS.FEATURES_TEAL};`}
+    >
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto relative z-10">
+    <h2 class="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+      Powerful Features for Everyone
+    </h2>
+    <p class="text-xl text-gray-400 text-center mb-16 max-w-3xl mx-auto">
+      Build personal AI rules and manage team prompts in one platform
+    </p>
+
+    <!-- Two Column Comparison -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+      <!-- Rules Builder Column -->
+      <div
+        class="features-column-left bg-gray-950 border-2 border-gray-800 rounded-xl p-8 hover:border-blue-500/50 transition-all duration-300"
+      >
+        <!-- Column Header -->
+        <div class="text-center mb-8">
+          <div class="text-5xl mb-4">🧑‍💻</div>
+          <h3 class="text-2xl font-bold text-white mb-2">Rules Builder</h3>
+          <p class="text-gray-400">For individual developers</p>
+        </div>
+
+        <!-- Features List -->
+        <div class="space-y-6">
+          {
+            RULES_BUILDER_FEATURES.map((feature) => (
+              <div class="feature-item flex items-start gap-4">
+                <div class="feature-icon text-3xl flex-shrink-0">{feature.icon}</div>
+                <div>
+                  <h4 class="text-lg font-semibold text-white mb-1">{feature.title}</h4>
+                  <p class="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Prompt Library Column -->
+      <div
+        class="features-column-right bg-gray-950 border-2 border-gray-800 rounded-xl p-8 hover:border-teal-500/50 transition-all duration-300"
+      >
+        <!-- Column Header -->
+        <div class="text-center mb-8">
+          <div class="text-5xl mb-4">👥</div>
+          <h3 class="text-2xl font-bold text-white mb-2">Prompt Library</h3>
+          <p class="text-gray-400">For development teams</p>
+        </div>
+
+        <!-- Features List -->
+        <div class="space-y-6">
+          {
+            PROMPT_LIBRARY_FEATURES.map((feature) => (
+              <div class="feature-item flex items-start gap-4">
+                <div class="feature-icon text-3xl flex-shrink-0">{feature.icon}</div>
+                <div>
+                  <h4 class="text-lg font-semibold text-white mb-1">{feature.title}</h4>
+                  <p class="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Universal Feature Banner -->
+    {
+      UNIVERSAL_FEATURES.map((feature) => (
+        <div class="bg-gradient-to-r from-blue-900/30 via-gray-900/50 to-teal-900/30 border border-gray-800 rounded-xl p-8 max-w-2xl mx-auto">
+          <div class="flex flex-col md:flex-row items-center gap-6 max-w-4xl mx-auto">
+            <div class="text-5xl flex-shrink-0">{feature.icon}</div>
+            <div class="text-center md:text-left">
+              <h4 class="text-2xl font-bold text-white mb-2">{feature.title}</h4>
+              <p class="text-gray-300 leading-relaxed">{feature.description}</p>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

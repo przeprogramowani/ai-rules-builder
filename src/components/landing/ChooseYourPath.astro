@@ -1,0 +1,55 @@
+---
+import PathCard from '../ui/PathCard.astro';
+import { ROUTES, EXTERNAL_LINKS } from '../../data/landingContent';
+import { getTotalLibraryCount } from '../../utils/landingData';
+---
+
+<section id="choose-your-path" class="py-20 px-4">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-4xl font-bold text-white text-center mb-4">
+      One Platform, Two Powerful Workflows
+    </h2>
+
+    <p class="text-xl text-gray-400 text-center mb-12 max-w-3xl mx-auto">
+      Whether you code solo or collaborate with a team, we've got you covered
+    </p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- Rules Builder Path -->
+      <PathCard
+        icon="🧑‍💻"
+        title="Rules Builder"
+        subtitle="Best for: Individual developers, freelancers, students"
+        features={[
+          'Personal AI rules creation',
+          `${getTotalLibraryCount()}+ framework templates`,
+          'Smart import from package.json',
+          'Instant export to any editor',
+          'Save unlimited collections',
+          'MCP server access',
+        ]}
+        ctaText="Get Started for Free"
+        ctaHref={ROUTES.SIGNUP}
+        note="Available immediately after signup"
+      />
+
+      <!-- Prompt Library Path -->
+      <PathCard
+        icon="👥"
+        title="Prompt Library"
+        subtitle="Best for: Development teams, organizations, enterprises"
+        features={[
+          'Centralized prompt management',
+          'Admin curation tools',
+          'Role-based team access',
+          'Collections & segments',
+          'Publish/draft workflows',
+          'MCP server access',
+        ]}
+        ctaText="Request Access"
+        ctaHref={EXTERNAL_LINKS.LIBRARY_FORM}
+        note="Currently available for selected organizations (pilot program)"
+      />
+    </div>
+  </div>
+</section>

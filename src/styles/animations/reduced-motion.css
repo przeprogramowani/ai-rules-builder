@@ -1,0 +1,48 @@
+/**
+ * Accessibility: Reduced motion preferences
+ * Respects user's prefers-reduced-motion setting
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable gradient orbs entirely - too expensive for reduced motion */
+  .gradient-orb {
+    display: none !important;
+  }
+
+  /* Disable shimmer effects */
+  .total-count,
+  .final-cta-button::after {
+    animation: none !important;
+  }
+
+  /* Disable pulse rings */
+  .cta-button::before {
+    animation: none !important;
+  }
+
+  /* Keep focus indicators but remove animation */
+  a:focus-visible,
+  button:focus-visible {
+    animation: none !important;
+  }
+
+  /* Simplify transforms to immediate states */
+  .before-after-card:hover,
+  .path-card:hover,
+  .contributor-avatar:hover {
+    transform: none !important;
+  }
+
+  .feature-item:hover .feature-icon {
+    transform: none !important;
+  }
+}

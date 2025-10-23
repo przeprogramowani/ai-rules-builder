@@ -47,3 +47,35 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
+
+// Extended type for password reset flow that includes the token_hash from URL
+export type UpdatePasswordWithTokenFormData = UpdatePasswordFormData & {
+  token_hash: string;
+};
+
+// Resend verification types
+export interface ResendVerificationData {
+  email: string;
+  captchaToken: string;
+}
+
+export interface ResendVerificationResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  type?:
+    | 'rate_limit' // Database rate limiter triggered
+    | 'middleware_rate_limit' // Middleware rate limiter triggered
+    | 'service_error' // Service/database unavailable
+    | 'not_found' // Email not found
+    | 'already_confirmed'; // Email already verified
+  retryAfter?: number;
+  developerMessage?: string; // Only in dev mode
+}
+
+// Signup error types
+export type SignupError =
+  | { type: 'confirmed_exists'; message: string }
+  | { type: 'unconfirmed_exists'; message: string; email: string }
+  | { type: 'rate_limit'; message: string; retryAfter: number }
+  | { type: 'generic'; message: string };

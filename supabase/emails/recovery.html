@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>✨ 10xRules.ai | Confirm email</title>
+    <title>✨ 10xRules.ai | Reset your password</title>
     <style>
       /* Basic Reset */
       body,
@@ -48,22 +48,77 @@
       p {
         margin-bottom: 15px;
       }
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        margin: 20px 0;
+        background-color: #007bff;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+      .info-box {
+        background-color: #f0f8ff;
+        border-left: 4px solid #007bff;
+        padding: 12px 16px;
+        margin: 20px 0;
+        font-size: 14px;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px 16px;
+        margin: 20px 0;
+        font-size: 13px;
+        color: #856404;
+      }
+      .security-notice {
+        background-color: #fff3cd;
+        border-left: 4px solid #dc3545;
+        padding: 12px 16px;
+        margin: 20px 0;
+        font-size: 13px;
+        color: #721c24;
+      }
     </style>
   </head>
   <body>
     <div class="email-container">
       <div class="content-card">
-        <!-- Email Content Goes Here -->
-        <h1>✨ 10xRules.ai | Reset password</h1>
+        <!-- Email Content -->
+        <h1>✨ 10xRules.ai | Reset your password</h1>
         <p>Hello,</p>
-        <p>Click on the link below to reset password:</p>
-        <a href="{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}">Reset Password</a>
+        <p>We received a request to reset your password. Click the button below to create a new password:</p>
+
+        <center>
+          <a href="{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}" class="button">Reset Password</a>
+        </center>
+
+        <div class="info-box">
+          <strong>Important:</strong> This password reset link will expire in 2 hours.
+        </div>
+
+        <div class="security-notice">
+          <strong>🔒 Security Notice:</strong><br>
+          If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+        </div>
+
+        <div class="warning">
+          <strong>⚠️ Corporate Email Notice:</strong><br>
+          If clicking the button above doesn't work (corporate email security may scan links before you see them),
+          please paste the link below into your browser:
+          <br>
+          <a href="{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}" style="color: #007bff; word-break: break-all; font-size: 12px;">{{ .SiteURL }}/auth/update-password?token_hash={{ .TokenHash }}</a>
+        </div>
+
         <p>Best regards,<br />10xRules.ai & Przeprogramowani</p>
-        <!-- End Email Content -->
       </div>
       <div class="footer">
         10xRules.ai |
-        <!-- Optional: Add links or other footer info here -->
         <a href="https://10xrules.ai/privacy/en">Privacy Policy</a>
       </div>
     </div>

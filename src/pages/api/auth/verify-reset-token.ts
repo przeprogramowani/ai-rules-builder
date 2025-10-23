@@ -1,6 +1,13 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseAdminInstance } from '@/db/supabase.client';
 
+/**
+ * @deprecated This endpoint is deprecated as of the token verification refactor.
+ * Token verification now happens atomically with password update in /api/auth/update-password.
+ * This endpoint is maintained for backwards compatibility but should not be used in new code.
+ *
+ * Consider removing this endpoint if no other flows depend on it.
+ */
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const { token_hash } = (await request.json()) as { token_hash: string };

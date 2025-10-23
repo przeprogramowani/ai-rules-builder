@@ -1,14 +1,33 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseAdminInstance } from '@/db/supabase.client';
+import { verifyCaptcha } from '@/services/captcha';
+import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request, url, cookies }) => {
   try {
-    const { email } = (await request.json()) as { email: string };
+    const { email, captchaToken } = (await request.json()) as {
+      email: string;
+      captchaToken: string;
+    };
 
-    if (!email) {
-      return new Response(JSON.stringify({ error: 'Email is required' }), {
+    if (!email || !captchaToken) {
+      return new Response(JSON.stringify({ error: 'Email and captcha token are required' }), {
         status: 400,
       });
+    }
+
+    // Verify captcha on backend
+    const requestorIp = request.headers.get('cf-connecting-ip') || '';
+    const captchaResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken, requestorIp);
+
+    if (!captchaResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: 'Security verification failed. Please try again.',
+          errorCodes: captchaResult['error-codes'],
+        }),
+        { status: 400 },
+      );
     }
 
     const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });

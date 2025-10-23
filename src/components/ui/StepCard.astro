@@ -1,0 +1,35 @@
+---
+interface Props {
+  stepNumber: number;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+const { stepNumber, title, description, icon } = Astro.props;
+---
+
+<div
+  class="step-card relative p-6 bg-gray-900 border border-gray-800 rounded-lg hover:border-gray-700 transition-colors duration-300"
+>
+  <!-- Step Number Badge -->
+  <div
+    class="step-number absolute -top-4 -left-4 w-10 h-10 bg-gradient-to-r from-blue-500 to-teal-500 rounded-full flex items-center justify-center font-bold text-white shadow-lg"
+  >
+    {stepNumber}
+  </div>
+
+  <!-- Icon -->
+  <div class="text-4xl mb-4 mt-2">
+    {icon}
+  </div>
+
+  <!-- Content -->
+  <h3 class="text-xl font-semibold text-white mb-2">
+    {title}
+  </h3>
+
+  <p class="text-gray-400 leading-relaxed">
+    {description}
+  </p>
+</div>

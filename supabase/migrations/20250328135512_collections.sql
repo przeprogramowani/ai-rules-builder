@@ -10,10 +10,6 @@ CREATE TABLE collections (
 );
 -- Create index on user_id for faster lookups
 CREATE INDEX collections_user_id_idx ON collections(user_id);
--- Enable Row Level Security
-ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
--- Create policy to allow users to manage their own collections
-CREATE POLICY "Users can manage their own collections" ON collections FOR ALL USING (auth.uid() = user_id);
 -- Function to automatically update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = TIMEZONE('utc', NOW());
 RETURN NEW;

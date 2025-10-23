@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import InviteLanding from '../../components/invites/InviteLanding';
+import { isFeatureEnabled } from '../../features/featureFlags';
+
+export const prerender = false;
+
+// Check if org invites feature is enabled
+if (!isFeatureEnabled('orgInvites')) {
+  return Astro.redirect('/');
+}
+
+const { token } = Astro.params;
+
+// Check if user is authenticated
+const isAuthenticated = !!Astro.locals.user;
+
+if (!token) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Join Organization">
+  <InviteLanding token={token} isAuthenticated={isAuthenticated} client:load />
+</Layout>
