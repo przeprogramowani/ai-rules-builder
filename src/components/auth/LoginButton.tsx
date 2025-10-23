@@ -1,9 +1,16 @@
 import { LogIn, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { isFeatureEnabled } from '../../features/featureFlags';
+import { useEffect, useState } from 'react';
 
 export default function LoginButton() {
   const { user, logout } = useAuthStore();
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  // Mark as hydrated after first client-side mount
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   // If auth feature is disabled, render nothing
   if (!isFeatureEnabled('authOnUI')) {
@@ -14,11 +21,21 @@ export default function LoginButton() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       logout();
-      window.location.href = '/auth/login';
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
+
+  // Show skeleton during SSR and initial hydration
+  if (!hasHydrated) {
+    return (
+      <div className="flex items-center space-x-2 px-3 py-2 animate-pulse">
+        <div className="size-4 bg-gray-700 rounded" />
+        <div className="hidden md:block h-5 w-12 bg-gray-700 rounded" />
+      </div>
+    );
+  }
 
   if (user) {
     return (

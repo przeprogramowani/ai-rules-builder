@@ -1,0 +1,60 @@
+---
+import { getContributors, getContributorCount } from '../../utils/landingData';
+import { EXTERNAL_LINKS } from '../../data/landingContent';
+
+const contributors = getContributors();
+const contributorCount = getContributorCount();
+---
+
+<section class="relative py-20 px-4 overflow-hidden">
+  <div class="max-w-7xl mx-auto text-center relative z-10">
+    <h2 class="text-4xl font-bold text-white mb-6">Built by 10xDevs & Friends</h2>
+
+    <p class="text-xl text-gray-400 mb-12">
+      Open source project with {contributorCount}+ contributors and growing
+    </p>
+
+    <!-- Contributor avatars -->
+    <div class="flex flex-wrap justify-center items-center gap-4 mb-8 max-w-4xl mx-auto">
+      {
+        contributors.map((contributor) => (
+          <a
+            href={contributor.profile}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group relative"
+            title={contributor.name}
+          >
+            <img
+              src={contributor.avatar_url}
+              alt={contributor.name}
+              class="contributor-avatar w-16 h-16 rounded-full border-2 border-gray-700"
+              loading="lazy"
+            />
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        href={EXTERNAL_LINKS.GITHUB}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-700 hover:border-gray-600 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-all duration-300"
+      >
+        <span class="mr-2">⭐</span>
+        Star on GitHub
+      </a>
+
+      <a
+        href={EXTERNAL_LINKS.GITHUB_CONTRIBUTING}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-700 hover:border-gray-600 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-all duration-300"
+      >
+        Join {contributorCount}+ Contributors
+      </a>
+    </div>
+  </div>
+</section>

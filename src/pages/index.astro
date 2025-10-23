@@ -3,17 +3,23 @@ import Layout from '../layouts/Layout.astro';
 import Topbar from '../components/Topbar';
 import TwoPane from '../components/TwoPane';
 import Footer from '../components/Footer';
+import Landing from '../components/landing/Landing.astro';
 
 const user = Astro.locals.user;
 const initialUrl = Astro.url;
 ---
 
 <Layout>
-  <div class="flex flex-col h-screen max-h-screen bg-gray-950 overflow-hidden">
-    <Topbar client:load initialUser={user} />
-    <main class="flex-grow overflow-auto">
-      <TwoPane client:load initialUrl={initialUrl} />
-    </main>
-    <Footer client:load />
-  </div>
+  {!user && <Landing />}
+  {
+    user && (
+      <div class="flex flex-col h-screen max-h-screen bg-gray-950 overflow-hidden">
+        <Topbar client:load initialUser={user} />
+        <main class="flex-grow overflow-auto">
+          <TwoPane client:load initialUrl={initialUrl} />
+        </main>
+        <Footer client:load />
+      </div>
+    )
+  }
 </Layout>

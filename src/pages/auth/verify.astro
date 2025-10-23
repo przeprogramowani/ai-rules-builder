@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AuthLayout from '../../components/auth/AuthLayout';
+import VerificationResult from '../../components/auth/VerificationResult';
+import { createSupabaseServerInstance } from '../../db/supabase.client';
+import { isFeatureEnabled } from '../../features/featureFlags';
+import { emailScannerMiddleware } from '../../middleware/email-scanner-detection';
+import { CF_CAPTCHA_SITE_KEY } from 'astro:env/server';
+
+// Check if auth feature is enabled
+if (!isFeatureEnabled('auth')) {
+  return Astro.redirect('/');
+}
+
+// Detect and block email scanners from consuming verification tokens
+const scannerResponse = emailScannerMiddleware(Astro.request);
+if (scannerResponse) {
+  return scannerResponse;
+}
+
+// Check if user is already logged in
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+// Extract error information from URL params
+const error = Astro.url.searchParams.get('error');
+const errorDescription = Astro.url.searchParams.get('error_description');
+const errorCode = Astro.url.searchParams.get('error_code');
+
+// Determine verification status
+let verificationStatus: 'success' | 'error' | 'already_confirmed' = 'error';
+let message = '';
+let userEmail = user?.email || '';
+
+if (user && !error) {
+  // User is logged in and no error - verification successful
+  verificationStatus = 'success';
+  message = 'Your email has been verified successfully!';
+  userEmail = user.email || '';
+} else if (error) {
+  // Handle different error types
+  if (errorDescription?.includes('already') || errorDescription?.includes('confirmed')) {
+    verificationStatus = 'already_confirmed';
+    message = 'Your email is already verified. You can log in to your account.';
+  } else if (errorDescription?.includes('expired')) {
+    verificationStatus = 'error';
+    message = 'This verification link has expired. Please request a new one.';
+  } else if (errorDescription?.includes('invalid') || errorDescription?.includes('not found')) {
+    verificationStatus = 'error';
+    message =
+      'This verification link is invalid or has already been used. This often happens when email security systems scan links before you click them. Please request a new verification email.';
+  } else {
+    verificationStatus = 'error';
+    message = errorDescription || 'Email verification failed. Please try again.';
+  }
+}
+---
+
+<Layout>
+  <div class="flex flex-col h-screen max-h-screen bg-gray-950">
+    <main class="flex-grow">
+      <AuthLayout
+        subtitle={verificationStatus === 'success'
+          ? 'Welcome to 10xRules.ai'
+          : 'We can help you get back on track'}
+      >
+        <VerificationResult
+          client:only="react"
+          status={verificationStatus}
+          message={message}
+          userEmail={userEmail}
+          errorCode={errorCode}
+          cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY}
+        />
+      </AuthLayout>
+    </main>
+  </div>
+</Layout>

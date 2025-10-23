@@ -18,15 +18,25 @@ export const RulePreviewTopbar: React.FC<RulePreviewTopbarProps> = ({ rulesConte
   if (!isHydrated) {
     return (
       <div className="p-2 bg-gray-800 rounded-lg">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 opacity-0">
-          {/* Invisible placeholder content with the same structure to prevent layout shift */}
+        <div className="flex flex-col sm:flex-row justify-between items-start space-y-3 sm:space-y-0 animate-pulse">
+          {/* Skeleton matching actual component structure */}
           <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-            <div className="min-w-[180px] px-3 py-2 text-sm bg-gray-700 rounded-md"></div>
-            <div className="text-sm text-gray-400 w-32 h-5"></div>
+            {/* Environment dropdown skeleton - matches py-2 */}
+            <div className="min-w-[180px] h-[38px] bg-gray-700 rounded-md"></div>
+            {/* Path display skeleton */}
+            <div className="h-5 w-32 bg-gray-700 rounded"></div>
           </div>
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <div className="px-3 py-1 rounded-md"></div>
-            <div className="px-3 py-1 rounded-md"></div>
+          <div className="w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2">
+              {/* Copy button skeleton - matches py-1 */}
+              <div className="h-[30px] w-[42px] bg-gray-700 rounded-md"></div>
+              {/* Download button skeleton - matches py-1 */}
+              <div className="h-[30px] w-[42px] bg-gray-700 rounded-md"></div>
+              {/* Upload button skeleton - matches py-1 */}
+              <div className="h-[30px] w-[42px] bg-gray-700 rounded-md"></div>
+              {/* External link button skeleton - matches py-1 */}
+              <div className="h-[30px] w-[42px] bg-gray-700 rounded-md"></div>
+            </div>
           </div>
         </div>
       </div>

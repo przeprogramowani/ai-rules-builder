@@ -26,13 +26,20 @@ const {
 if (user) {
   return Astro.redirect('/');
 }
+
+// Extract invite token from query params
+const inviteToken = Astro.url.searchParams.get('invite') ?? undefined;
 ---
 
 <Layout>
   <div class="flex flex-col h-screen max-h-screen bg-gray-950">
     <main class="flex-grow">
-      <AuthLayout title="Create an account" subtitle="Sign up to start building AI rules">
-        <SignupForm client:only="react" cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY} />
+      <AuthLayout subtitle="Sign up to start building AI rules">
+        <SignupForm
+          client:only="react"
+          cfCaptchaSiteKey={CF_CAPTCHA_SITE_KEY}
+          inviteToken={inviteToken}
+        />
       </AuthLayout>
     </main>
   </div>

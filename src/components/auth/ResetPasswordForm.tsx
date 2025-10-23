@@ -14,12 +14,13 @@ interface ResetPasswordFormProps {
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaSiteKey }) => {
   const { resetPassword, error: apiError, isLoading } = useAuth();
-  const { isCaptchaVerified } = useCaptcha(cfCaptchaSiteKey);
+  const { getCaptchaToken, isLoading: isCaptchaLoading } = useCaptcha(cfCaptchaSiteKey);
   const [error, setError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitSuccessful },
+    setValue,
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
   });
@@ -35,10 +36,14 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
-      if (!isCaptchaVerified) {
-        throw new Error('Captcha verification failed');
+      // Get captcha token when user clicks submit
+      const captchaToken = await getCaptchaToken();
+
+      if (!captchaToken) {
+        throw new Error('Security verification failed. Please try again.');
       }
-      await resetPassword(data);
+
+      await resetPassword({ ...data, captchaToken });
     } catch (error) {
       console.error(error);
     }
@@ -83,11 +88,12 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
         autoComplete="email"
         disabled={isLoading}
         {...register('email')}
+        onAutofill={(value) => setValue('email', value, { shouldValidate: true })}
       />
 
       <button
         type="submit"
-        disabled={!isCaptchaVerified || isLoading}
+        disabled={isLoading || isCaptchaLoading}
         className={`
           w-full flex justify-center py-2 px-4 border border-transparent rounded-md
           text-sm font-medium text-white bg-blue-600 hover:bg-blue-700
@@ -96,7 +102,11 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ cfCaptchaS
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
       >
-        {isLoading ? 'Sending...' : 'Send reset instructions'}
+        {isCaptchaLoading
+          ? 'Verifying security...'
+          : isLoading
+            ? 'Sending...'
+            : 'Send reset instructions'}
       </button>
 
       <div className="text-center text-sm">

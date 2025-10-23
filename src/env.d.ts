@@ -3,10 +3,29 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './db/database.types.ts';
 import type { Env } from './features/featureFlags';
+import type { OrganizationMembership } from './services/prompt-library/access';
 
 declare global {
   interface Window {
     onloadTurnstileCallback: () => void;
+    turnstile?: {
+      render: (
+        container: HTMLElement | string,
+        options: {
+          sitekey: string;
+          theme?: 'light' | 'dark' | 'auto';
+          size?: 'compact' | 'normal' | 'flexible';
+          appearance?: 'always' | 'execute' | 'interaction-only';
+          execution?: 'render' | 'execute';
+          callback?: (token: string) => void;
+          'expired-callback'?: () => void;
+          'error-callback'?: () => void;
+        },
+      ) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+      execute: (widgetId: string) => void;
+    };
     dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
     clarity: (event: string, enabled?: boolean) => void;
@@ -17,6 +36,11 @@ declare global {
       user?: {
         email: string | null;
         id: string;
+      };
+      promptLibrary?: {
+        organizations: OrganizationMembership[];
+        activeOrganization: OrganizationMembership | null;
+        flagEnabled: boolean;
       };
     }
   }

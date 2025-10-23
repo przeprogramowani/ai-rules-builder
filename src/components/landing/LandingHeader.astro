@@ -1,0 +1,55 @@
+---
+import Button from '../ui/Button.astro';
+import Logo from '../ui/Logo.astro';
+import { ROUTES, ANCHORS, EXTERNAL_LINKS } from '../../data/landingContent';
+---
+
+<header
+  class="sticky top-0 z-50 w-full bg-gray-950/95 backdrop-blur-sm border-b border-gray-800"
+  role="banner"
+>
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <a href={ROUTES.HOME} aria-label="10xRules.ai - Home">
+        <Logo size="md" />
+      </a>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center space-x-8" aria-label="Main navigation">
+        <a href={ANCHORS.FEATURES} class="text-gray-400 hover:text-white transition-colors">
+          Features
+        </a>
+        <a href={ANCHORS.CHOOSE_YOUR_PATH} class="text-gray-400 hover:text-white transition-colors">
+          Paths
+        </a>
+        <a
+          href={EXTERNAL_LINKS.GITHUB}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-gray-400 hover:text-white transition-colors"
+          aria-label="Visit GitHub repository (opens in new tab)"
+        >
+          GitHub
+        </a>
+      </nav>
+
+      <!-- CTA Buttons -->
+      <div class="flex items-center space-x-3">
+        <a
+          href={ROUTES.LOGIN}
+          class="hidden sm:inline-flex text-gray-400 hover:text-white transition-colors px-4 py-2"
+        >
+          Log In
+        </a>
+        <Button
+          href={ROUTES.SIGNUP}
+          variant="primary"
+          class="text-sm magnetic-button final-cta-button"
+        >
+          Get Started
+        </Button>
+      </div>
+    </div>
+  </div>
+</header>

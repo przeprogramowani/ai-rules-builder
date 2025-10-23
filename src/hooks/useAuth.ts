@@ -32,7 +32,8 @@ export const useAuth = () => {
 
   const login = (data: LoginFormData) => handleAuthAction(authService.login, data);
 
-  const signup = (data: SignupFormData) => handleAuthAction(authService.signup, data);
+  const signup = (data: SignupFormData, inviteToken?: string) =>
+    handleAuthAction((formData) => authService.signup(formData, inviteToken), data);
 
   const resetPassword = (data: ResetPasswordFormData) =>
     handleAuthAction(authService.resetPassword, data);
