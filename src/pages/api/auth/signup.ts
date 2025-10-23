@@ -1,64 +1,44 @@
 import type { APIRoute } from 'astro';
+import { withFeatureFlag } from '../guards/withFeatureFlag';
+import { withCaptcha } from '../guards/withCaptcha';
 import {
-  createSupabaseAdminInstance,
-  createSupabaseServerInstance,
-} from '../../../db/supabase.client';
-import { isFeatureEnabled } from '../../../features/featureFlags';
+  successResponse,
+  errorResponse,
+  validationError,
+  rateLimitError,
+} from '../utils/apiResponse';
+import {
+  createAdminClient,
+  createServerClient,
+  getClientIp,
+  getOrigin,
+  getUserAgent,
+} from '../utils/supabaseHelpers';
 import { PRIVACY_POLICY_VERSION } from '../../../pages/privacy/privacyPolicyVersion';
 import { redeemInvite } from '../../../services/prompt-library/invites';
-import { verifyCaptcha } from '../../../services/captcha';
-import { CF_CAPTCHA_SECRET_KEY } from 'astro:env/server';
 
-export const POST: APIRoute = async ({ request, cookies }) => {
-  // Check if auth feature is enabled
-  if (!isFeatureEnabled('auth')) {
-    return new Response(JSON.stringify({ error: 'Authentication is currently disabled' }), {
-      status: 403,
-    });
-  }
+type SignupBody = {
+  email: string;
+  password: string;
+  privacyPolicyConsent: boolean;
+  inviteToken?: string;
+  captchaToken: string;
+};
 
-  // Store email at top level for error handler access
-  let userEmail: string | undefined;
+export const POST: APIRoute = withFeatureFlag(
+  'auth',
+  withCaptcha<SignupBody>(async ({ body, request, cookies, captchaToken }) => {
+    const { email, password, privacyPolicyConsent, inviteToken } = body;
 
-  try {
-    const { email, password, privacyPolicyConsent, inviteToken, captchaToken } =
-      (await request.json()) as {
-        email: string;
-        password: string;
-        privacyPolicyConsent: boolean;
-        inviteToken?: string;
-        captchaToken: string;
-      };
-
-    userEmail = email; // Store for error handler
-
-    if (!email || !password || !privacyPolicyConsent || !captchaToken) {
-      return new Response(
-        JSON.stringify({
-          error: 'Email, password, privacy policy consent, and captcha token are required',
-        }),
-        { status: 400 },
-      );
+    if (!email || !password || !privacyPolicyConsent) {
+      return validationError('Email, password, and privacy policy consent are required');
     }
 
-    // Verify captcha on backend
-    const requestorIp = request.headers.get('cf-connecting-ip') || '';
-    const captchaResult = await verifyCaptcha(CF_CAPTCHA_SECRET_KEY, captchaToken, requestorIp);
-
-    if (!captchaResult.success) {
-      return new Response(
-        JSON.stringify({
-          error: 'Security verification failed. Please try again.',
-          errorCodes: captchaResult['error-codes'],
-        }),
-        { status: 400 },
-      );
-    }
-
-    const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
+    const supabase = createAdminClient({ cookies, headers: request.headers });
 
     // FIX 3: Check for duplicate signup request (prevents network retry duplicates)
     // Gracefully handle if function doesn't exist yet (gradual rollout)
+    const requestorIp = getClientIp(request);
     try {
       // Use Web Crypto API (compatible with Cloudflare Workers)
       const encoder = new TextEncoder();
@@ -83,12 +63,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       } else if (dedupResult?.is_duplicate) {
         const secondsAgo = dedupResult.seconds_ago || 0;
         const remainingSeconds = Math.max(120 - secondsAgo, 0);
-        return new Response(
-          JSON.stringify({
-            error: `Signup request already ${dedupResult.status}. Please wait ${remainingSeconds} seconds before trying again.`,
-            type: 'duplicate_request',
-          }),
-          { status: 429 },
+        return rateLimitError(
+          `Signup request already ${dedupResult.status}. Please wait ${remainingSeconds} seconds before trying again.`,
+          remainingSeconds,
         );
       }
     } catch (dedupException) {
@@ -138,37 +115,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Handle the action returned by the atomic check
     if (signupCheck.action === 'error') {
-      return new Response(
-        JSON.stringify({
-          error: signupCheck.message,
-          type: signupCheck.type,
-        }),
-        { status: 400 },
-      );
+      return errorResponse(signupCheck.message || 'Signup check failed', 400, {
+        type: signupCheck.type,
+      });
     }
 
     if (signupCheck.action === 'rate_limited') {
       const retryAfter = signupCheck.retry_after || 3600;
       const minutes = Math.ceil(retryAfter / 60);
-      return new Response(
-        JSON.stringify({
-          error: `Verification email already sent recently. Please check your inbox or wait ${minutes} minute${minutes > 1 ? 's' : ''}.`,
-          type: 'rate_limit',
-          retryAfter: retryAfter,
-        }),
-        { status: 429 },
+      return rateLimitError(
+        `Verification email already sent recently. Please check your inbox or wait ${minutes} minute${minutes > 1 ? 's' : ''}.`,
+        retryAfter,
       );
     }
 
     if (signupCheck.action === 'resend') {
       // User exists but unconfirmed, rate limit passed - resend verification
-      const supabaseClient = createSupabaseServerInstance({ cookies, headers: request.headers });
+      const supabaseClient = createServerClient({ cookies, headers: request.headers });
 
       const { error: resendError } = await supabaseClient.auth.resend({
         type: 'signup',
         email: email.toLowerCase(),
         options: {
-          emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
+          emailRedirectTo: `${getOrigin(request)}/auth/verify`,
         },
       });
 
@@ -182,7 +151,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           p_email: email.toLowerCase(),
           p_type: 'resend_verification',
           p_ip_address: requestorIp,
-          p_user_agent: request.headers.get('user-agent'),
+          p_user_agent: getUserAgent(request),
           p_request_path: '/api/auth/signup',
           p_user_id: signupCheck.user_id,
           p_status: resendError ? 'failed' : 'sent',
@@ -205,12 +174,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
 
       // Return success response (same as new signup) to trigger success UI
-      return new Response(
-        JSON.stringify({
-          user: { id: signupCheck.user_id, email: signupCheck.email },
-        }),
-        { status: 200 },
-      );
+      return successResponse({
+        user: { id: signupCheck.user_id, email: signupCheck.email },
+      });
     }
 
     // signupCheck.action === 'create' - proceed with new user creation
@@ -219,16 +185,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${new URL(request.url).origin}/auth/verify`,
+        emailRedirectTo: `${getOrigin(request)}/auth/verify`,
       },
     });
 
     if (authError) {
-      return new Response(JSON.stringify({ error: authError.message }), { status: 400 });
+      return errorResponse(authError.message, 400);
     }
 
     if (!authData.user) {
-      return new Response(JSON.stringify({ error: 'User creation failed' }), { status: 500 });
+      return errorResponse('User creation failed', 500);
     }
 
     // FIX 6: Log email send for new signup (non-blocking)
@@ -237,7 +203,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         p_email: email.toLowerCase(),
         p_type: 'signup_verification',
         p_ip_address: requestorIp,
-        p_user_agent: request.headers.get('user-agent'),
+        p_user_agent: getUserAgent(request),
         p_request_path: '/api/auth/signup',
         p_user_id: authData.user.id,
       });
@@ -264,17 +230,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
 
       if (redemptionResult.success) {
-        return new Response(
-          JSON.stringify({
-            user: authData.user,
-            organization: {
-              id: redemptionResult.organizationId,
-              slug: redemptionResult.organizationSlug,
-              name: redemptionResult.organizationName,
-            },
-          }),
-          { status: 200 },
-        );
+        return successResponse({
+          user: authData.user,
+          organization: {
+            id: redemptionResult.organizationId,
+            slug: redemptionResult.organizationSlug,
+            name: redemptionResult.organizationName,
+          },
+        });
       } else {
         // Log invite redemption failure but don't block signup
         console.error('Failed to redeem invite during signup:', redemptionResult.error);
@@ -292,23 +255,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       console.error('Status update exception (function may not exist yet):', statusException);
     }
 
-    return new Response(JSON.stringify({ user: authData.user }), { status: 200 });
-  } catch (err) {
-    console.error('Signup error:', err);
-
-    // Mark signup as failed (FIX 3) - use stored email variable
-    if (userEmail) {
-      try {
-        const supabase = createSupabaseAdminInstance({ cookies, headers: request.headers });
-        await supabase.rpc('update_signup_status', {
-          p_email: userEmail.toLowerCase(),
-          p_status: 'failed',
-        });
-      } catch (updateErr) {
-        console.error('Failed to update signup status on error:', updateErr);
-      }
-    }
-
-    return new Response(JSON.stringify({ error: 'An unexpected error occurred' }), { status: 500 });
-  }
-};
+    return successResponse({ user: authData.user });
+  }),
+);
