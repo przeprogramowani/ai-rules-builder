@@ -4,8 +4,11 @@ on:
     types: [opened, synchronize, ready_for_review, reopened]
 
 jobs:
-  review:
+  cca-review:
     runs-on: ubuntu-latest
+    # Skip for forked PRs - external contributors don't have access to repository secrets
+    # This prevents the job from failing when secrets.ANTHROPIC_API_KEY is unavailable
+    if: github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read
       pull-requests: write
