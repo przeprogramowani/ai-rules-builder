@@ -20,7 +20,7 @@
     "@vitest/coverage-v8": "^2.0.0",
     "typescript": "^5.5.2",
     "vitest": "^2.0.0",
-    "wrangler": "^4.13.2"
+    "wrangler": "^4.36.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
