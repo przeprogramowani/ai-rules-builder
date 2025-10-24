@@ -10,25 +10,6 @@ import {
 } from "./rate-limit";
 import type { Env } from "./types/bindings";
 
-// Shared DO pool configuration
-const POOL_SIZE = 10; // Use 10 shared DOs to distribute load
-
-/**
- * Hash function for distributing clients across DO pool
- * Uses a simple string hash to convert IP addresses to pool indices
- *
- * @param ip - Client IP address
- * @returns Hash value for pool distribution
- */
-function hashIP(ip: string): number {
-	let hash = 0;
-	for (let i = 0; i < ip.length; i++) {
-		hash = ((hash << 5) - hash) + ip.charCodeAt(i);
-		hash = hash & hash; // Convert to 32-bit integer
-	}
-	return Math.abs(hash);
-}
-
 // Define our MCP agent with tools (no DO-level rate limiting)
 export class MyMCP extends McpAgent {
 	server = new McpServer({
@@ -101,7 +82,7 @@ function validateSSERequest(request: Request): { valid: boolean; error?: string 
  *
  * Handles incoming requests to the MCP server with:
  * - Health check endpoint
- * - IP-based rate limiting (dual-mode during migration)
+ * - IP-based rate limiting
  * - SSE and MCP protocol endpoints
  * - Enhanced request validation
  */
@@ -127,7 +108,7 @@ export default {
 			});
 		}
 
-		// Extract client IP for rate limiting and DO pool routing
+		// Extract client IP for rate limiting
 		let clientIP: string | null = null;
 		if (url.pathname === "/sse" || url.pathname === "/sse/message" || url.pathname === "/mcp") {
 			clientIP = getClientIP(request);
@@ -170,61 +151,15 @@ export default {
 				});
 			}
 
-			// Extract sessionId for session reuse tracking
-			const sessionId = url.searchParams.get("sessionId");
-
-			// Route to shared DO pool instead of creating new DO per client
-			// This reduces DO requests by 90-95% while maintaining functionality
-			if (!clientIP) {
-				clientIP = getClientIP(request);
-			}
-			const poolIndex = hashIP(clientIP) % POOL_SIZE;
-			const poolId = `mcp-pool-${poolIndex}`;
-
-			console.log(`🔀 Routing client ${clientIP} to DO pool instance ${poolIndex} (ID: ${poolId})`);
-
-			// Modify the request URL to include the pool ID as sessionId query parameter
-			// This tells the agents package which specific DO instance to route to
-			const modifiedUrl = new URL(request.url);
-			modifiedUrl.searchParams.set('sessionId', poolId);
-
-			const modifiedRequest = new Request(modifiedUrl.toString(), request);
-			const response = await MyMCP.serveSSE("/sse").fetch(modifiedRequest, env, ctx);
-
-			// If this is a new session (no sessionId provided), add headers to encourage reuse
-			if (!sessionId && response.status === 200) {
-				const newHeaders = new Headers(response.headers);
-				newHeaders.set("X-Session-Reuse", "Save sessionId from URL and reuse for reconnections");
-				newHeaders.set("X-Session-Info", "Reusing sessions reduces server load");
-				newHeaders.set("X-DO-Pool-Index", poolIndex.toString());
-
-				return new Response(response.body, {
-					status: response.status,
-					statusText: response.statusText,
-					headers: newHeaders
-				});
-			}
-
-			return response;
+			// Let the agents package handle natural session management
+			// The MCP client will send Mcp-Session-Id header to reuse sessions
+			return MyMCP.serveSSE("/sse").fetch(request, env, ctx);
 		}
 
 		if (url.pathname === "/mcp") {
-			// Route to shared DO pool instead of creating new DO per client
-			if (!clientIP) {
-				clientIP = getClientIP(request);
-			}
-			const poolIndex = hashIP(clientIP) % POOL_SIZE;
-			const poolId = `mcp-pool-${poolIndex}`;
-
-			console.log(`🔀 Routing client ${clientIP} to DO pool instance ${poolIndex} (MCP, ID: ${poolId})`);
-
-			// Modify the request URL to include the pool ID as sessionId query parameter
-			// This tells the agents package which specific DO instance to route to
-			const modifiedUrl = new URL(request.url);
-			modifiedUrl.searchParams.set('sessionId', poolId);
-
-			const modifiedRequest = new Request(modifiedUrl.toString(), request);
-			return MyMCP.serve("/mcp").fetch(modifiedRequest, env, ctx);
+			// Let the agents package handle natural session management
+			// The MCP client will send Mcp-Session-Id header to reuse sessions
+			return MyMCP.serve("/mcp").fetch(request, env, ctx);
 		}
 
 		// Enhanced 404 response with helpful information
