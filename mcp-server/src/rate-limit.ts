@@ -196,7 +196,10 @@ export function createRateLimitResponse(result: RateLimitResult): Response {
  */
 export function hashIP(ip: string): string {
 	try {
-		return btoa(ip).substring(0, 16);
+		// Ensure fixed 16-character output regardless of input length
+		const base64 = btoa(ip);
+		return (base64 + '================')
+			.substring(0, 16);
 	} catch {
 		return "hash-error";
 	}
